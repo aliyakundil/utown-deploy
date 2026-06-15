@@ -14,6 +14,17 @@
     // "lib": ["esnext"],
     // "types": ["node"],
     // and npm install -D @types/node
+    // "baseUrl": "./src",
+    "ignoreDeprecations": "6.0",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@/types/*": ["./src/types/*"],
+      "@/controllers/*": ["./src/controllers/*"],
+      "@/services/*": ["./src/services/*"],
+      "@/middleware/*": ["./src/middleware/*"],
+      "@/routes/*": ["./src/routes/*"],
+      "@/prisma/*": ["./src/prisma/*"]
+    },
 
     // Other Outputs
     "sourceMap": true,
@@ -40,5 +51,6 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
-  }
+  },
+  "include": ["src"]
 }

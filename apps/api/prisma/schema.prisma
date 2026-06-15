@@ -5,11 +5,10 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
-  provider = "mysql",
+  provider = "mysql"
   url = env("DATABASE_URL")
 }
 
@@ -17,8 +16,8 @@ model User {
   id        Int      @id @default(autoincrement())
   password  String
   name      String
-  phone     String?
-  email     String   @unique
+  phone     String   @unique
+  email     String?  @unique
   city      String?
   address   String?
   role      UserRole @default(CLIENT)
@@ -26,10 +25,15 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  restaurants   Restaurant[]
   orders    Order[]
   favorites Favorite[]
   ratings   RestaurantRating[]
   cart      Cart?
+  notifications Notification[]
+  uploads Upload[]
+
+  refreshToken String?
 }
 
 model Restaurant {
@@ -50,7 +54,10 @@ model Restaurant {
   categories   Category[]
   menuItems    MenuItem[]
   orders       Order[]
-  schedules    RestaurantSchedule[]
+  favorites    Favorite[]
+  ratings      RestaurantRating[]
+  notifications Notification[]
+  carts        Cart[]
 }
 
 model Category {
@@ -76,6 +83,7 @@ model MenuItem {
   category   Category? @relation(fields: [categoryId], references: [id])
 
   orderItems OrderItem[]
+  cartItems CartItem[]
 }
 
 model Order {
@@ -97,6 +105,7 @@ model Order {
   restaurant Restaurant @relation(fields: [restaurantId], references: [id])
 
   items OrderItem[]
+  notifications Notification[]
 }
 
 model OrderItem {
@@ -167,7 +176,7 @@ model Cart {
 
   user       User @relation(fields: [userId], references: [id])
   restaurant Restaurant? @relation(fields: [restaurantId], references: [id])
-  items      CartItem[]
+  items CartItem[]
 }
 
 model CartItem {
