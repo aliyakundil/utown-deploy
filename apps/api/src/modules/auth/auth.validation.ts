@@ -1,11 +1,12 @@
-import type { RegisterDto, LoginDto } from "./auth.types.js";
+import type { RegisterDto, LoginDto, RefreshDto } from "./auth.types.js";
+
+const phoneRegex = /^\+?[0-9]{10,15}$/;
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{9,}$/;
 
 export function validateRegister(data: RegisterDto) {
-  const name = data.name.trim();
-  const phone = data.phone.trim();
+  const name = data.name?.trim();
+  const phone = data.phone?.trim();
   const password = data.password?.trim();
-  const phoneRegex = /^\+?[0-9]{10,15}$/;
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{9,}$/;
   
   if (!name) {
     throw new Error("Name is required");
@@ -23,11 +24,11 @@ export function validateRegister(data: RegisterDto) {
     throw new Error("Invalid phone number format");
   }
   
-  if (!data.password?.trim()) {
+  if (!password) {
     throw new Error("Password is required")
   }
   
-  if (!passwordRegex.test(data.password)) {
+  if (!passwordRegex.test(password)) {
     throw new Error(
       "Password must contain at least 9 characters, one uppercase letter and one digit"
     );
@@ -38,7 +39,6 @@ export function validateRegister(data: RegisterDto) {
 
 export function validateLogin(data: LoginDto) {
   const phone = data.phone.trim();
-  const phoneRegex = /^\+?[0-9]{10,15}$/;
   const password = data.password?.trim();
   
   if (!phone) {
@@ -54,4 +54,12 @@ export function validateLogin(data: LoginDto) {
   }
 
   return { phone, password };
+}
+
+export function validateRefresh(data: RefreshDto) {
+  const refreshToken = data.refreshToken?.trim();
+  if (!refreshToken) {
+    throw new Error("Refresh token is required");
+  }
+  return { refreshToken };
 }

@@ -1,8 +1,9 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { prisma } from "../../db/prisma.js";
-import type { RegisterDto, LoginDto, JwtPayload, UserRole, AuthResponse } from "./auth.types.js";
+import type { RegisterDto, LoginDto, JwtPayload, AuthResponse, RefreshTokenResponse } from "./auth.types.js";
 import { validateRegister, validateLogin } from "./auth.validation.js";
+import type { UserRole } from "@prisma/client";
 
 function getEnv(name: string): string {
   const value = process.env[name];
@@ -12,10 +13,6 @@ function getEnv(name: string): string {
 
 const ACCESS_SECRET = getEnv("ACCESS_TOKEN_SECRET");
 const REFRESH_SECRET = getEnv("REFRESH_TOKEN_SECRET");
-
-if (!ACCESS_SECRET || !REFRESH_SECRET) {
-  throw new Error("Missing JWT secrets in .env");
-}
 
 export function generateAccessToken(payload: JwtPayload) {
   return jwt.sign(payload, ACCESS_SECRET, {
@@ -49,7 +46,7 @@ export async function register(data: RegisterDto): Promise<AuthResponse> {
     throw new Error("Phone number already exists");
   }
 
-  const hashedPassword = await bcrypt.hash(data.password, 10);
+  const hashedPassword = await bcrypt.hash(password, 10);
 
   const user = await prisma.$transaction(async (tx) => {
     const createdUser = await tx.user.create({
@@ -103,7 +100,7 @@ export async function login(data: LoginDto): Promise<AuthResponse> {
   }
 
   const isPasswordValid = await bcrypt.compare(
-    data.password,
+    password,
     user.password
   )
 
@@ -131,41 +128,38 @@ export async function login(data: LoginDto): Promise<AuthResponse> {
   };
 }
 
-export async function refresh(token: string): Promise<Pick<AuthResponse, "accessToken" | "refreshToken">> {
+export async function refresh(token: string): Promise<RefreshTokenResponse> {
   if (!token) {
     throw new Error("Refresh token is required");
   }
-
-  let decoded: JwtPayload;;
-
+  let decoded: JwtPayload;
   try {
-    decoded = jwt.verify(
-      token,
-      process.env.REFRESH_TOKEN_SECRET!
-    ) as JwtPayload;
+    const verified = jwt.verify(token, REFRESH_SECRET);
+    if (
+      typeof verified !== "object" ||
+      verified === null ||
+      typeof verified.id !== "number" ||
+      typeof verified.role !== "string"
+    ) {
+      throw new Error("Invalid refresh token payload");
+    }
+    decoded = verified as JwtPayload;
   } catch {
     throw new Error("Invalid refresh token");
   }
-
   const user = await prisma.user.findUnique({
-    where: {
-      id: decoded.id,
-    },
+    where: { id: decoded.id },
   });
-
   if (!user || user.refreshToken !== token) {
     throw new Error("Invalid refresh token");
   }
-
-  const tokens = issueTokens(user.id, user.role as UserRole);
-
+  const tokens = issueTokens(user.id, user.role);
   await prisma.user.update({
     where: { id: user.id },
     data: {
       refreshToken: tokens.refreshToken,
     },
   });
-
   return tokens;
 }
 
@@ -180,4 +174,26 @@ export async function logout(userId: number) {
   return {
     success: true,
   };
+}
+
+export async function getCurrentUser(userId: number) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      name: true,
+      phone: true,
+      email: true,
+      city: true,
+      address: true,
+      imageUrl: true,
+      role: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+  if (!user) {
+    throw new Error("User not found");
+  }
+  return user;
 }

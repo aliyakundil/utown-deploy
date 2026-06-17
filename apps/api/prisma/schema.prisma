@@ -43,7 +43,7 @@ model Restaurant {
   description  String?
   address      String?
   phone        String?
-  status       StatusRestaurants
+  status       StatusRestaurants @default(OPEN)
   imageUrl     String?
   minimumOrder Decimal? @db.Decimal(10, 2)
   createdAt    DateTime @default(now())
@@ -94,6 +94,10 @@ model Order {
   totalPrice        Decimal @db.Decimal(10, 2)
   deliveryAddress   String?
   customerNote      String?
+  customerPhone     String?
+
+  paymentMethod     PaymentMethod @default(CASH)
+  paymentStatus     PaymentStatus @default(PENDING)
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -114,6 +118,7 @@ model OrderItem {
   menuItemId  Int
   quantity    Int
   price       Decimal @db.Decimal(10, 2)
+  itemName    String
 
   updatedAt DateTime @updatedAt
 
@@ -131,6 +136,7 @@ model Favorite {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  @@unique([userId, restaurantId])
 }
 
 model RestaurantRating {
@@ -144,6 +150,7 @@ model RestaurantRating {
 
   user       User @relation(fields: [userId], references: [id])
   restaurant Restaurant @relation(fields: [restaurantId], references: [id])
+  @@unique([userId, restaurantId])
 }
 
 model Notification {
@@ -191,6 +198,7 @@ model CartItem {
 
   cart     Cart @relation(fields: [cartId], references: [id])
   menuItem MenuItem @relation(fields: [menuItemId], references: [id])
+  @@unique([cartId, menuItemId])
 }
 
 model Upload {
@@ -235,4 +243,14 @@ enum NotificationType {
   ORDER_CANCELLED
   NEW_RATING
   SYSTEM
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+}
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
 }
