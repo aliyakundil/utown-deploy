@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { UserRole } from "@prisma/client";
 import type { Request, Response, NextFunction } from "express";
 import type { JwtPayload } from "../modules/auth/auth.types.js";
 
@@ -63,4 +64,20 @@ export function authenticateToken(
       error: "Invalid token",
     });
   }
+}
+
+export function requireRole(role: UserRole) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const user = req.user;
+
+    if (!user) {
+      return res.status(401).json({ success: false, error: "Unauthorized" });
+    }
+
+    if (user.role !== role) {
+      return res.status(403).json({ success: false, error: "Forbidden" });
+    }
+
+    next();
+  };
 }
