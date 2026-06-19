@@ -66,16 +66,14 @@ export function authenticateToken(
   }
 }
 
-export function requireRole(role: UserRole) {
+export function requireRoles(...roles: string[]) {
   return (req: Request, res: Response, next: NextFunction) => {
-    const user = req.user;
-
-    if (!user) {
-      return res.status(401).json({ success: false, error: "Unauthorized" });
+    if (!req.user) {
+      return res.sendStatus(401);
     }
 
-    if (user.role !== role) {
-      return res.status(403).json({ success: false, error: "Forbidden" });
+    if (!roles.includes(req.user.role)) {
+      return res.sendStatus(403);
     }
 
     next();
