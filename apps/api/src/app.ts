@@ -7,6 +7,7 @@ import categoryRoutes from "./modules/categories/category.routes.js";
 import menuItemRoutes from "./modules/menu-items/menu-item.routes.js";
 import cartRoutes from "./modules/cart/cart.routes.js";
 import orderRoutes from "./modules/orders/order.routes.js";
+import favoritRoutes from "./modules/favorites/favorite.routes.js";
 
 const app = express();
 
@@ -20,5 +21,6 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/menu-items", menuItemRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/favorites", favoritRoutes);
 
 export default app;
