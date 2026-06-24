@@ -12,7 +12,9 @@ export function validateCreateCategory(data: CreateCategorytDto) {
   }
 
   return {
-    name
+    name,
+    imageUrl: data.imageUrl?.trim(),
+    priority: data.priority,
   };
 }
 

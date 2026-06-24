@@ -31,11 +31,17 @@ export async function createCategory(
   }
 
   return prisma.category.create({
-    data: {
-      restaurantId,
-      name: validatedData.name,
-    },
-  });
+  data: {
+    restaurantId,
+    name: validatedData.name,
+    ...(validatedData.imageUrl !== undefined && {
+      imageUrl: validatedData.imageUrl,
+    }),
+    ...(validatedData.priority !== undefined && {
+      priority: validatedData.priority,
+    }),
+  },
+});
 }
 
 export async function getCategories() {
