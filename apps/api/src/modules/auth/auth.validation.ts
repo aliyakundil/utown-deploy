@@ -40,11 +40,11 @@ export function validateRegister(data: RegisterDto) {
 }
 
 export function validateLogin(data: LoginDto) {
-  const phone = data.phone.trim();
+  const phone = data.phone?.trim();
   const password = data.password?.trim();
-  
+
   if (!phone) {
-    throw new Error("Invalid phone number")
+    throw new Error("Phone is required");
   }
 
   if (!phoneRegex.test(phone)) {
@@ -56,12 +56,4 @@ export function validateLogin(data: LoginDto) {
   }
 
   return { phone, password };
-}
-
-export function validateRefresh(data: RefreshDto) {
-  const refreshToken = data.refreshToken?.trim();
-  if (!refreshToken) {
-    throw new Error("Refresh token is required");
-  }
-  return { refreshToken };
 }

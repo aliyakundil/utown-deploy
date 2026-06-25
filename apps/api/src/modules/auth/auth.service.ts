@@ -4,6 +4,7 @@ import { prisma } from "../../db/prisma.js";
 import type { RegisterDto, LoginDto, JwtPayload, AuthResponse, RefreshTokenResponse } from "./auth.types.js";
 import { validateRegister, validateLogin } from "./auth.validation.js";
 import type { UserRole } from "@prisma/client";
+import crypto from "node:crypto";
 
 function getEnv(name: string): string {
   const value = process.env[name];
@@ -33,6 +34,13 @@ function issueTokens(userId: number, role: UserRole) {
     accessToken: generateAccessToken(payload),
     refreshToken: generateRefreshToken(payload),
   };
+}
+
+function hashRefreshToken(token: string): string {
+  return crypto
+    .createHash("sha256")
+    .update(token)
+    .digest("hex");
 }
 
 export async function register(data: RegisterDto): Promise<AuthResponse> {
@@ -72,7 +80,7 @@ export async function register(data: RegisterDto): Promise<AuthResponse> {
   await prisma.user.update({
     where: { id: user.id },
     data: {
-      refreshToken: tokens.refreshToken,
+      refreshToken: hashRefreshToken(tokens.refreshToken),
     },
   });
 
@@ -114,7 +122,7 @@ export async function login(data: LoginDto): Promise<AuthResponse> {
   await prisma.user.update({
     where: { id: user.id },
     data: {
-      refreshToken: tokens.refreshToken,
+      refreshToken: hashRefreshToken(tokens.refreshToken),
     },
   });
 
@@ -151,17 +159,21 @@ export async function refresh(token: string): Promise<RefreshTokenResponse> {
   const user = await prisma.user.findUnique({
     where: { id: decoded.id },
   });
-  if (!user || user.refreshToken !== token) {
+  const hashedToken = hashRefreshToken(token);
+  if (!user || user.refreshToken !== hashedToken) {
     throw new Error("Invalid refresh token");
   }
   const tokens = issueTokens(user.id, user.role);
   await prisma.user.update({
     where: { id: user.id },
     data: {
-      refreshToken: tokens.refreshToken,
+      refreshToken: hashRefreshToken(tokens.refreshToken),
     },
   });
-  return tokens;
+  return {
+    accessToken: tokens.accessToken,
+    refreshToken: tokens.refreshToken,
+  };
 }
 
 export async function logout(userId: number) {
