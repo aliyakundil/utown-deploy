@@ -36,7 +36,7 @@ function issueTokens(userId: number, role: UserRole) {
 }
 
 export async function register(data: RegisterDto): Promise<AuthResponse> {
-  const { name, phone, password } = validateRegister(data);
+  const { name, phone, password, role } = validateRegister(data);
 
   const existingPhone = await prisma.user.findUnique({
     where: { phone },
@@ -53,6 +53,7 @@ export async function register(data: RegisterDto): Promise<AuthResponse> {
       data: {
         name,
         phone,
+        role: role ?? "CLIENT",
         password: hashedPassword
       }
     })
@@ -196,4 +197,16 @@ export async function getCurrentUser(userId: number) {
     throw new Error("User not found");
   }
   return user;
+}
+
+export async function deleteMyAccount(userId: number) {
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      deletedAt: new Date(),
+      refreshToken: null,
+    },
+  });
+
+  return { success: true };
 }

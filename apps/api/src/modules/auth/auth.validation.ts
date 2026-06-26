@@ -7,6 +7,8 @@ export function validateRegister(data: RegisterDto) {
   const name = data.name?.trim();
   const phone = data.phone?.trim();
   const password = data.password?.trim();
+  const role = data.role;
+
   
   if (!name) {
     throw new Error("Name is required");
@@ -34,7 +36,7 @@ export function validateRegister(data: RegisterDto) {
     );
   }
 
-  return { name, phone, password };
+  return { name, phone, password, role };
 }
 
 export function validateLogin(data: LoginDto) {
