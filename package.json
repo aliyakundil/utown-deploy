@@ -18,6 +18,8 @@
   },
   "homepage": "https://github.com/Habsida-Projects/utown-monorepo-may29#readme",
   "dependencies": {
+    "@prisma/client": "^6.11.1",
+    "prisma": "^6.11.1",
     "socket.io": "^4.8.3",
     "swagger-ui-express": "^5.0.1"
   },

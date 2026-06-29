@@ -5,11 +5,10 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
-  provider = "mysql",
+  provider = "mysql"
   url = env("DATABASE_URL")
 }
 
@@ -17,19 +16,26 @@ model User {
   id        Int      @id @default(autoincrement())
   password  String
   name      String
-  phone     String?
-  email     String   @unique
+  phone     String   @unique
+  email     String?  @unique
   city      String?
   address   String?
   role      UserRole @default(CLIENT)
   imageUrl  String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  deletedAt DateTime?
 
+  restaurants   Restaurant[]
   orders    Order[]
   favorites Favorite[]
   ratings   RestaurantRating[]
   cart      Cart?
+  notifications Notification[]
+  uploads Upload[]
+
+  refreshToken String?
 }
 
 model Restaurant {
@@ -39,7 +45,7 @@ model Restaurant {
   description  String?
   address      String?
   phone        String?
-  status       StatusRestaurants
+  status       StatusRestaurants @default(OPEN)
   imageUrl     String?
   minimumOrder Decimal? @db.Decimal(10, 2)
   createdAt    DateTime @default(now())
@@ -50,13 +56,19 @@ model Restaurant {
   categories   Category[]
   menuItems    MenuItem[]
   orders       Order[]
-  schedules    RestaurantSchedule[]
+  favorites    Favorite[]
+  ratings      RestaurantRating[]
+  notifications Notification[]
+  carts        Cart[]
 }
 
 model Category {
   id           Int @id @default(autoincrement())
   restaurantId Int
   name         String
+
+  imageUrl     String?
+  priority     Int @default(0)
 
   restaurant Restaurant @relation(fields: [restaurantId], references: [id])
   menuItems  MenuItem[]
@@ -65,17 +77,20 @@ model Category {
 model MenuItem {
   id           Int @id @default(autoincrement())
   restaurantId Int
-  categoryId   Int?
+  categoryId   Int
+
   name         String
   description  String?
-  price        Decimal? @db.Decimal(10, 2)
+  price        Decimal @db.Decimal(10, 2)
+
   imageUrl     String?
   isAvailable  Boolean @default(true)
 
   restaurant Restaurant @relation(fields: [restaurantId], references: [id])
-  category   Category? @relation(fields: [categoryId], references: [id])
+  category   Category @relation(fields: [categoryId], references: [id])
 
   orderItems OrderItem[]
+  cartItems CartItem[]
 }
 
 model Order {
@@ -86,6 +101,10 @@ model Order {
   totalPrice        Decimal @db.Decimal(10, 2)
   deliveryAddress   String?
   customerNote      String?
+  customerPhone     String?
+
+  paymentMethod     PaymentMethod @default(CASH)
+  paymentStatus     PaymentStatus @default(PENDING)
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -97,6 +116,7 @@ model Order {
   restaurant Restaurant @relation(fields: [restaurantId], references: [id])
 
   items OrderItem[]
+  notifications Notification[]
 }
 
 model OrderItem {
@@ -105,6 +125,7 @@ model OrderItem {
   menuItemId  Int
   quantity    Int
   price       Decimal @db.Decimal(10, 2)
+  itemName    String
 
   updatedAt DateTime @updatedAt
 
@@ -122,6 +143,7 @@ model Favorite {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  @@unique([userId, restaurantId])
 }
 
 model RestaurantRating {
@@ -135,6 +157,7 @@ model RestaurantRating {
 
   user       User @relation(fields: [userId], references: [id])
   restaurant Restaurant @relation(fields: [restaurantId], references: [id])
+  @@unique([userId, restaurantId])
 }
 
 model Notification {
@@ -167,7 +190,7 @@ model Cart {
 
   user       User @relation(fields: [userId], references: [id])
   restaurant Restaurant? @relation(fields: [restaurantId], references: [id])
-  items      CartItem[]
+  items CartItem[]
 }
 
 model CartItem {
@@ -182,6 +205,7 @@ model CartItem {
 
   cart     Cart @relation(fields: [cartId], references: [id])
   menuItem MenuItem @relation(fields: [menuItemId], references: [id])
+  @@unique([cartId, menuItemId])
 }
 
 model Upload {
@@ -226,4 +250,14 @@ enum NotificationType {
   ORDER_CANCELLED
   NEW_RATING
   SYSTEM
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+}
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
 }

@@ -1,11 +1,15 @@
-import express from "express";
+import app from "./app.js";
+import path from "path";
+import dotenv from "dotenv";
 
-const app = express();
+dotenv.config({ path: path.resolve(process.cwd(), ".env") }); 
+
+const PORT = process.env.PORT || 3000;
 
 app.get("/", (_,res) => {
 	res.send("UTOWN API is running");
 });
 
-app.listen(3001, () => {
-	console.log("Server started on port 3001");
+app.listen(PORT, () => {
+  console.log(`Server started on port ${PORT}`);
 });
