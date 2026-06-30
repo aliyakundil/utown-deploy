@@ -11,6 +11,7 @@ import favoritRoutes from "./modules/favorites/favorite.routes.js";
 import ratingRoutes from "./modules/ratings/rating.routes.js";
 import notificationRoutes from "./modules/notifications/notification.route.js";
 import userRoutes from "./modules/users/user.routes.js";
+import paymentRoutes from "./modules/payments/payment.routes.js";
 
 const app = express();
 
@@ -28,5 +29,6 @@ app.use("/api/favorites", favoritRoutes);
 app.use("/api/ratings", ratingRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/payments", paymentRoutes);
 
 export default app;

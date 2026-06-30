@@ -166,3 +166,9 @@ npm run prisma:studio
 - GET /api/users/me
 - PATCH /api/users/me
 - DELETE /api/users/me
+
+### Payments
+
+- POST /api/payments/order/:orderId
+- GET /api/payments/order/:orderId
+- PATCH /api/payments/order/:orderId
