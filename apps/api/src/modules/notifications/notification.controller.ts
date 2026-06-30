@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import * as notificationService from "./notigication.service.js";
+import * as notificationService from "./notification.service.js";
 
 export async function getNotifications(
   req: Request,
