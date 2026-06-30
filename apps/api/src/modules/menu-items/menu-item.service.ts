@@ -2,7 +2,7 @@ import { UserRole } from "@prisma/client";
 import { prisma } from "../../db/prisma.js";
 
 import type { CreateMenuItemDto, UpdateMenuItemDto } from "./menu-item.types.js";
-import { validateCreateMenuItem, validateUpdateMenuItem } from "./menu-item.validayion.js";
+import { validateCreateMenuItem, validateUpdateMenuItem } from "./menu-item.validation.js";
 
 export async function createMenuItem(
   categoryId: number,
