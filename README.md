@@ -172,3 +172,19 @@ npm run prisma:studio
 - POST /api/payments/order/:orderId
 - GET /api/payments/order/:orderId
 - PATCH /api/payments/order/:orderId
+
+### Uploads
+
+#### Installation
+
+```bash
+npm install multer
+npm install -D @types/multer
+```
+
+#### Endpoints
+
+- POST /api/uploads
+- GET /api/uploads
+- GET /api/uploads/:id
+- DELETE /api/uploads/:id

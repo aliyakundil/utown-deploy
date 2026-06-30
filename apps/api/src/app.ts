@@ -1,5 +1,6 @@
 import express from "express";
 import morgan from "morgan";
+import path from "path";
 import authRoutes from "./modules/auth/auth.routes.js";
 import adminhRoutes from "./modules/admin/admin.routes.js";
 import restaurantRoutes from "./modules/restaurants/restaurant.routes.js";
@@ -12,6 +13,7 @@ import ratingRoutes from "./modules/ratings/rating.routes.js";
 import notificationRoutes from "./modules/notifications/notification.route.js";
 import userRoutes from "./modules/users/user.routes.js";
 import paymentRoutes from "./modules/payments/payment.routes.js";
+import uploadRoutes from "./modules/uploads/upload.routes.js";
 
 const app = express();
 
@@ -30,5 +32,10 @@ app.use("/api/ratings", ratingRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/uploads", uploadRoutes);
+app.use(
+  "/uploads",
+  express.static(path.resolve("uploads"))
+);
 
 export default app;
