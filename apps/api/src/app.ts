@@ -8,6 +8,9 @@ import menuItemRoutes from "./modules/menu-items/menu-item.routes.js";
 import cartRoutes from "./modules/cart/cart.routes.js";
 import orderRoutes from "./modules/orders/order.routes.js";
 import favoritRoutes from "./modules/favorites/favorite.routes.js";
+import ratingRoutes from "./modules/ratings/rating.routes.js";
+import notificationRoutes from "./modules/notifications/notification.route.js";
+import userRoutes from "./modules/users/user.routes.js";
 
 const app = express();
 
@@ -22,5 +25,8 @@ app.use("/api/menu-items", menuItemRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/favorites", favoritRoutes);
+app.use("/api/ratings", ratingRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/users", userRoutes);
 
 export default app;
