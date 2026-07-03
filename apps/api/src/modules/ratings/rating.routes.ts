@@ -1,16 +1,8 @@
 import { Router } from "express";
 import * as ratingController from "./rating.controller.js";
 import { authenticateToken } from "../../middleware/auth.middleware.js";
-console.log("RATINGS ROUTER LOADED");
+
 const router = Router();
-
-router.get("/test", (req, res) => {
-  res.json({ ok: true });
-});
-
-router.post("/test", (req, res) => {
-  res.json({ ok: true });
-});
 
 router.post(
   "/restaurant/:restaurantId",

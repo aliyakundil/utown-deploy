@@ -1,6 +1,34 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "../../db/prisma.js";
 import type { CreateRatingDto } from "./rating.types.js";
 import { validateCreateRating } from "./rating.validation.js";
+
+async function updateRestaurantRatingStats(
+  tx: Prisma.TransactionClient,
+  restaurantId: number
+) {
+  const stats = await tx.restaurantRating.aggregate({
+    where: {
+      restaurantId,
+    },
+    _avg: {
+      rating: true,
+    },
+    _count: {
+      rating: true,
+    },
+  });
+
+  await tx.restaurant.update({
+    where: {
+      id: restaurantId,
+    },
+    data: {
+      averageRating: stats._avg.rating ?? 0,
+      ratingsCount: stats._count.rating,
+    },
+  });
+}
 
 export async function createRating(
   userId: number,
@@ -46,14 +74,23 @@ export async function createRating(
     throw new Error("You have already rated this restaurant");
   }
 
-  return prisma.restaurantRating.create({
-    data: {
-      userId,
-      restaurantId,
-      rating: validatedData.rating,
-      comment: validatedData.comment ?? null,
-    },
-  });
+  return prisma.$transaction(async (tx) => {
+    const createdRating = await tx.restaurantRating.create({
+      data: {
+        userId,
+        restaurantId,
+        rating: validatedData.rating,
+        comment: validatedData.comment ?? null,
+      },
+    });
+
+    await updateRestaurantRatingStats(
+      tx,
+      restaurantId
+    );
+
+    return createdRating;
+  })
 }
 
 export async function getRatings(
@@ -100,15 +137,25 @@ export async function updateRating(
     throw new Error("Rating not found");
   }
 
-  return prisma.restaurantRating.update({
-    where: {
-      id: rating.id,
-    },
-    data: {
-      rating: validatedData.rating,
-      comment:
-        validatedData.comment ?? null,
-    },
+  return prisma.$transaction(async (tx) => {
+    const updatedRating =
+      await tx.restaurantRating.update({
+        where: {
+          id: rating.id,
+        },
+        data: {
+          rating: validatedData.rating,
+          comment:
+            validatedData.comment ?? null,
+        },
+      });
+
+    await updateRestaurantRatingStats(
+      tx,
+      restaurantId
+    );
+
+    return updatedRating;
   });
 }
 
@@ -130,14 +177,21 @@ export async function deleteRating(
     throw new Error("Rating not found");
   }
 
-  await prisma.restaurantRating.delete({
-    where: {
-      id: rating.id,
-    },
-  });
+  return prisma.$transaction(async (tx) => {
+    await tx.restaurantRating.delete({
+      where: {
+        id: rating.id,
+      },
+    });
 
-  return {
-    success: true,
-  };
+    await updateRestaurantRatingStats(
+      tx,
+      restaurantId
+    );
+
+    return {
+      success: true,
+    };
+  });
 }
 
