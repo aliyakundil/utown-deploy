@@ -90,8 +90,6 @@ npm run prisma:studio
 - POST /api/auth/login
 - POST /api/auth/refresh
 - POST /api/auth/logout
-- GET /api/auth/me
-- DELETE /api/auth/me
 
 ### Admin
 

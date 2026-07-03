@@ -188,37 +188,3 @@ export async function logout(userId: number) {
     success: true,
   };
 }
-
-export async function getCurrentUser(userId: number) {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      id: true,
-      name: true,
-      phone: true,
-      email: true,
-      city: true,
-      address: true,
-      imageUrl: true,
-      role: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-  });
-  if (!user) {
-    throw new Error("User not found");
-  }
-  return user;
-}
-
-export async function deleteMyAccount(userId: number) {
-  await prisma.user.update({
-    where: { id: userId },
-    data: {
-      deletedAt: new Date(),
-      refreshToken: null,
-    },
-  });
-
-  return { success: true };
-}
