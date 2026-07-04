@@ -18,10 +18,4 @@ router.get(
   paymentController.getPayment
 );
 
-router.patch(
-  "/order/:orderId",
-  authenticateToken,
-  paymentController.updatePayment
-);
-
 export default router;

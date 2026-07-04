@@ -169,4 +169,3 @@ npm run prisma:studio
 
 - POST /api/payments/order/:orderId
 - GET /api/payments/order/:orderId
-- PATCH /api/payments/order/:orderId

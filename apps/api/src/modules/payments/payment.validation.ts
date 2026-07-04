@@ -1,6 +1,5 @@
 import type {
-  CreatePaymentDto,
-  UpdatePaymentDto,
+  CreatePaymentDto
 } from "./payment.types.js";
 
 export function validateCreatePayment(
@@ -12,17 +11,5 @@ export function validateCreatePayment(
 
   return {
     paymentMethod: data.paymentMethod,
-  };
-}
-
-export function validateUpdatePayment(
-  data: UpdatePaymentDto
-) {
-  if (!data.paymentStatus) {
-    throw new Error("Payment status is required");
-  }
-
-  return {
-    paymentStatus: data.paymentStatus,
   };
 }

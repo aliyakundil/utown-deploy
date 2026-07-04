@@ -1,12 +1,7 @@
 import {
-  PaymentMethod,
-  PaymentStatus,
+  PaymentMethod
 } from "@prisma/client";
 
 export interface CreatePaymentDto {
   paymentMethod: PaymentMethod;
-}
-
-export interface UpdatePaymentDto {
-  paymentStatus: PaymentStatus;
 }
