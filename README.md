@@ -90,8 +90,6 @@ npm run prisma:studio
 - POST /api/auth/login
 - POST /api/auth/refresh
 - POST /api/auth/logout
-- GET /api/auth/me
-- DELETE /api/auth/me
 
 ### Admin
 
@@ -166,3 +164,8 @@ npm run prisma:studio
 - GET /api/users/me
 - PATCH /api/users/me
 - DELETE /api/users/me
+
+### Payments
+
+- POST /api/payments/order/:orderId
+- GET /api/payments/order/:orderId
