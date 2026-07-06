@@ -1,24 +1,23 @@
 import { prisma } from "../../db/prisma.js";
 
 import type {
-  CreatePaymentDto,
-  UpdatePaymentDto,
+  CreatePaymentDto
 } from "./payment.types.js";
 
 import {
-  validateCreatePayment,
-  validateUpdatePayment,
+  validateCreatePayment
 } from "./payment.validation.js";
 
 export async function createPayment(
   orderId: number,
+  userId: number,
   data: CreatePaymentDto
 ) {
   const validatedData = validateCreatePayment(data);
 
   const order = await prisma.order.findUnique({
     where: {
-      id: orderId,
+      id: orderId
     },
   });
 
@@ -34,9 +33,13 @@ export async function createPayment(
     throw new Error("Order has already been paid");
   }
 
+  if (order.userId !== userId) {
+    throw new Error("Forbidden");
+  }
+
   return prisma.order.update({
     where: {
-      id: orderId,
+      id: orderId
     },
     data: {
       paymentMethod: validatedData.paymentMethod,
@@ -46,7 +49,8 @@ export async function createPayment(
 }
 
 export async function getPayment(
-  orderId: number
+  orderId: number,
+  userId: number
 ) {
   const order = await prisma.order.findUnique({
     where: {
@@ -54,6 +58,7 @@ export async function getPayment(
     },
     select: {
       id: true,
+      userId: true,
       paymentMethod: true,
       paymentStatus: true,
       totalPrice: true,
@@ -64,39 +69,9 @@ export async function getPayment(
     throw new Error("Order not found");
   }
 
+  if (order.userId !== userId) {
+    throw new Error("Forbidden");
+  }
+
   return order;
-}
-
-export async function updatePayment(
-  orderId: number,
-  data: UpdatePaymentDto
-) {
-  const validatedData = validateUpdatePayment(data);
-
-  const order = await prisma.order.findUnique({
-    where: {
-      id: orderId,
-    },
-  });
-
-  if (!order) {
-    throw new Error("Order not found");
-  }
-
-  if (order.status === "CANCELLED") {
-    throw new Error("Cancelled order cannot be paid");
-  }
-
-  if (order.paymentStatus === "PAID") {
-    throw new Error("Order has already been paid");
-  }
-
-  return prisma.order.update({
-    where: {
-      id: orderId,
-    },
-    data: {
-      paymentStatus: validatedData.paymentStatus,
-    },
-  });
 }

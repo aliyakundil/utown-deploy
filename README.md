@@ -90,8 +90,6 @@ npm run prisma:studio
 - POST /api/auth/login
 - POST /api/auth/refresh
 - POST /api/auth/logout
-- GET /api/auth/me
-- DELETE /api/auth/me
 
 ### Admin
 
@@ -172,19 +170,3 @@ npm run prisma:studio
 - POST /api/payments/order/:orderId
 - GET /api/payments/order/:orderId
 - PATCH /api/payments/order/:orderId
-
-### Uploads
-
-#### Installation
-
-```bash
-npm install multer
-npm install -D @types/multer
-```
-
-#### Endpoints
-
-- POST /api/uploads
-- GET /api/uploads
-- GET /api/uploads/:id
-- DELETE /api/uploads/:id

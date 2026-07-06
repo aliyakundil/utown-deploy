@@ -7,10 +7,19 @@ export async function createPayment(
 ) {
   try {
     const orderId = Number(req.params.orderId);
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        error: "Unauthorized",
+      });
+    }
 
     const result =
       await paymentService.createPayment(
         orderId,
+        userId,
         req.body
       );
 
@@ -35,38 +44,19 @@ export async function getPayment(
 ) {
   try {
     const orderId = Number(req.params.orderId);
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        error: "Unauthorized",
+      });
+    }
 
     const result =
       await paymentService.getPayment(
-        orderId
-      );
-
-    return res.status(200).json({
-      success: true,
-      data: result,
-    });
-  } catch (error) {
-    return res.status(400).json({
-      success: false,
-      error:
-        error instanceof Error
-          ? error.message
-          : "Unknown error",
-    });
-  }
-}
-
-export async function updatePayment(
-  req: Request,
-  res: Response
-) {
-  try {
-    const orderId = Number(req.params.orderId);
-
-    const result =
-      await paymentService.updatePayment(
         orderId,
-        req.body
+        userId
       );
 
     return res.status(200).json({
