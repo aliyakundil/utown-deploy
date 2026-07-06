@@ -14,6 +14,7 @@ import notificationRoutes from "./modules/notifications/notification.route.js";
 import userRoutes from "./modules/users/user.routes.js";
 import paymentRoutes from "./modules/payments/payment.routes.js";
 import uploadRoutes from "./modules/uploads/upload.routes.js";
+import { errorHandler } from "./middleware/error.middleware.js";
 
 const app = express();
 
@@ -37,5 +38,7 @@ app.use(
   "/uploads",
   express.static(path.resolve("uploads"))
 );
+
+app.use(errorHandler);
 
 export default app;

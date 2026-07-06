@@ -1,4 +1,5 @@
 import { prisma } from "../../db/prisma.js";
+import { unlink } from "node:fs/promises";
 
 import type { CreateUploadDto } from "./upload.types.js";
 
@@ -8,15 +9,21 @@ export async function createUpload(
   userId: number,
   file: Express.Multer.File
 ) {
+  const uploadData: CreateUploadDto = {
+    fileName: file.filename,
+    originalName: file.originalname,
+    mimeType: file.mimetype,
+    fileSize: file.size,
+    filePath: file.path,
+  };
+
+  const validatedData =
+    validateCreateUpload(uploadData);
+
   return prisma.upload.create({
     data: {
       userId,
-
-      fileName: file.filename,
-      originalName: file.originalname,
-      mimeType: file.mimetype,
-      fileSize: file.size,
-      filePath: file.path,
+      ...validatedData,
     },
   });
 }
@@ -65,6 +72,12 @@ export async function deleteUpload(
 
   if (!upload) {
     throw new Error("File not found");
+  }
+
+  try {
+    await unlink(upload.filePath);
+  } catch {
+    // Файл уже отсутствует
   }
 
   await prisma.upload.delete({
