@@ -15,6 +15,8 @@ import userRoutes from "./modules/users/user.routes.js";
 import paymentRoutes from "./modules/payments/payment.routes.js";
 import uploadRoutes from "./modules/uploads/upload.routes.js";
 import { errorHandler } from "./middleware/error.middleware.js";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./swagger/swagger.js";
 
 const app = express();
 
@@ -37,6 +39,12 @@ app.use("/api/uploads", uploadRoutes);
 app.use(
   "/uploads",
   express.static(path.resolve("uploads"))
+);
+
+app.use(
+  "/api/docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec)
 );
 
 app.use(errorHandler);

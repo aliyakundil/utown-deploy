@@ -137,7 +137,7 @@ npm run prisma:studio
 - GET /api/orders
 - GET /api/orders/:id
 - PATCH /api/orders/:id/status
-- DELETE /api/orders/:id
+- PATCH /api/orders/:id/cancel
 
 ### Favorites
 
@@ -169,3 +169,17 @@ npm run prisma:studio
 
 - POST /api/payments/order/:orderId
 - GET /api/payments/order/:orderId
+
+### Swagger
+
+## Установка
+
+```bash
+npm install swagger-ui-express swagger-jsdoc
+npm install -D @types/swagger-ui-express
+npm install -D @types/swagger-jsdoc
+```
+
+### Запуск
+
+http://localhost:3000/api/docs

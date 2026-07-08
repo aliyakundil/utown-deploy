@@ -90,6 +90,36 @@ export async function addToCart(
   });
 }
 
+export async function getCart(userId: number) {
+  const cart = await prisma.cart.findUnique({
+    where: {
+      userId,
+    },
+    include: {
+      items: {
+        include: {
+          menuItem: {
+            select: {
+              id: true,
+              name: true,
+              description: true,
+              price: true,
+              imageUrl: true,
+              isAvailable: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!cart) {
+    throw new Error("Cart not found");
+  }
+
+  return cart;
+}
+
 export async function updateCartItem(
   cartItemId: number,
   userId: number,
