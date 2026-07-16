@@ -1,0 +1,112 @@
+.register-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.register-form__title {
+  margin-bottom: 8px;
+
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.register-form__subtitle {
+  margin-bottom: 32px;
+
+  color: var(--color-gray);
+
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.register-form__label {
+  margin-bottom: 8px;
+
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.register-form .input {
+  margin-bottom: 16px;
+}
+
+.register-form__error {
+  margin-top: -8px;
+  margin-bottom: 16px;
+
+  color: var(--color-error);
+
+  font-size: 14px;
+}
+
+.register-form .button {
+  margin-top: 12px;
+}
+
+.register-form__login {
+  margin-top: 20px;
+
+  border: none;
+  background: transparent;
+
+  color: var(--color-primary);
+
+  font-size: 16px;
+
+  cursor: pointer;
+}
+
+.register-form__terms {
+  margin-top: 24px;
+
+  color: var(--color-gray);
+
+  font-size: 12px;
+  line-height: 1.5;
+
+  text-align: center;
+}
+
+.register-form__input {
+  position: relative;
+}
+
+.register-form__icon {
+  position: absolute;
+
+  left: 20px;
+  top: 50%;
+
+  transform: translateY(calc(-50% - 7px));
+
+  width: 26px;
+  height: 26px;
+
+  pointer-events: none;
+}
+
+.register-form__input .input {
+  padding-left: 64px;
+}
+
+.register-form__eye {
+  position: absolute;
+
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  font-size: 24px;
+  color: #A7A9B7;
+
+  cursor: pointer;
+}
+
+.input::placeholder {
+  color: #A7A9B7;
+}
+
+.register-form__icon,
+.register-form__eye {
+    transform: translateY(calc(-50% - 7px));
+}

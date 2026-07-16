@@ -4,19 +4,10 @@ const phoneRegex = /^\+?[0-9]{10,15}$/;
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{9,}$/;
 
 export function validateRegister(data: RegisterDto) {
-  const name = data.name?.trim();
+  // const name = data.name?.trim();
   const phone = data.phone?.trim();
   const password = data.password?.trim();
   const role = data.role;
-
-  
-  if (!name) {
-    throw new Error("Name is required");
-  }
-  
-  if (name.length < 2) {
-    throw new Error("Name must contain at least 2 characters");
-  }
   
   if (!phone) {
     throw new Error("Phone is required");
@@ -36,7 +27,7 @@ export function validateRegister(data: RegisterDto) {
     );
   }
 
-  return { name, phone, password, role };
+  return { /*name,*/ phone, password, role };
 }
 
 export function validateLogin(data: LoginDto) {

@@ -6,7 +6,7 @@ export interface JwtPayload {
 }
 
 export interface RegisterDto {
-  name: string;
+  name?: string;
   phone: string;
   password: string;
   role?: UserRole;

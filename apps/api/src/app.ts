@@ -1,6 +1,7 @@
 import express from "express";
 import morgan from "morgan";
 import path from "path";
+import cors from "cors";
 import authRoutes from "./modules/auth/auth.routes.js";
 import adminhRoutes from "./modules/admin/admin.routes.js";
 import restaurantRoutes from "./modules/restaurants/restaurant.routes.js";
@@ -19,6 +20,14 @@ import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./swagger/swagger.js";
 
 const app = express();
+console.log("SERVER FILE:", import.meta.url);
+
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 app.use(morgan("dev"));

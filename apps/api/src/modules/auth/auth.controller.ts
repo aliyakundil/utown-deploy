@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import * as authService from "./auth.service.js";
 
 export async function register(req: Request, res: Response) {
+  
   try {
     const result = await authService.register(req.body);
 
@@ -44,9 +45,34 @@ export async function login(req: Request, res: Response) {
       data: result,
     });
   } catch (error) {
+
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Unknown error";
+
+    let field: "phone" | "password" | "general" = "general";
+
+    switch (message) {
+      case "Phone is required":
+      case "Invalid phone number format":
+        field = "phone";
+        break;
+
+      case "Password is required":
+        field = "password";
+        break;
+
+      default:
+        field = "general";
+    }
+
+    console.log({ field, message });
+
     res.status(400).json({
       success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
+      field,
+      error: message,
     });
   }
 }

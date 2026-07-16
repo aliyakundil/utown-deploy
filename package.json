@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev:web": "npm --prefix apps/web run dev",
+    "dev:api": "npm --prefix apps/api run dev",
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\""
   },
   "repository": {
     "type": "git",
@@ -30,6 +33,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.1.0",
     "@types/node": "^26.0.1",
-    "@types/swagger-ui-express": "^4.1.8"
+    "@types/swagger-ui-express": "^4.1.8",
+    "concurrently": "^10.0.3"
   }
 }

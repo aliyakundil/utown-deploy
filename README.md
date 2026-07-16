@@ -180,6 +180,8 @@ npm install -D @types/swagger-ui-express
 npm install -D @types/swagger-jsdoc
 ```
 
-### Запуск
+### Запуск Swagger
 
 http://localhost:3000/api/docs
+
+### Запуск бэка и фронта

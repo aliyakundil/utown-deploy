@@ -44,7 +44,7 @@ function hashRefreshToken(token: string): string {
 }
 
 export async function register(data: RegisterDto): Promise<AuthResponse> {
-  const { name, phone, password, role } = validateRegister(data);
+  const { /*name,*/ phone, password, role } = validateRegister(data);
 
   const existingPhone = await prisma.user.findUnique({
     where: { phone },
@@ -59,7 +59,7 @@ export async function register(data: RegisterDto): Promise<AuthResponse> {
   const user = await prisma.$transaction(async (tx) => {
     const createdUser = await tx.user.create({
       data: {
-        name,
+        name: "",
         phone,
         role: role ?? "CLIENT",
         password: hashedPassword
@@ -87,7 +87,7 @@ export async function register(data: RegisterDto): Promise<AuthResponse> {
   return {
     user: {
       id: user.id,
-      name: user.name,
+      name: user.name ?? null,
       phone: user.phone,
       role: user.role as UserRole,
     },

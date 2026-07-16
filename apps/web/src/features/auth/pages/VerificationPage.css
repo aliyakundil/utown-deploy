@@ -1,0 +1,19 @@
+.verification-page {
+  min-height: 100vh;
+
+  display: flex;
+  justify-content: center;
+
+  background: var(--color-white);
+}
+
+.verification {
+  width: 100%;
+  max-width: 428px;
+  min-height: 100vh;
+
+  padding: 16px;
+
+  display: flex;
+  flex-direction: column;
+}

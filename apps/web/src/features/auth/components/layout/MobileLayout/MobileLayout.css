@@ -1,0 +1,19 @@
+.mobile-layout {
+  min-height: 100vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background-color: #d9d9d9;
+}
+
+.mobile-layout__screen {
+  width: 100%;
+  max-width: 428px;
+  min-height: 100vh;
+
+  overflow: hidden;
+
+  background-color: var(--color-white);
+}
