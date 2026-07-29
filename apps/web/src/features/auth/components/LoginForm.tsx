@@ -12,6 +12,7 @@ import "./LoginForm.css";
 
 export default function LoginForm() {
   const navigate = useNavigate();
+
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
 
@@ -26,7 +27,6 @@ export default function LoginForm() {
   ) => {
     e.preventDefault();
 
-    // очищаем предыдущие ошибки
     setErrors({
       phone: "",
       password: "",
@@ -39,10 +39,17 @@ export default function LoginForm() {
         password,
       });
 
-      console.log(response);
+      localStorage.setItem(
+        "accessToken",
+        response.data.accessToken
+      );
+
+      localStorage.setItem(
+        "refreshToken",
+        response.data.refreshToken
+      );
 
       navigate("/home");
-
     } catch (error) {
       if (axios.isAxiosError<ApiErrorResponse>(error)) {
         const message =

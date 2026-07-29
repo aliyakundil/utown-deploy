@@ -24,7 +24,7 @@ console.log("SERVER FILE:", import.meta.url);
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: process.env.FRONTEND_URL,
     credentials: true,
   })
 );

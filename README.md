@@ -24,7 +24,7 @@ npm install
 
 ```env
 DATABASE_URL=
-JWT_SECRET=
+ACCESS_TOKEN_SECRET=
 PORT=3000
 ```
 

@@ -38,7 +38,7 @@ export const router = createBrowserRouter([
     path: "/new-password",
     element: <NewPasswordPage />,
   },
-    {
+  {
     path: "/verify-code",
     element: <VerificationPage />,
   },
