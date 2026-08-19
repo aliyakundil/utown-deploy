@@ -1,178 +1,190 @@
 # UTOWN API
 
-Backend для сервиса доставки еды UTOWN.
+Backend для сервиса доставки еды **UTOWN**.
 
-## Стек технологий
+---
+
+# Стек технологий
+
+## Backend
 
 - Node.js
-- Express
+- Express.js
 - TypeScript
 - Prisma ORM
 - MySQL
 - JWT
+- bcrypt
 - Multer
+- Swagger
+- Socket.IO
 
-## Установка
+## Frontend
+
+- React
+- Vite
+- TypeScript
+- Axios
+- React Router
+
+---
+
+# Установка
+
+Клонировать проект:
+
+```bash
+git clone <repository-url>
+```
+
+Перейти в папку проекта:
+
+```bash
+cd utown-monorepo
+```
+
+Установить зависимости:
 
 ```bash
 npm install
 ```
 
-## Настройка
+---
 
-Создать файл `.env`
+# Настройка
 
-```env
-DATABASE_URL=
-ACCESS_TOKEN_SECRET=
-PORT=3000
+## Backend
+
+Создать файл:
+
+```
+apps/api/.env
 ```
 
-## Запуск
+Заполнить его:
+
+```env
+# Server
+PORT=3000
+
+# Database
+DATABASE_URL=mysql://root:password@localhost:3306/utown
+
+# JWT
+ACCESS_TOKEN_SECRET=my_super_secret_key
+REFRESH_TOKEN_SECRET=my_refresh_secret
+
+# Uploads
+UPLOAD_DIR=uploads
+
+# URLs
+FRONTEND_URL=http://localhost:5173
+API_URL=http://localhost:3000/api
+```
+
+---
+
+## Frontend
+
+Создать файл:
+
+```
+apps/web/.env
+```
+
+Заполнить его:
+
+```env
+VITE_API_URL=http://localhost:3000/api
+```
+
+---
+
+# Запуск проекта
+
+## Backend
 
 ```bash
+cd apps/api
 npm run dev
 ```
 
-## Сборка
+Backend будет доступен по адресу:
+
+```
+http://localhost:3000
+```
+
+---
+
+## Frontend
+
+```bash
+cd apps/web
+npm run dev
+```
+
+Frontend будет доступен по адресу:
+
+```
+http://localhost:5173
+```
+
+---
+
+# Сборка
+
+## Backend
 
 ```bash
 npm run build
 ```
 
-## Production
+Запуск production:
 
 ```bash
-npm run start
+npm start
 ```
 
-## Prisma
+---
 
-Создать миграцию
+# Prisma
+
+Создать миграцию:
 
 ```bash
 npm run prisma:migrate
 ```
 
-# Установка Express
-
-npm install express cors helmet express-rate-limit multer dotenv morgan bcrypt
-npm install socket.io
-npm install swagger-ui-express
-npm install jsonwebtoken;
-
-# Установка зависимостей TypeScript
-
-npm install --save-dev typescript ts-node nodemon @types/node @types/express @types/morgan
-npm install -D @types/jsonwebtoken
-npm install -D @types/bcrypt
-
-````
-
-Сгенерировать Prisma Client
+Применить существующие миграции:
 
 ```bash
-npm install prisma @prisma/client@6.11.1
-npm run prisma:generate
-````
+npm run prisma:deploy
+```
 
-Открыть Prisma Studio
+Сгенерировать Prisma Client:
+
+```bash
+npm run prisma:generate
+```
+
+Открыть Prisma Studio:
 
 ```bash
 npm run prisma:studio
 ```
 
-## API
+или
 
-### Auth
+```bash
+npx prisma studio
+```
 
-- POST /api/auth/register
-- POST /api/auth/login
-- POST /api/auth/refresh
-- POST /api/auth/logout
+---
 
-### Admin
+# Swagger
 
-- GET /api/admin/users
-- GET /api/admin/users/:id
-- POST /api/admin/users
-- PATCH /api/admin/users/:id
-- DELETE /api/admin/users/:id
-
-### Restaurants
-
-- GET /api/restaurants
-- GET /api/restaurants/:id
-- POST /api/restaurants
-- PATCH /api/restaurants/:id
-- DELETE /api/restaurants/:id
-
-### Categories
-
-- POST /api/categories/restaurant/:restaurantId
-- GET /api/categories
-- GET /api/categories/:id
-- PATCH /api/categories/:id
-- DELETE /api/categories/:id
-
-### Menu Items
-
-- POST /api/menu-items/category/:categoryId
-- GET /api/menu-items
-- GET /api/menu-items/:id
-- PATCH /api/menu-items/:id
-- DELETE /api/menu-items/:id
-
-### Cart
-
-- GET /api/cart
-- POST /api/cart/items
-- PATCH /api/cart/items/:menuItemId
-- DELETE /api/cart/items/:menuItemId
-- DELETE /api/cart/clear
-
-### Orders
-
-- POST /api/orders
-- GET /api/orders
-- GET /api/orders/:id
-- PATCH /api/orders/:id/status
-- PATCH /api/orders/:id/cancel
-
-### Favorites
-
-- POST /api/favorites
-- GET /api/favorites
-- DELETE /api/favorites/:restaurantId
-
-### Ratings
-
-- POST /api/ratings/restaurant/:restaurantId
-- GET /api/ratings/restaurant/:restaurantId
-- PATCH /api/ratings/restaurant/:restaurantId
-- DELETE /api/ratings/restaurant/:restaurantId
-
-### Notifications
-
-- GET /api/notifications
-- PATCH /api/notifications/1/read
-- PATCH /api/notifications/read-all
-- DELETE /api/notifications/1
-
-### Users
-
-- GET /api/users/me
-- PATCH /api/users/me
-- DELETE /api/users/me
-
-### Payments
-
-- POST /api/payments/order/:orderId
-- GET /api/payments/order/:orderId
-
-### Swagger
-
-## Установка
+Установка:
 
 ```bash
 npm install swagger-ui-express swagger-jsdoc
@@ -180,8 +192,207 @@ npm install -D @types/swagger-ui-express
 npm install -D @types/swagger-jsdoc
 ```
 
-### Запуск Swagger
+Документация API доступна по адресу:
 
+```
 http://localhost:3000/api/docs
+```
 
-### Запуск бэка и фронта
+---
+
+# Авторизация
+
+Реализованы:
+
+- регистрация пользователя;
+- подтверждение номера телефона;
+- вход в систему;
+- JWT Authentication;
+- Refresh Token;
+- Logout;
+- хранение Refresh Token в базе данных;
+- хэширование паролей с помощью bcrypt;
+- защита маршрутов;
+- подтверждение телефона с помощью SMS-кода (Mock SMS Service).
+
+Во время разработки SMS не отправляются на реальный номер телефона.
+
+Код подтверждения выводится в консоль сервера.
+
+Пример:
+
+```text
+========================================
+📨 SMS SENT
+
+Phone:
+996555123456
+
+Verification code:
+9031
+
+Expires in 5 minutes
+========================================
+```
+
+---
+
+# Основные возможности
+
+- JWT Authentication
+- Refresh Token
+- Phone Verification
+- Mock SMS Service
+- Swagger Documentation
+- Upload API
+- Restaurant CRUD
+- Category CRUD
+- Menu CRUD
+- Cart
+- Orders
+- Favorites
+- Ratings
+- Notifications
+- Payments
+- Prisma ORM
+- MySQL
+
+---
+
+# API
+
+## Auth
+
+| Метод | Endpoint                |
+| ----- | ----------------------- |
+| POST  | `/api/auth/register`    |
+| POST  | `/api/auth/verify-code` |
+| POST  | `/api/auth/login`       |
+| POST  | `/api/auth/refresh`     |
+| POST  | `/api/auth/logout`      |
+| POST  | `/auth/resend-code`     |
+
+---
+
+## Admin
+
+| Метод  | Endpoint               |
+| ------ | ---------------------- |
+| GET    | `/api/admin/users`     |
+| GET    | `/api/admin/users/:id` |
+| POST   | `/api/admin/users`     |
+| PATCH  | `/api/admin/users/:id` |
+| DELETE | `/api/admin/users/:id` |
+
+---
+
+## Restaurants
+
+| Метод  | Endpoint               |
+| ------ | ---------------------- |
+| GET    | `/api/restaurants`     |
+| GET    | `/api/restaurants/:id` |
+| POST   | `/api/restaurants`     |
+| PATCH  | `/api/restaurants/:id` |
+| DELETE | `/api/restaurants/:id` |
+
+---
+
+## Categories
+
+| Метод  | Endpoint                                   |
+| ------ | ------------------------------------------ |
+| POST   | `/api/categories/restaurant/:restaurantId` |
+| GET    | `/api/categories`                          |
+| GET    | `/api/categories/:id`                      |
+| PATCH  | `/api/categories/:id`                      |
+| DELETE | `/api/categories/:id`                      |
+
+---
+
+## Menu Items
+
+| Метод  | Endpoint                               |
+| ------ | -------------------------------------- |
+| POST   | `/api/menu-items/category/:categoryId` |
+| GET    | `/api/menu-items`                      |
+| GET    | `/api/menu-items/:id`                  |
+| PATCH  | `/api/menu-items/:id`                  |
+| DELETE | `/api/menu-items/:id`                  |
+
+---
+
+## Cart
+
+| Метод  | Endpoint                      |
+| ------ | ----------------------------- |
+| GET    | `/api/cart`                   |
+| POST   | `/api/cart/items`             |
+| PATCH  | `/api/cart/items/:menuItemId` |
+| DELETE | `/api/cart/items/:menuItemId` |
+| DELETE | `/api/cart/clear`             |
+
+---
+
+## Orders
+
+| Метод | Endpoint                 |
+| ----- | ------------------------ |
+| POST  | `/api/orders`            |
+| GET   | `/api/orders`            |
+| GET   | `/api/orders/:id`        |
+| PATCH | `/api/orders/:id/status` |
+| PATCH | `/api/orders/:id/cancel` |
+
+---
+
+## Favorites
+
+| Метод  | Endpoint                       |
+| ------ | ------------------------------ |
+| POST   | `/api/favorites`               |
+| GET    | `/api/favorites`               |
+| DELETE | `/api/favorites/:restaurantId` |
+
+---
+
+## Ratings
+
+| Метод  | Endpoint                                |
+| ------ | --------------------------------------- |
+| POST   | `/api/ratings/restaurant/:restaurantId` |
+| GET    | `/api/ratings/restaurant/:restaurantId` |
+| PATCH  | `/api/ratings/restaurant/:restaurantId` |
+| DELETE | `/api/ratings/restaurant/:restaurantId` |
+
+---
+
+## Notifications
+
+| Метод  | Endpoint                      |
+| ------ | ----------------------------- |
+| GET    | `/api/notifications`          |
+| PATCH  | `/api/notifications/:id/read` |
+| PATCH  | `/api/notifications/read-all` |
+| DELETE | `/api/notifications/:id`      |
+
+---
+
+## Users
+
+| Метод  | Endpoint        |
+| ------ | --------------- |
+| GET    | `/api/users/me` |
+| PATCH  | `/api/users/me` |
+| DELETE | `/api/users/me` |
+
+---
+
+## Payments
+
+| Метод | Endpoint                       |
+| ----- | ------------------------------ |
+| POST  | `/api/payments/order/:orderId` |
+| GET   | `/api/payments/order/:orderId` |
+
+---

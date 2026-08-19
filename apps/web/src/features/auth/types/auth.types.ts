@@ -41,3 +41,23 @@ export interface ApiErrorResponse {
   field: ErrorField;
   error: string;
 }
+
+export interface VerifyCodeRequest {
+  phone: string;
+  code: string;
+}
+
+export interface ForgotPasswordRequest {
+  phone: string;
+}
+
+export interface ResetPasswordRequest {
+  phone: string;
+  code: string;
+  newPassword: string;
+}
+
+export interface MessageResponse {
+  success: boolean;
+  data: { message: string };
+}

@@ -4,15 +4,66 @@ import OTPInput from "../../../components/ui/OTPInput/OTPInput";
 
 import "./VerificationCodeForm.css";
 
+import { useLocation, useNavigate } from "react-router-dom";
+import { verifyCode } from "../api/auth.api";
+import axios from "axios";
+
 export default function VerificationCodeForm() {
   const [code, setCode] = useState(["", "", "", ""]);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const phone = location.state?.phone ?? "";
+  const mode = location.state?.mode ?? "register";
+
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
+    e.preventDefault();
+
+    if (mode === "reset") {
+      navigate("/new-password", {
+        state: { phone, code: code.join("") },
+      });
+      return;
+    }
+
+    try {
+      const response = await verifyCode({
+        phone,
+        code: code.join(""),
+      });
+
+      localStorage.setItem(
+        "accessToken",
+        response.data.accessToken
+      );
+
+      localStorage.setItem(
+        "refreshToken",
+        response.data.refreshToken
+      );
+
+      navigate("/home");
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error(error.response?.data);
+      }
+    }
+  };
+
+
   <OTPInput
     value={code}
     onChange={setCode}
   />
 
   return (
-    <form className="verification-form">
+    <form
+      className="verification-form"
+      onSubmit={handleSubmit}
+    >
 
       <h1 className="verification-form__title">
         Verification Code

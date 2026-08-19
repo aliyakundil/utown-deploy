@@ -36,6 +36,60 @@ export async function refresh(req: Request, res: Response) {
   }
 }
 
+export async function verifyCode(
+  req: Request,
+  res: Response
+) {
+  try {
+    const result = await authService.verifyCode(req.body);
+
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Unknown error",
+    });
+  }
+}
+
+export async function forgotPassword(req: Request, res: Response) {
+  try {
+    const result = await authService.requestPasswordReset(req.body);
+
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+}
+
+export async function resetPassword(req: Request, res: Response) {
+  try {
+    const result = await authService.resetPassword(req.body);
+
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+}
+
 export async function login(req: Request, res: Response) {
   try {
     const result = await authService.login(req.body);

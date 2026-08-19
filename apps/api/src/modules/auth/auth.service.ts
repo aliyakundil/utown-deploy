@@ -1,8 +1,10 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { prisma } from "../../db/prisma.js";
-import type { RegisterDto, LoginDto, JwtPayload, AuthResponse, RefreshTokenResponse } from "./auth.types.js";
-import { validateRegister, validateLogin } from "./auth.validation.js";
+import type { RegisterDto, LoginDto, JwtPayload, AuthResponse, RegisterResponse, RefreshTokenResponse, VerifyCodeDto, ForgotPasswordDto, ResetPasswordDto } from "./auth.types.js";
+import { validateRegister, validateLogin, validateVerificationCode, validateForgotPassword, validateResetPassword } from "./auth.validation.js";
+import { generateVerificationCode } from "../../utils/generateVerificationCode.js";
+import { sendVerificationCode } from "../../services/sms.service.js";
 import type { UserRole } from "@prisma/client";
 import crypto from "node:crypto";
 
@@ -43,8 +45,8 @@ function hashRefreshToken(token: string): string {
     .digest("hex");
 }
 
-export async function register(data: RegisterDto): Promise<AuthResponse> {
-  const { /*name,*/ phone, password, role } = validateRegister(data);
+export async function register(data: RegisterDto): Promise<RegisterResponse> {
+  const { name, phone, password, role } = validateRegister(data);
 
   const existingPhone = await prisma.user.findUnique({
     where: { phone },
@@ -59,7 +61,7 @@ export async function register(data: RegisterDto): Promise<AuthResponse> {
   const user = await prisma.$transaction(async (tx) => {
     const createdUser = await tx.user.create({
       data: {
-        name: "",
+        name: name ?? "",
         phone,
         role: role ?? "CLIENT",
         password: hashedPassword
@@ -75,23 +77,26 @@ export async function register(data: RegisterDto): Promise<AuthResponse> {
     return createdUser;
   })
 
-  const tokens = issueTokens(user.id, user.role as UserRole);
+  const code = generateVerificationCode();
 
-  await prisma.user.update({
-    where: { id: user.id },
-    data: {
-      refreshToken: hashRefreshToken(tokens.refreshToken),
+  await prisma.verificationCode.deleteMany({
+    where: {
+      phone: user.phone,
     },
   });
 
-  return {
-    user: {
-      id: user.id,
-      name: user.name ?? null,
+  await prisma.verificationCode.create({
+    data: {
       phone: user.phone,
-      role: user.role as UserRole,
+      code,
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000),
     },
-    ...tokens,
+  });
+
+  sendVerificationCode(user.phone, code);
+
+  return {
+    message: "Verification code sent",
   };
 }
 
@@ -106,6 +111,10 @@ export async function login(data: LoginDto): Promise<AuthResponse> {
 
   if (!user) {
     throw new Error("Invalid phone or password")
+  }
+
+  if (!user.isVerified) {
+    throw new Error("Phone number is not verified");
   }
 
   const isPasswordValid = await bcrypt.compare(
@@ -173,6 +182,156 @@ export async function refresh(token: string): Promise<RefreshTokenResponse> {
   return {
     accessToken: tokens.accessToken,
     refreshToken: tokens.refreshToken,
+  };
+}
+
+export async function verifyCode(
+  data: VerifyCodeDto
+): Promise<AuthResponse> {
+  const { phone, code } =
+    validateVerificationCode(data);
+
+  const verification =
+    await prisma.verificationCode.findFirst({
+      where: {
+        phone,
+        code,
+      },
+    });
+
+  if (!verification) {
+    throw new Error("Invalid verification code");
+  }
+
+  if (verification.expiresAt < new Date()) {
+    throw new Error("Verification code has expired");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      phone,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      isVerified: true,
+    },
+  });
+
+  await prisma.verificationCode.delete({
+    where: {
+      id: verification.id,
+    },
+  });
+
+  const tokens = issueTokens(
+    user.id,
+    user.role as UserRole
+  );
+
+  await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      refreshToken: hashRefreshToken(
+        tokens.refreshToken
+      ),
+    },
+  });
+
+  return {
+    user: {
+      id: user.id,
+      name: user.name,
+      phone: user.phone,
+      role: user.role,
+    },
+    ...tokens,
+  };
+}
+
+export async function requestPasswordReset(
+  data: ForgotPasswordDto
+): Promise<{ message: string }> {
+  const { phone } = validateForgotPassword(data);
+
+  const user = await prisma.user.findUnique({
+    where: { phone },
+  });
+
+  if (user) {
+    const code = generateVerificationCode();
+
+    await prisma.verificationCode.deleteMany({
+      where: { phone },
+    });
+
+    await prisma.verificationCode.create({
+      data: {
+        phone,
+        code,
+        expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+      },
+    });
+
+    sendVerificationCode(phone, code);
+  }
+
+  return {
+    message: "If this phone number is registered, a reset code has been sent",
+  };
+}
+
+export async function resetPassword(
+  data: ResetPasswordDto
+): Promise<{ message: string }> {
+  const { phone, code, newPassword } = validateResetPassword(data);
+
+  const verification = await prisma.verificationCode.findFirst({
+    where: { phone, code },
+  });
+
+  if (!verification) {
+    throw new Error("Invalid verification code");
+  }
+
+  if (verification.expiresAt < new Date()) {
+    throw new Error("Verification code has expired");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { phone },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      password: hashedPassword,
+      refreshToken: null,
+    },
+  });
+
+  await prisma.verificationCode.delete({
+    where: { id: verification.id },
+  });
+
+  return {
+    message: "Password reset successfully",
   };
 }
 

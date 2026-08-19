@@ -17,7 +17,6 @@ const router = Router();
  *           schema:
  *             type: object
  *             required:
- *               - name
  *               - phone
  *               - password
  *             properties:
@@ -66,6 +65,40 @@ router.post("/register", authController.register);
  */
 router.post("/refresh", authController.refresh);
 
+
+/**
+ * @swagger
+ * /auth/verify-code:
+ *   post:
+ *     summary: Verify phone number using SMS code
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - phone
+ *               - code
+ *             properties:
+ *               phone:
+ *                 type: string
+ *                 example: "996556560202"
+ *               code:
+ *                 type: string
+ *                 example: "9031"
+ *     responses:
+ *       200:
+ *         description: Phone verified successfully
+ *       400:
+ *         description: Invalid or expired verification code
+ */
+router.post(
+  "/verify-code",
+  authController.verifyCode
+);
+
 /**
  * @swagger
  * /auth/login:
@@ -107,5 +140,9 @@ router.post("/login", authController.login);
  *         description: Logout successful
  */
 router.post("/logout", authenticateToken, authController.logout);
+
+router.post("/forgot-password", authController.forgotPassword);
+router.post("/reset-password", authController.resetPassword);
+
 
 export default router;
