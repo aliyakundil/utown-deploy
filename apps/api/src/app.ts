@@ -1,6 +1,8 @@
 import express from "express";
 import morgan from "morgan";
 import path from "path";
+import cors from "cors";
+import cookieParser from "cookie-parser";
 import authRoutes from "./modules/auth/auth.routes.js";
 import adminhRoutes from "./modules/admin/admin.routes.js";
 import restaurantRoutes from "./modules/restaurants/restaurant.routes.js";
@@ -15,10 +17,21 @@ import userRoutes from "./modules/users/user.routes.js";
 import paymentRoutes from "./modules/payments/payment.routes.js";
 import uploadRoutes from "./modules/uploads/upload.routes.js";
 import { errorHandler } from "./middleware/error.middleware.js";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./swagger/swagger.js";
 
 const app = express();
+console.log("SERVER FILE:", import.meta.url);
+
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  })
+);
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(morgan("dev"));
 
 app.use("/api/auth", authRoutes);
@@ -37,6 +50,12 @@ app.use("/api/uploads", uploadRoutes);
 app.use(
   "/uploads",
   express.static(path.resolve("uploads"))
+);
+
+app.use(
+  "/api/docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec)
 );
 
 app.use(errorHandler);

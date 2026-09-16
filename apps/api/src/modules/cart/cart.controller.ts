@@ -35,6 +35,37 @@ export async function addToCart(
   }
 }
 
+export async function getCart(
+  req: Request,
+  res: Response
+) {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        error: "Unauthorized",
+      });
+    }
+
+    const result = await cartService.getCart(userId);
+
+    return res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Unknown error",
+    });
+  }
+}
+
 export async function updateCartItem(
   req: Request,
   res: Response

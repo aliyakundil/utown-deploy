@@ -1,6 +1,9 @@
-import dotenv from "dotenv";
+import "./config/env.js";
 
-dotenv.config();
+console.log("cwd:", process.cwd());
+console.log("PORT:", process.env.PORT);
+console.log("FRONTEND_URL:", process.env.FRONTEND_URL);
+console.log("API_URL:", process.env.API_URL);
 
 import app from "./app.js";
 

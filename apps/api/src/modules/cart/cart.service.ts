@@ -90,6 +90,34 @@ export async function addToCart(
   });
 }
 
+export async function getCart(userId: number) {
+  return prisma.cart.upsert({
+    where: {
+      userId,
+    },
+    create: {
+      userId,
+    },
+    update: {},
+    include: {
+      items: {
+        include: {
+          menuItem: {
+            select: {
+              id: true,
+              name: true,
+              description: true,
+              price: true,
+              imageUrl: true,
+              isAvailable: true,
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
 export async function updateCartItem(
   cartItemId: number,
   userId: number,

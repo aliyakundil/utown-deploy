@@ -6,10 +6,9 @@ export interface JwtPayload {
 }
 
 export interface RegisterDto {
-  name: string;
+  name?: string;
   phone: string;
   password: string;
-  role?: UserRole;
 }
 
 export interface LoginDto {
@@ -37,4 +36,23 @@ export interface AuthResponse {
 export interface RefreshTokenResponse {
   accessToken: string;
   refreshToken: string;
+}
+
+export interface RegisterResponse {
+  message: string;
+}
+
+export interface VerifyCodeDto {
+  phone: string;
+  code: string;
+}
+
+export interface ForgotPasswordDto {
+  phone: string;
+}
+
+export interface ResetPasswordDto {
+  phone: string;
+  code: string;
+  newPassword: string;
 }

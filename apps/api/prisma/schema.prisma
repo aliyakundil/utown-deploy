@@ -36,6 +36,8 @@ model User {
   uploads Upload[]
 
   refreshToken String?
+
+  isVerified Boolean @default(false)
 }
 
 model Restaurant {
@@ -226,6 +228,17 @@ model Upload {
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])
+}
+
+model VerificationCode {
+  id         Int      @id @default(autoincrement())
+
+  phone      String
+  code       String
+
+  expiresAt  DateTime
+
+  createdAt  DateTime @default(now())
 }
 
 enum UserRole {
