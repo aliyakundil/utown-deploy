@@ -40,11 +40,6 @@ export default function VerificationCodeForm() {
         response.data.accessToken
       );
 
-      localStorage.setItem(
-        "refreshToken",
-        response.data.refreshToken
-      );
-
       navigate("/home");
     } catch (error) {
       if (axios.isAxiosError(error)) {

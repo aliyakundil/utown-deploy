@@ -40,18 +40,8 @@ router.post("/register", authController.register);
  * /auth/refresh:
  *   post:
  *     summary: Refresh access token
+ *     description: Reads the refresh token from the httpOnly "refreshToken" cookie set on login/verify-code. No request body needed.
  *     tags: [Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - refreshToken
- *             properties:
- *               refreshToken:
- *                 type: string
  *     responses:
  *       200:
  *         description: New access token

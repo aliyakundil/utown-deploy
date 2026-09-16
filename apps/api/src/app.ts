@@ -2,6 +2,7 @@ import express from "express";
 import morgan from "morgan";
 import path from "path";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import authRoutes from "./modules/auth/auth.routes.js";
 import adminhRoutes from "./modules/admin/admin.routes.js";
 import restaurantRoutes from "./modules/restaurants/restaurant.routes.js";
@@ -30,6 +31,7 @@ app.use(
 );
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(morgan("dev"));
 
 app.use("/api/auth", authRoutes);
