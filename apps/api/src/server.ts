@@ -1,6 +1,4 @@
-import dotenv from "dotenv";
-
-dotenv.config();
+import "./config/env.js";
 
 console.log("cwd:", process.cwd());
 console.log("PORT:", process.env.PORT);
