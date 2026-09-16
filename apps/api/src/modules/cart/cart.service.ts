@@ -91,10 +91,14 @@ export async function addToCart(
 }
 
 export async function getCart(userId: number) {
-  const cart = await prisma.cart.findUnique({
+  return prisma.cart.upsert({
     where: {
       userId,
     },
+    create: {
+      userId,
+    },
+    update: {},
     include: {
       items: {
         include: {
@@ -112,12 +116,6 @@ export async function getCart(userId: number) {
       },
     },
   });
-
-  if (!cart) {
-    throw new Error("Cart not found");
-  }
-
-  return cart;
 }
 
 export async function updateCartItem(
