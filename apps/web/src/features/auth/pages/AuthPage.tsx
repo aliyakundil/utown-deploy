@@ -2,7 +2,7 @@
 
 import "./AuthPage.css";
 
-import logoWhite from "../../../assets/images/logo-white.svg";
+import logoWhite from "../../../assets/images/Logo-white.svg";
 import Button from "../../../components/ui/Button/Button";
 
 export default function AuthPage() {
