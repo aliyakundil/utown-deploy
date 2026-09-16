@@ -11,6 +11,27 @@ const refreshCookieOptions = {
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };
 
+type ErrorField = "phone" | "password" | "general";
+
+function classifyAuthErrorField(message: string): ErrorField {
+  switch (message) {
+    case "Phone is required":
+    case "Invalid phone number format":
+    case "Phone number already exists":
+      return "phone";
+
+    case "Password is required":
+      return "password";
+
+    default:
+      if (message.includes("Password")) {
+        return "password";
+      }
+
+      return "general";
+  }
+}
+
 export async function register(req: Request, res: Response) {
   
   try {
@@ -21,9 +42,13 @@ export async function register(req: Request, res: Response) {
       data: result,
     });
   } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Unknown error";
+
     res.status(400).json({
       success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
+      field: classifyAuthErrorField(message),
+      error: message,
     });
   }
 }
@@ -121,33 +146,14 @@ export async function login(req: Request, res: Response) {
       data,
     });
   } catch (error) {
-
     const message =
       error instanceof Error
         ? error.message
         : "Unknown error";
 
-    let field: "phone" | "password" | "general" = "general";
-
-    switch (message) {
-      case "Phone is required":
-      case "Invalid phone number format":
-        field = "phone";
-        break;
-
-      case "Password is required":
-        field = "password";
-        break;
-
-      default:
-        field = "general";
-    }
-
-    console.log({ field, message });
-
     res.status(400).json({
       success: false,
-      field,
+      field: classifyAuthErrorField(message),
       error: message,
     });
   }

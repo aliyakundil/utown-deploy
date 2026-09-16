@@ -73,40 +73,13 @@ const [showRepeatPassword, setShowRepeatPassword] = useState(false);
         const message =
           error.response?.data.error ??
           "Something went wrong";
-
-        if (
-          message === "Phone is required" ||
-          message === "Invalid phone number format"
-        ) {
-          setErrors({
-            phone: message,
-            password: "",
-            repeatPassword: "",
-            general: "",
-          });
-
-          return;
-        }
-
-        if (
-          message === "Password is required" ||
-          message.includes("Password")
-        ) {
-          setErrors({
-            phone: "",
-            password: message,
-            repeatPassword: "",
-            general: "",
-          });
-
-          return;
-        }
+        const field = error.response?.data.field ?? "general";
 
         setErrors({
-          phone: "",
-          password: "",
+          phone: field === "phone" ? message : "",
+          password: field === "password" ? message : "",
           repeatPassword: "",
-          general: message,
+          general: field === "general" ? message : "",
         });
       }
     }

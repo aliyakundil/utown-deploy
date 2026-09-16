@@ -49,34 +49,12 @@ export default function LoginForm() {
       if (axios.isAxiosError<ApiErrorResponse>(error)) {
         const message =
           error.response?.data.error ?? "Something went wrong";
-
-        if (
-          message === "Phone is required" ||
-          message === "Invalid phone number format"
-        ) {
-          setErrors({
-            phone: message,
-            password: "",
-            general: "",
-          });
-
-          return;
-        }
-
-        if (message === "Password is required") {
-          setErrors({
-            phone: "",
-            password: message,
-            general: "",
-          });
-
-          return;
-        }
+        const field = error.response?.data.field ?? "general";
 
         setErrors({
-          phone: "",
-          password: "",
-          general: message,
+          phone: field === "phone" ? message : "",
+          password: field === "password" ? message : "",
+          general: field === "general" ? message : "",
         });
       }
     }
