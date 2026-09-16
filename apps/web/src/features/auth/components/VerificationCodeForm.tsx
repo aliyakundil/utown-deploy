@@ -53,12 +53,6 @@ export default function VerificationCodeForm() {
     }
   };
 
-
-  <OTPInput
-    value={code}
-    onChange={setCode}
-  />
-
   return (
     <form
       className="verification-form"
