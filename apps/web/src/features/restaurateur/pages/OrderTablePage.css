@@ -1,0 +1,164 @@
+.order-table-page {
+  display: flex;
+  flex-direction: column;
+
+  min-height: 100vh;
+
+  background: var(--color-white);
+}
+
+.order-table-header {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 20px 16px;
+
+  border-bottom: 1px solid var(--color-border);
+}
+
+.order-table-hamburger {
+  display: flex;
+
+  border: none;
+  background: transparent;
+  color: var(--color-black);
+
+  cursor: pointer;
+}
+
+.order-table-title {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.order-table-message {
+  margin: 40px 16px;
+
+  color: var(--color-gray);
+  font-size: 14px;
+  text-align: center;
+}
+
+.order-table-error {
+  margin: 12px 16px 0;
+
+  color: var(--color-error);
+  font-size: 13px;
+}
+
+.order-table-home-button {
+  margin: 0 16px;
+  padding: 14px 0;
+
+  border: none;
+  border-radius: 12px;
+  background: var(--color-primary);
+  color: var(--color-white);
+
+  font-size: 15px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.order-table-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  padding: 16px;
+}
+
+.order-row {
+  padding: 14px 16px;
+
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+}
+
+.order-row__top {
+  display: flex;
+  justify-content: space-between;
+
+  margin-bottom: 8px;
+
+  font-size: 13px;
+  color: var(--color-gray);
+}
+
+.order-row__id {
+  font-weight: 700;
+  color: var(--color-black);
+}
+
+.order-row__customer {
+  margin-bottom: 6px;
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.order-row__items {
+  margin-bottom: 6px;
+
+  color: var(--color-gray);
+  font-size: 13px;
+}
+
+.order-row__address {
+  margin-bottom: 12px;
+
+  color: var(--color-gray);
+  font-size: 13px;
+}
+
+.order-row__bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  gap: 12px;
+
+  padding-top: 12px;
+
+  border-top: 1px solid var(--color-border);
+}
+
+.order-row__total {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.order-row__status {
+  padding: 8px 12px;
+
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+@media (min-width: 1025px) {
+  .order-table-page {
+    margin-left: 260px;
+  }
+
+  .order-table-hamburger {
+    display: none;
+  }
+
+  .order-table-list {
+    max-width: 720px;
+    padding: 24px 40px;
+  }
+
+  .order-table-header {
+    padding: 24px 40px;
+  }
+}

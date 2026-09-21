@@ -1,0 +1,8 @@
+.login-form__error {
+  margin-top: 8px;
+
+  color: var(--color-error);
+
+  font-size: 14px;
+  text-align: center;
+}

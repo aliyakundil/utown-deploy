@@ -1,0 +1,14 @@
+.splash {
+  min-height: 100vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: linear-gradient(
+    135deg,
+    #5fd3f8 0%,
+    #3471f5 50%,
+    #e467f1 100%
+  );
+}

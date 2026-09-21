@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Build
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Prisma
+generated/
+prisma/generated/
+
+# Uploads
+uploads/*
+!uploads/.env.example
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,151 @@
+.stats-page {
+  display: flex;
+  flex-direction: column;
+
+  min-height: 100vh;
+
+  background: var(--color-white);
+}
+
+.stats-header {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 20px 16px;
+
+  border-bottom: 1px solid var(--color-border);
+}
+
+.stats-hamburger {
+  display: flex;
+
+  border: none;
+  background: transparent;
+  color: var(--color-black);
+
+  cursor: pointer;
+}
+
+.stats-title {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.stats-message {
+  margin: 40px 16px;
+
+  color: var(--color-gray);
+  font-size: 14px;
+  text-align: center;
+}
+
+.stats-home-button {
+  margin: 0 16px;
+  padding: 14px 0;
+
+  border: none;
+  border-radius: 12px;
+  background: var(--color-primary);
+  color: var(--color-white);
+
+  font-size: 15px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.stats-body {
+  padding: 16px;
+}
+
+.stats-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+
+  margin-bottom: 28px;
+}
+
+.stats-tile {
+  padding: 16px 12px;
+
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.stats-tile__value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.stats-tile__label {
+  margin-top: 4px;
+
+  font-size: 12px;
+  color: var(--color-gray);
+}
+
+.stats-subtitle {
+  margin-bottom: 12px;
+
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.stats-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.stats-breakdown__row {
+  display: flex;
+  justify-content: space-between;
+
+  padding: 12px 16px;
+
+  background: var(--color-white);
+  border-bottom: 1px solid var(--color-border);
+
+  font-size: 14px;
+}
+
+.stats-breakdown__row:last-child {
+  border-bottom: none;
+}
+
+.stats-breakdown__count {
+  font-weight: 700;
+}
+
+@media (min-width: 1025px) {
+  .stats-page {
+    margin-left: 260px;
+  }
+
+  .stats-hamburger {
+    display: none;
+  }
+
+  .stats-header {
+    padding: 24px 40px;
+  }
+
+  .stats-body {
+    max-width: 640px;
+    padding: 24px 40px;
+  }
+
+  .stats-tiles {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
