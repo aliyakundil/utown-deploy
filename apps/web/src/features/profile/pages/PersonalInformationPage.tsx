@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import "./ProfileForm.css";
@@ -10,7 +9,6 @@ import { getMyProfile, updateProfile } from "../api/profile.api";
 import Logo from "../../../assets/images/Vector.svg";
 
 export default function PersonalInformationPage() {
-  const navigate = useNavigate();
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
