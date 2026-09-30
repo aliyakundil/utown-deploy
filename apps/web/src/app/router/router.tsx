@@ -11,6 +11,10 @@ import HomePage from "../../features/home/pages/HomePage";
 import FavouritesPage from "../../features/favorites/pages/FavouritesPage";
 import RestaurantsPage from "../../features/restaurants/pages/RestaurantsPage";
 import RestaurantPage from "../../features/restaurants/pages/RestaurantPage";
+import CartPage from "../../features/cart/pages/CartPage";
+import CheckoutPage from "../../features/orders/pages/CheckoutPage";
+import OrderStatusPage from "../../features/orders/pages/OrderStatusPage";
+import OrderHistoryPage from "../../features/orders/pages/OrderHistoryPage";
 
 export const router = createBrowserRouter([
   {
@@ -60,5 +64,21 @@ export const router = createBrowserRouter([
   {
     path: "/restaurants/:id",
     element: <RestaurantPage />,
+  },
+  {
+    path: "/cart",
+    element: <CartPage />,
+  },
+  {
+    path: "/checkout",
+    element: <CheckoutPage />,
+  },
+  {
+    path: "/orders",
+    element: <OrderHistoryPage />,
+  },
+  {
+    path: "/orders/:id",
+    element: <OrderStatusPage />,
   },
 ]);
