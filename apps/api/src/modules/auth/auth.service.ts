@@ -1,8 +1,8 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { prisma } from "../../db/prisma.js";
-import type { RegisterDto, LoginDto, JwtPayload, AuthResponse, RegisterResponse, RefreshTokenResponse, VerifyCodeDto, ForgotPasswordDto, ResetPasswordDto } from "./auth.types.js";
-import { validateRegister, validateLogin, validateVerificationCode, validateForgotPassword, validateResetPassword } from "./auth.validation.js";
+import type { RegisterDto, LoginDto, JwtPayload, AuthResponse, RegisterResponse, RefreshTokenResponse, VerifyCodeDto, ForgotPasswordDto, ResetPasswordDto, ChangePasswordDto } from "./auth.types.js";
+import { validateRegister, validateLogin, validateVerificationCode, validateForgotPassword, validateResetPassword, validateChangePassword } from "./auth.validation.js";
 import { generateVerificationCode } from "../../utils/generateVerificationCode.js";
 import { sendVerificationCode } from "../../services/sms.service.js";
 import type { UserRole } from "@prisma/client";
@@ -103,9 +103,10 @@ export async function register(data: RegisterDto): Promise<RegisterResponse> {
 export async function login(data: LoginDto): Promise<AuthResponse> {
   const { phone, password } = validateLogin(data);
 
-  const user = await prisma.user.findUnique({
+  const user = await prisma.user.findFirst({
     where: {
-      phone
+      phone,
+      deletedAt: null,
     }
   })
 
@@ -259,6 +260,38 @@ export async function verifyCode(
   };
 }
 
+export async function resendVerificationCode(
+  data: ForgotPasswordDto
+): Promise<{ message: string }> {
+  const { phone } = validateForgotPassword(data);
+
+  const user = await prisma.user.findUnique({
+    where: { phone },
+  });
+
+  if (user && !user.isVerified) {
+    const code = generateVerificationCode();
+
+    await prisma.verificationCode.deleteMany({
+      where: { phone },
+    });
+
+    await prisma.verificationCode.create({
+      data: {
+        phone,
+        code,
+        expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+      },
+    });
+
+    sendVerificationCode(phone, code);
+  }
+
+  return {
+    message: "If this phone number has a pending verification, a new code has been sent",
+  };
+}
+
 export async function requestPasswordReset(
   data: ForgotPasswordDto
 ): Promise<{ message: string }> {
@@ -333,6 +366,31 @@ export async function resetPassword(
   return {
     message: "Password reset successfully",
   };
+}
+
+export async function changePassword(
+  userId: number,
+  data: ChangePasswordDto
+): Promise<RefreshTokenResponse> {
+  const { newPassword } = validateChangePassword(data);
+
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+  const user = await prisma.user.update({
+    where: { id: userId },
+    data: { password: hashedPassword },
+  });
+
+  const tokens = issueTokens(user.id, user.role as UserRole);
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      refreshToken: hashRefreshToken(tokens.refreshToken),
+    },
+  });
+
+  return tokens;
 }
 
 export async function logout(userId: number) {

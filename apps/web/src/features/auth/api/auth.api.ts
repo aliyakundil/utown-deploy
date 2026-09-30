@@ -42,6 +42,17 @@ export async function verifyCode(
   return response.data;
 }
 
+export async function resendCode(
+  data: ForgotPasswordRequest
+): Promise<MessageResponse> {
+  const response = await api.post<MessageResponse>(
+    "/auth/resend-code",
+    data
+  );
+
+  return response.data;
+}
+
 export async function forgotPassword(
   data: ForgotPasswordRequest
 ): Promise<MessageResponse> {

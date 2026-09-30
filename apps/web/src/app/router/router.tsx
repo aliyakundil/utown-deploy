@@ -15,6 +15,12 @@ import CartPage from "../../features/cart/pages/CartPage";
 import CheckoutPage from "../../features/orders/pages/CheckoutPage";
 import OrderStatusPage from "../../features/orders/pages/OrderStatusPage";
 import OrderHistoryPage from "../../features/orders/pages/OrderHistoryPage";
+import ProfilePage from "../../features/profile/pages/ProfilePage";
+import AccountSettingsPage from "../../features/profile/pages/AccountSettingsPage";
+import PersonalInformationPage from "../../features/profile/pages/PersonalInformationPage";
+import PasswordPage from "../../features/profile/pages/PasswordPage";
+import InformationPage from "../../features/profile/pages/InformationPage";
+import ContactSupportPage from "../../features/profile/pages/ContactSupportPage";
 
 export const router = createBrowserRouter([
   {
@@ -80,5 +86,29 @@ export const router = createBrowserRouter([
   {
     path: "/orders/:id",
     element: <OrderStatusPage />,
+  },
+  {
+    path: "/profile",
+    element: <ProfilePage />,
+  },
+  {
+    path: "/profile/account",
+    element: <AccountSettingsPage />,
+  },
+  {
+    path: "/profile/personal-information",
+    element: <PersonalInformationPage />,
+  },
+  {
+    path: "/profile/password",
+    element: <PasswordPage />,
+  },
+  {
+    path: "/profile/information",
+    element: <InformationPage />,
+  },
+  {
+    path: "/profile/contact-support",
+    element: <ContactSupportPage />,
   },
 ]);

@@ -1,0 +1,177 @@
+.profile-page {
+  display: flex;
+  flex-direction: column;
+
+  min-height: 100vh;
+  max-width: 427px;
+  margin: 0 auto;
+
+  color: var(--color-white);
+  background: var(--color-black);
+}
+
+.profile-header {
+  position: relative;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 20px 16px;
+}
+
+.profile-header__logo {
+  display: block;
+}
+
+.profile-header__logo img {
+  height: 20px;
+  width: auto;
+}
+
+.profile-header__hamburger {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  display: flex;
+
+  border: none;
+  background: transparent;
+
+  cursor: pointer;
+}
+
+.profile-header__bell {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  display: flex;
+
+  border: none;
+  background: transparent;
+
+  cursor: pointer;
+}
+
+.profile-content {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 8px 16px 24px;
+}
+
+.profile-greeting {
+  margin-bottom: 16px;
+
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.profile-tiles {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+
+  margin-bottom: 24px;
+}
+
+.profile-tile {
+  padding: 12px 8px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+
+  color: var(--color-white);
+  font-size: 12px;
+  font-weight: 600;
+
+  border-radius: 12px;
+}
+
+.profile-tile__icon {
+  width: 20px;
+  height: 20px;
+}
+
+.profile-menu {
+  flex: 1;
+
+  list-style: none;
+}
+
+.profile-menu__item {
+  padding: 14px 0;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  font-size: 15px;
+}
+
+.profile-menu__link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  width: 100%;
+
+  color: inherit;
+  text-decoration: none;
+}
+
+.profile-menu__item img {
+  width: 20px;
+  height: 20px;
+
+  filter: brightness(0) invert(1);
+  opacity: 0.85;
+}
+
+.profile-logout {
+  padding: 16px 0;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  border: none;
+  background: transparent;
+
+  color: var(--color-error);
+  font-size: 15px;
+  text-align: left;
+
+  cursor: pointer;
+}
+
+@media (min-width: 429px) and (max-width: 1024px) {
+  .profile-page {
+    max-width: 700px;
+  }
+}
+
+@media (min-width: 1025px) {
+  .profile-page {
+    max-width: none;
+    margin-left: 260px;
+
+    box-shadow: none;
+  }
+
+  .profile-header__hamburger {
+    display: none;
+  }
+
+  .profile-menu__item {
+    max-width: 400px;
+  }
+}
