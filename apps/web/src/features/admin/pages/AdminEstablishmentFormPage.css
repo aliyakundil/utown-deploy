@@ -1,0 +1,148 @@
+.admin-establishment-form {
+  display: flex;
+  flex-direction: column;
+
+  max-width: 640px;
+  padding: 24px;
+
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+}
+
+.admin-establishment-form__image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 120px;
+  margin-bottom: 20px;
+
+  border: 1px dashed var(--color-border);
+  border-radius: 10px;
+  background: #fafafa;
+
+  color: var(--color-gray);
+  font-size: 20px;
+}
+
+.admin-establishment-form__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 20px;
+
+  margin-bottom: 20px;
+}
+
+.admin-establishment-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.admin-establishment-form__field--wide {
+  grid-column: 1 / -1;
+}
+
+.admin-establishment-form__field label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--color-gray);
+}
+
+.admin-establishment-form__field input,
+.admin-establishment-form__field select,
+.admin-establishment-form__field textarea {
+  padding: 12px 14px;
+
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.admin-establishment-form__field textarea {
+  min-height: 72px;
+  resize: vertical;
+}
+
+.admin-establishment-form__field input:focus,
+.admin-establishment-form__field select:focus,
+.admin-establishment-form__field textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.admin-establishment-form__subtitle {
+  margin-bottom: 12px;
+
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.admin-establishment-form__hours {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  margin-bottom: 12px;
+  padding: 14px 16px;
+
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: #fafafa;
+}
+
+.admin-establishment-form__day {
+  display: grid;
+  grid-template-columns: 96px 110px 1fr auto 1fr;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-establishment-form__day-label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.admin-establishment-form__dayoff {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  font-size: 12px;
+  color: var(--color-gray);
+  white-space: nowrap;
+}
+
+.admin-establishment-form__time {
+  padding: 8px 10px;
+
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-white);
+
+  font-size: 13px;
+  font-family: inherit;
+}
+
+.admin-establishment-form__time:disabled {
+  background: #f0f0f0;
+  color: var(--color-gray);
+}
+
+.admin-establishment-form__dash {
+  color: var(--color-gray);
+  text-align: center;
+}
+
+@media (max-width: 720px) {
+  .admin-establishment-form__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-establishment-form__day {
+    grid-template-columns: 88px 100px 1fr auto 1fr;
+    font-size: 12px;
+  }
+}

@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import crypto from "node:crypto";
 import { prisma } from "../../db/prisma.js";
 import type { GetUsersOptions, CreateUserByAdminDto, UpdateUserByAdminDto } from "./admin.types.js";
 
@@ -10,9 +11,10 @@ export async function getUsers(options: GetUsersOptions) {
 
   const where = options.search
     ? {
-        name: {
-          contains: options.search,
-        },
+        OR: [
+          { name: { contains: options.search } },
+          { phone: { contains: options.search } },
+        ],
       }
     : {};
 
@@ -20,6 +22,21 @@ export async function getUsers(options: GetUsersOptions) {
     where,
     skip: offset,
     take: limit,
+    orderBy: {
+      createdAt: "desc",
+    },
+    select: {
+      id: true,
+      name: true,
+      phone: true,
+      email: true,
+      city: true,
+      address: true,
+      role: true,
+      imageUrl: true,
+      isVerified: true,
+      createdAt: true,
+    },
   });
 
   const total = await prisma.user.count({
@@ -41,7 +58,19 @@ export async function getUserById(id: number) {
   const user = await prisma.user.findUnique({
     where: {
       id: id
-    }
+    },
+    select: {
+      id: true,
+      name: true,
+      phone: true,
+      email: true,
+      city: true,
+      address: true,
+      role: true,
+      imageUrl: true,
+      isVerified: true,
+      createdAt: true,
+    },
   });
   return user;
 }
@@ -51,19 +80,34 @@ export async function createUserByAdmin(input: CreateUserByAdminDto) {
     throw new Error("Username is required");
   }
 
-  if (!input.password?.trim()) {
-    throw new Error("Password is required");
+  if (!input.phone?.trim()) {
+    throw new Error("Phone is required");
   }
 
-  const hashPassword = await bcrypt.hash(input.password, 10);
+  const password =
+    input.password?.trim() || crypto.randomBytes(6).toString("hex");
+  const hashPassword = await bcrypt.hash(password, 10);
 
   const newUser = await prisma.user.create({
     data: {
       name: input.username,
       email: input.email ?? null,
+      address: input.address ?? null,
       password: hashPassword,
       role: input.role ?? "CLIENT",
       phone: input.phone,
+    },
+    select: {
+      id: true,
+      name: true,
+      phone: true,
+      email: true,
+      city: true,
+      address: true,
+      role: true,
+      imageUrl: true,
+      isVerified: true,
+      createdAt: true,
     },
   });
 
@@ -107,10 +151,59 @@ export async function patchUserByAdmin(id: number, input: UpdateUserByAdminDto) 
       city: input.city ?? user.city,
       address: input.address ?? user.address,
       imageUrl: input.imageUrl ?? user.imageUrl,
+      role: input.role ?? user.role,
+    },
+    select: {
+      id: true,
+      name: true,
+      phone: true,
+      email: true,
+      city: true,
+      address: true,
+      role: true,
+      imageUrl: true,
+      isVerified: true,
+      createdAt: true,
     },
   });
 
   return updatedUser;
+}
+
+export async function getAllOrders(options: GetUsersOptions) {
+  const page = options.page ? parseInt(options.page) : 1;
+  const limit = options.limit ? parseInt(options.limit) : 20;
+  const offset = (page - 1) * limit;
+
+  const [orders, total] = await Promise.all([
+    prisma.order.findMany({
+      skip: offset,
+      take: limit,
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        restaurant: {
+          select: { id: true, name: true },
+        },
+        user: {
+          select: { id: true, name: true, phone: true },
+        },
+        items: true,
+      },
+    }),
+    prisma.order.count(),
+  ]);
+
+  return {
+    orders,
+    meta: {
+      total,
+      page,
+      limit,
+      totalPage: Math.ceil(total / limit),
+    },
+  };
 }
 
 export async function deleteUserByAdmin(id: number) {

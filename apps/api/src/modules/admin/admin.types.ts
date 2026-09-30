@@ -3,8 +3,9 @@ import type { UserRole } from "@prisma/client";
 export interface CreateUserByAdminDto {
   username: string;
   phone: string;
-  password: string;
+  password?: string;
   email?: string | null;
+  address?: string;
   role?: UserRole;
 }
 

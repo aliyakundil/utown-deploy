@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 
 import SplashPage from "../../features/auth/pages/SplashPage";
 import AuthPage from "../../features/auth/pages/AuthPage";
@@ -25,6 +25,15 @@ import OrderTablePage from "../../features/restaurateur/pages/OrderTablePage";
 import MenuManagementPage from "../../features/restaurateur/pages/MenuManagementPage";
 import EstablishmentPage from "../../features/restaurateur/pages/EstablishmentPage";
 import StatisticsPage from "../../features/restaurateur/pages/StatisticsPage";
+import AdminUsersPage from "../../features/admin/pages/AdminUsersPage";
+import AdminClientFormPage from "../../features/admin/pages/AdminClientFormPage";
+import AdminRestaurantsPage from "../../features/admin/pages/AdminRestaurantsPage";
+import AdminEstablishmentFormPage from "../../features/admin/pages/AdminEstablishmentFormPage";
+import AdminOrdersPage from "../../features/admin/pages/AdminOrdersPage";
+import AdminCategoriesPage from "../../features/admin/pages/AdminCategoriesPage";
+import AdminCategoryFormPage from "../../features/admin/pages/AdminCategoryFormPage";
+import AdminMenuItemsPage from "../../features/admin/pages/AdminMenuItemsPage";
+import AdminMenuItemFormPage from "../../features/admin/pages/AdminMenuItemFormPage";
 
 export const router = createBrowserRouter([
   {
@@ -130,5 +139,61 @@ export const router = createBrowserRouter([
   {
     path: "/business/statistics",
     element: <StatisticsPage />,
+  },
+  {
+    path: "/admin",
+    element: <Navigate to="/admin/users" replace />,
+  },
+  {
+    path: "/admin/users",
+    element: <AdminUsersPage />,
+  },
+  {
+    path: "/admin/users/new",
+    element: <AdminClientFormPage />,
+  },
+  {
+    path: "/admin/users/:id/edit",
+    element: <AdminClientFormPage />,
+  },
+  {
+    path: "/admin/restaurants",
+    element: <AdminRestaurantsPage />,
+  },
+  {
+    path: "/admin/restaurants/new",
+    element: <AdminEstablishmentFormPage />,
+  },
+  {
+    path: "/admin/restaurants/:id/edit",
+    element: <AdminEstablishmentFormPage />,
+  },
+  {
+    path: "/admin/orders",
+    element: <AdminOrdersPage />,
+  },
+  {
+    path: "/admin/restaurants/:restaurantId/categories",
+    element: <AdminCategoriesPage />,
+  },
+  {
+    path: "/admin/restaurants/:restaurantId/categories/new",
+    element: <AdminCategoryFormPage />,
+  },
+  {
+    path: "/admin/restaurants/:restaurantId/categories/:categoryId/edit",
+    element: <AdminCategoryFormPage />,
+  },
+  {
+    path: "/admin/restaurants/:restaurantId/menu-items",
+    element: <AdminMenuItemsPage />,
+  },
+  {
+    path: "/admin/restaurants/:restaurantId/menu-items/new",
+    element: <AdminMenuItemFormPage />,
+  },
+  {
+    path: "/admin/restaurants/:restaurantId/menu-items/:menuItemId/edit",
+    element: <AdminMenuItemFormPage />,
   },
 ]);
