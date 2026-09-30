@@ -27,6 +27,9 @@ export async function createRestaurant(
       ...(validatedData.address !== undefined && {
         address: validatedData.address,
       }),
+      ...(validatedData.city !== undefined && {
+        city: validatedData.city,
+      }),
       ...(validatedData.phone !== undefined && {
         phone: validatedData.phone,
       }),
@@ -35,6 +38,15 @@ export async function createRestaurant(
       }),
       ...(validatedData.minimumOrder !== undefined && {
         minimumOrder: validatedData.minimumOrder,
+      }),
+      ...(validatedData.category !== undefined && {
+        category: validatedData.category,
+      }),
+      ...(validatedData.deliveryArea !== undefined && {
+        deliveryArea: validatedData.deliveryArea,
+      }),
+      ...(validatedData.workingHours !== undefined && {
+        workingHours: validatedData.workingHours,
       }),
     },
   });
@@ -51,6 +63,8 @@ export async function getRestaurants(query: RestaurantQueryDto) {
             { name: { contains: search } },
             { description: { contains: search } },
             { address: { contains: search } },
+            { city: { contains: search } },
+            { phone: { contains: search } },
           ],
         }
       : {}),
@@ -87,6 +101,19 @@ export async function getRestaurants(query: RestaurantQueryDto) {
       totalPages: Math.ceil(total / limit),
     },
   };
+}
+
+export async function getMyRestaurants(ownerId: number) {
+  return prisma.restaurant.findMany({
+    where: { ownerId },
+    include: {
+      categories: true,
+      menuItems: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 }
 
 export async function getRestaurantById(id: number) {
