@@ -46,7 +46,11 @@ export async function getMenuItems(
   res: Response
 ) {
   try {
-    const result = await menuItemService.getMenuItem();
+    const restaurantId = req.query.restaurantId
+      ? Number(req.query.restaurantId)
+      : undefined;
+
+    const result = await menuItemService.getMenuItem(restaurantId);
 
     return res.status(200).json({
       success: true,

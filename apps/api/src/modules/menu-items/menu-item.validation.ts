@@ -75,5 +75,9 @@ export function validateUpdateMenuItem(
     result.isAvailable = data.isAvailable;
   }
 
+  if (data.categoryId !== undefined) {
+    result.categoryId = data.categoryId;
+  }
+
   return result;
 }

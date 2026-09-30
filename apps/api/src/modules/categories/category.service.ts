@@ -44,8 +44,10 @@ export async function createCategory(
 });
 }
 
-export async function getCategories() {
+export async function getCategories(restaurantId?: number) {
   return prisma.category.findMany({
+    ...(restaurantId !== undefined && { where: { restaurantId } }),
+    orderBy: { priority: "asc" },
     include: {
       restaurant: true,
     },

@@ -11,4 +11,5 @@ export interface UpdateMenuItemDto {
   price?: number;
   imageUrl?: string;
   isAvailable?: boolean;
+  categoryId?: number;
 }

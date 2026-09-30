@@ -39,7 +39,11 @@ export async function getCategories(
   res: Response
 ) {
   try {
-    const result = await categoryService.getCategories();
+    const restaurantId = req.query.restaurantId
+      ? Number(req.query.restaurantId)
+      : undefined;
+
+    const result = await categoryService.getCategories(restaurantId);
 
     return res.status(200).json({
       success: true,

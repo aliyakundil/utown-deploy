@@ -21,6 +21,10 @@ import PersonalInformationPage from "../../features/profile/pages/PersonalInform
 import PasswordPage from "../../features/profile/pages/PasswordPage";
 import InformationPage from "../../features/profile/pages/InformationPage";
 import ContactSupportPage from "../../features/profile/pages/ContactSupportPage";
+import OrderTablePage from "../../features/restaurateur/pages/OrderTablePage";
+import MenuManagementPage from "../../features/restaurateur/pages/MenuManagementPage";
+import EstablishmentPage from "../../features/restaurateur/pages/EstablishmentPage";
+import StatisticsPage from "../../features/restaurateur/pages/StatisticsPage";
 
 export const router = createBrowserRouter([
   {
@@ -110,5 +114,21 @@ export const router = createBrowserRouter([
   {
     path: "/profile/contact-support",
     element: <ContactSupportPage />,
+  },
+  {
+    path: "/business/orders",
+    element: <OrderTablePage />,
+  },
+  {
+    path: "/business/menu",
+    element: <MenuManagementPage />,
+  },
+  {
+    path: "/business/establishment",
+    element: <EstablishmentPage />,
+  },
+  {
+    path: "/business/statistics",
+    element: <StatisticsPage />,
   },
 ]);
