@@ -44,7 +44,7 @@ export default function LoginForm() {
         "accessToken",
         response.data.accessToken
       );
-
+      
       connectSocket();
 
       navigate("/home");

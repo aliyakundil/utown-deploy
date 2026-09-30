@@ -2,10 +2,13 @@ import axios from "axios";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import "./NewPasswordForm.css";
+
 import { resetPassword } from "../api/auth.api";
 
 import Input from "../../../components/ui/Input/Input";
 import Button from "../../../components/ui/Button/Button";
+import lockIcon from "../../../assets/images/lock.svg";
 
 export default function NewPasswordForm() {
   const navigate = useNavigate();
@@ -44,9 +47,18 @@ export default function NewPasswordForm() {
 
   return (
     <form className="new-password-form" onSubmit={handleSubmit}>
+      <label
+        className="new-password-form__label"
+        htmlFor="new-password"
+      >
+        Password
+      </label>
+
       <Input
+        id="new-password"
         type="password"
-        placeholder="Password"
+        placeholder="Enter your password"
+        icon={<img src={lockIcon} alt="" />}
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
@@ -54,6 +66,7 @@ export default function NewPasswordForm() {
       <Input
         type="password"
         placeholder="Repeat the password again"
+        icon={<img src={lockIcon} alt="" />}
         value={repeatPassword}
         onChange={(e) => setRepeatPassword(e.target.value)}
       />

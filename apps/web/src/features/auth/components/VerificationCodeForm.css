@@ -24,6 +24,14 @@
   margin-bottom: 40px;
 }
 
+.verification-form__error {
+  margin-top: 16px;
+  text-align: center;
+
+  color: var(--color-error);
+  font-size: 14px;
+}
+
 .verification-form__timer {
   margin-top: 28px;
   text-align: center;
@@ -47,6 +55,11 @@
 
 .verification-form__retry:hover {
   color: #3D73F5;
+}
+
+.verification-form__retry:disabled {
+  color: #9CA3AF;
+  cursor: not-allowed;
 }
 
 .verification-form button[type="submit"] {
