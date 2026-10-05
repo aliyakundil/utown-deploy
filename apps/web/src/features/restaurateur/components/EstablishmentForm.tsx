@@ -3,10 +3,42 @@ import axios from "axios";
 
 import { createRestaurant, updateRestaurant } from "../api/restaurateur.api";
 import type { MyRestaurant } from "../types/restaurateur.types";
+import type { DayHours, WorkingHours } from "../../restaurants/types/restaurant.types";
 
 interface EstablishmentFormProps {
   restaurant: MyRestaurant | null;
   onSaved: () => Promise<void>;
+}
+
+const CATEGORY_OPTIONS = [
+  "Korean BBQ",
+  "Fried Chicken",
+  "Bunsik",
+  "Cafe & Desserts",
+  "Noodles",
+  "Bakery",
+  "Fast food",
+  "Other",
+];
+
+const DAYS: { key: keyof WorkingHours; label: string }[] = [
+  { key: "monday", label: "Monday" },
+  { key: "tuesday", label: "Tuesday" },
+  { key: "wednesday", label: "Wednesday" },
+  { key: "thursday", label: "Thursday" },
+  { key: "friday", label: "Friday" },
+  { key: "saturday", label: "Saturday" },
+  { key: "sunday", label: "Sunday" },
+];
+
+function buildDefaultWorkingHours(): WorkingHours {
+  const result = {} as WorkingHours;
+
+  for (const { key } of DAYS) {
+    result[key] = { isClosed: false, open: "09:00", close: "22:00" };
+  }
+
+  return result;
 }
 
 export default function EstablishmentForm({ restaurant, onSaved }: EstablishmentFormProps) {
@@ -15,10 +47,21 @@ export default function EstablishmentForm({ restaurant, onSaved }: Establishment
   const [address, setAddress] = useState(restaurant?.address ?? "");
   const [phone, setPhone] = useState(restaurant?.phone ?? "");
   const [minimumOrder, setMinimumOrder] = useState(restaurant?.minimumOrder ?? "");
+  const [category, setCategory] = useState(restaurant?.category ?? "");
+  const [workingHours, setWorkingHours] = useState<WorkingHours>(
+    restaurant?.workingHours ?? buildDefaultWorkingHours()
+  );
   const [status, setStatus] = useState<"OPEN" | "CLOSED">(restaurant?.status ?? "OPEN");
 
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+
+  const updateDay = (day: keyof WorkingHours, patch: Partial<DayHours>) => {
+    setWorkingHours((prev) => ({
+      ...prev,
+      [day]: { ...prev[day], ...patch },
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -37,6 +80,8 @@ export default function EstablishmentForm({ restaurant, onSaved }: Establishment
       address: address.trim() || undefined,
       phone: phone.trim() || undefined,
       minimumOrder: minimumOrder ? Number(minimumOrder) : undefined,
+      category: category || undefined,
+      workingHours,
     };
 
     try {
@@ -117,6 +162,65 @@ export default function EstablishmentForm({ restaurant, onSaved }: Establishment
         onChange={(e) => setMinimumOrder(e.target.value)}
         placeholder="500"
       />
+
+      <label className="establishment-form__label" htmlFor="category">
+        Category
+      </label>
+      <select
+        id="category"
+        className="establishment-form__input"
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+      >
+        <option value="">Select category</option>
+        {CATEGORY_OPTIONS.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+
+      <span className="establishment-form__label">Opening hours</span>
+      <div className="establishment-hours">
+        {DAYS.map(({ key, label }) => {
+          const day = workingHours[key];
+
+          return (
+            <div key={key} className="establishment-hours__day">
+              <span className="establishment-hours__day-label">{label}</span>
+
+              <label className="establishment-hours__dayoff">
+                <input
+                  type="checkbox"
+                  checked={day.isClosed}
+                  onChange={(e) =>
+                    updateDay(key, { isClosed: e.target.checked })
+                  }
+                />
+                Day off
+              </label>
+
+              <input
+                type="time"
+                className="establishment-hours__time"
+                value={day.open ?? "09:00"}
+                disabled={day.isClosed}
+                onChange={(e) => updateDay(key, { open: e.target.value })}
+              />
+
+              <span className="establishment-hours__dash">—</span>
+
+              <input
+                type="time"
+                className="establishment-hours__time"
+                value={day.close ?? "22:00"}
+                disabled={day.isClosed}
+                onChange={(e) => updateDay(key, { close: e.target.value })}
+              />
+            </div>
+          );
+        })}
+      </div>
 
       {restaurant && (
         <>

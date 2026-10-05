@@ -34,6 +34,7 @@ import AdminCategoriesPage from "../../features/admin/pages/AdminCategoriesPage"
 import AdminCategoryFormPage from "../../features/admin/pages/AdminCategoryFormPage";
 import AdminMenuItemsPage from "../../features/admin/pages/AdminMenuItemsPage";
 import AdminMenuItemFormPage from "../../features/admin/pages/AdminMenuItemFormPage";
+import BusinessHomePage from "../../features/restaurateur/pages/BusinessHomePage";
 
 export const router = createBrowserRouter([
   {
@@ -123,6 +124,10 @@ export const router = createBrowserRouter([
   {
     path: "/profile/contact-support",
     element: <ContactSupportPage />,
+  },
+  {
+    path: "/business",
+    element: <BusinessHomePage />,
   },
   {
     path: "/business/orders",

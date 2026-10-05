@@ -171,3 +171,53 @@
     padding: 24px 40px;
   }
 }
+
+.establishment-hours {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  margin-bottom: 16px;
+  padding: 12px;
+
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+}
+
+.establishment-hours__day {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  flex-wrap: wrap;
+}
+
+.establishment-hours__day-label {
+  width: 90px;
+  flex-shrink: 0;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.establishment-hours__dayoff {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  font-size: 12px;
+  color: var(--color-gray);
+}
+
+.establishment-hours__time {
+  padding: 6px 8px;
+
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+
+  font-size: 13px;
+}
+
+.establishment-hours__dash {
+  color: var(--color-gray);
+}

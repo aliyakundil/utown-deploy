@@ -10,5 +10,5 @@ const items = [
 ];
 
 export default function BusinessSidebar() {
-  return <SidebarBase logoTo="/business/orders" logoAlt="UTOWN BUSINESS" items={items} />;
+  return <SidebarBase logoTo="/business" logoAlt="UTOWN BUSINESS" items={items} />;
 }

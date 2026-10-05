@@ -1,0 +1,191 @@
+.business-home-page {
+  display: flex;
+  flex-direction: column;
+
+  min-height: 100vh;
+  max-width: 427px;
+  margin: 0 auto;
+
+  background: var(--color-white);
+}
+
+.business-home-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 16px;
+}
+
+.business-home-hamburger {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.business-home-message {
+  padding: 40px 16px;
+  text-align: center;
+  color: var(--color-gray);
+}
+
+.business-home-content {
+  padding: 0 16px 32px;
+}
+
+.business-home-title {
+  margin-bottom: 16px;
+
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.business-home-suspend {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  margin-bottom: 24px;
+  padding: 16px;
+
+  border-radius: 14px;
+  background: #0F1B33;
+  color: var(--color-white);
+}
+
+.business-home-suspend__title {
+  margin-bottom: 4px;
+
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.business-home-suspend__subtitle {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.business-home-toggle {
+  position: relative;
+  flex-shrink: 0;
+
+  width: 44px;
+  height: 24px;
+  padding: 2px;
+
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.25);
+
+  cursor: pointer;
+}
+
+.business-home-toggle--on {
+  background: var(--color-primary);
+}
+
+.business-home-toggle__knob {
+  display: block;
+  width: 20px;
+  height: 20px;
+
+  border-radius: 50%;
+  background: var(--color-white);
+
+  transition: transform 0.15s ease;
+}
+
+.business-home-toggle--on .business-home-toggle__knob {
+  transform: translateX(20px);
+}
+
+.business-home-section-title {
+  margin-bottom: 10px;
+
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.business-home-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+
+  margin-bottom: 24px;
+}
+
+.business-home-nav__item {
+  padding: 14px;
+
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-primary);
+  text-align: center;
+  text-decoration: none;
+}
+
+.business-home-hours {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+
+  margin-bottom: 20px;
+  padding-bottom: 4px;
+}
+
+.business-home-hours__day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+
+  min-width: 72px;
+  padding: 10px 8px;
+
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+
+  text-align: center;
+}
+
+.business-home-hours__label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-gray);
+}
+
+.business-home-hours__value {
+  font-size: 11px;
+  color: var(--color-black);
+}
+
+.business-home-hours-button {
+  width: 100%;
+  padding: 14px;
+
+  border: none;
+  border-radius: 12px;
+  background: var(--color-primary);
+  color: var(--color-white);
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.business-home-logo {
+  height: 14px;
+  width: auto;
+}
