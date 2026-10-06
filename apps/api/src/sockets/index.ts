@@ -1,7 +1,7 @@
 import { Server as HTTPServer } from "http";
 import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
-import type { JwtPayload } from "../modules/auth/auth.types.js";
+import { isJwtPayload } from "../middleware/auth.middleware.js";
 
 let io: Server;
 
@@ -24,7 +24,11 @@ export function initSocket(httpServer: HTTPServer) {
       const decoded = jwt.verify(
         token,
         process.env.ACCESS_TOKEN_SECRET as string
-      ) as JwtPayload;
+      );
+
+      if (!isJwtPayload(decoded)) {
+        return next(new Error("Invalid token payload"));
+      }
 
       socket.data.userId = decoded.id;
       socket.data.role = decoded.role;

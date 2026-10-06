@@ -15,7 +15,7 @@ export function connectSocket() {
   if (socket?.connected) return socket;
 
   socket = io(import.meta.env.VITE_API_URL.replace("/api", ""), {
-    auth: { token },
+    auth: (cb) => cb({ token: localStorage.getItem("accessToken") }),
   });
 
   socket.on("order:status", (data: OrderStatusEvent) => {
