@@ -61,11 +61,14 @@ export async function createRestaurant(
   });
 }
 
-export async function getRestaurants(query: RestaurantQueryDto) {
+export async function getRestaurants(
+  query: RestaurantQueryDto,
+  ownerId?: number
+) {
   const { page, limit, search, status } = validateRestaurantQuery(query);
-  const skip = (page - 1) * limit;
 
   const where = {
+    ...(ownerId !== undefined && { ownerId }),
     ...(search
       ? {
           OR: [
@@ -83,23 +86,32 @@ export async function getRestaurants(query: RestaurantQueryDto) {
   const [restaurants, total] = await Promise.all([
     prisma.restaurant.findMany({
       where,
-      skip,
-      take: limit,
+      ...(ownerId === undefined && {
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
       orderBy: {
         createdAt: "desc",
       },
-      include: {
-        owner: {
-          select: {
-            id: true,
-            name: true,
-            phone: true,
-          },
-        },
-      },
+      include:
+        ownerId !== undefined
+          ? { categories: true, menuItems: true }
+          : {
+              owner: {
+                select: {
+                  id: true,
+                  name: true,
+                  phone: true,
+                },
+              },
+            },
     }),
     prisma.restaurant.count({ where }),
   ]);
+
+  if (ownerId !== undefined) {
+    return restaurants;
+  }
 
   return {
     data: restaurants,
@@ -110,19 +122,6 @@ export async function getRestaurants(query: RestaurantQueryDto) {
       totalPages: Math.ceil(total / limit),
     },
   };
-}
-
-export async function getMyRestaurants(ownerId: number) {
-  return prisma.restaurant.findMany({
-    where: { ownerId },
-    include: {
-      categories: true,
-      menuItems: true,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
 }
 
 export async function getRestaurantById(id: number) {

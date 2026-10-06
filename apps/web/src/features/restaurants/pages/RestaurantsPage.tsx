@@ -8,11 +8,7 @@ import NotificationBell from "../../../components/ui/NotificationBell/Notificati
 import FavoriteButton from "../../../components/ui/FavoriteButton/FavoriteButton";
 import Sidebar from "../../../components/layout/Sidebar/Sidebar";
 import { getRestaurants } from "../api/restaurants.api";
-import {
-  getFavorites,
-  addFavorite,
-  removeFavorite,
-} from "../../favorites/api/favorites.api";
+import { useFavorites } from "../../favorites/context/FavoritesContext";
 import type { Restaurant } from "../types/restaurant.types";
 
 import UTIcon from "../../../assets/images/Vector.svg";
@@ -22,7 +18,7 @@ export default function RestaurantsPage() {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -36,24 +32,6 @@ export default function RestaurantsPage() {
 
     return () => clearTimeout(timeout);
   }, [query]);
-
-  useEffect(() => {
-    getFavorites()
-      .then((res) => setFavoriteIds(res.data.map((f) => f.restaurantId)))
-      .catch(() => {});
-  }, []);
-
-  const handleToggleFavorite = async (restaurantId: number) => {
-    const isFavorite = favoriteIds.includes(restaurantId);
-
-    if (isFavorite) {
-      setFavoriteIds((ids) => ids.filter((id) => id !== restaurantId));
-      await removeFavorite(restaurantId).catch(() => {});
-    } else {
-      setFavoriteIds((ids) => [...ids, restaurantId]);
-      await addFavorite(restaurantId).catch(() => {});
-    }
-  };
 
   return (
     <>
@@ -136,8 +114,8 @@ export default function RestaurantsPage() {
 
             <div className="restaurant-card__favorite">
               <FavoriteButton
-                isFavorite={favoriteIds.includes(r.id)}
-                onToggle={() => handleToggleFavorite(r.id)}
+                isFavorite={isFavorite(r.id)}
+                onToggle={() => toggleFavorite(r.id)}
               />
             </div>
           </Link>
