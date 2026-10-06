@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import "./RestaurantPage.css";
@@ -32,6 +32,26 @@ export default function RestaurantPage() {
   const [error, setError] = useState("");
   const [isFavorite, setIsFavorite] = useState(false);
 
+  function refreshCart() {
+    getCart()
+      .then((res) => syncCartLines(res.data.items))
+      .catch(() => {});
+  }
+
+  function syncCartLines(items: CartItem[]) {
+    const lines: Record<number, CartLine> = {};
+
+    items.forEach((item) => {
+      lines[item.menuItemId] = {
+        cartItemId: item.id,
+        quantity: item.quantity,
+        price: Number(item.priceSnapshot),
+      };
+    });
+
+    setCartLines(lines);
+  }
+
   useEffect(() => {
     if (!id) return;
 
@@ -62,26 +82,6 @@ export default function RestaurantPage() {
     }
   };
 
-  function refreshCart() {
-    getCart()
-      .then((res) => syncCartLines(res.data.items))
-      .catch(() => {});
-  }
-
-  function syncCartLines(items: CartItem[]) {
-    const lines: Record<number, CartLine> = {};
-
-    items.forEach((item) => {
-      lines[item.menuItemId] = {
-        cartItemId: item.id,
-        quantity: item.quantity,
-        price: Number(item.priceSnapshot),
-      };
-    });
-
-    setCartLines(lines);
-  }
-
   const cartCount = Object.values(cartLines).reduce(
     (sum, line) => sum + line.quantity,
     0
@@ -96,8 +96,17 @@ export default function RestaurantPage() {
     setError("");
 
     try {
-      await addCartItem(menuItemId, 1);
-      refreshCart();
+      const response = await addCartItem(menuItemId, 1);
+      const item = response.data;
+
+      setCartLines((prev) => ({
+        ...prev,
+        [item.menuItemId]: {
+          cartItemId: item.id,
+          quantity: item.quantity,
+          price: Number(item.priceSnapshot),
+        },
+      }));
     } catch (err) {
       if (axios.isAxiosError(err)) {
         setError(
@@ -116,12 +125,34 @@ export default function RestaurantPage() {
 
     if (nextQuantity < 1) {
       await removeCartItem(line.cartItemId);
-    } else {
-      await updateCartItem(line.cartItemId, nextQuantity);
-    }
 
-    refreshCart();
+      setCartLines((prev) => {
+        const next = { ...prev };
+        delete next[menuItemId];
+        return next;
+      });
+    } else {
+      const response = await updateCartItem(line.cartItemId, nextQuantity);
+      const item = response.data;
+
+      setCartLines((prev) => ({
+        ...prev,
+        [menuItemId]: {
+          cartItemId: item.id,
+          quantity: item.quantity,
+          price: Number(item.priceSnapshot),
+        },
+      }));
+    }
   };
+
+  const categories = useMemo(
+    () =>
+      restaurant
+        ? [...restaurant.categories].sort((a, b) => a.priority - b.priority)
+        : [],
+    [restaurant]
+  );
 
   if (!restaurant) {
     return (
@@ -131,10 +162,6 @@ export default function RestaurantPage() {
       </>
     );
   }
-
-  const categories = restaurant.categories.sort(
-    (a, b) => a.priority - b.priority
-  );
 
   return (
     <>

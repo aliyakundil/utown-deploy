@@ -2,6 +2,7 @@ export interface DayHours {
   isClosed: boolean;
   open?: string;
   close?: string;
+  [key: string]: boolean | string | undefined;
 }
 
 export type WorkingHours = Record<
