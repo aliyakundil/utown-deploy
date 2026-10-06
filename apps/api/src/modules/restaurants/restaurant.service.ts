@@ -106,6 +106,10 @@ export async function getRestaurants(
     prisma.restaurant.count({ where }),
   ]);
 
+  if (ownerId !== undefined) {
+    return restaurants;
+  }
+
   return {
     data: restaurants,
     meta: {
