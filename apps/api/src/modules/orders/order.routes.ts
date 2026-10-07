@@ -68,6 +68,35 @@ router.get(
 
 /**
  * @swagger
+ * /orders/restaurant/{restaurantId}:
+ *   get:
+ *     summary: Get orders for a restaurant (owner/admin only)
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: restaurantId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: List of the restaurant's orders
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Restaurant not found
+ */
+router.get(
+  "/restaurant/:restaurantId",
+  authenticateToken,
+  requireRoles("ADMIN", "RESTAURATEUR"),
+  orderController.getRestaurantOrders
+);
+
+/**
+ * @swagger
  * /orders/{id}:
  *   get:
  *     summary: Get order by id

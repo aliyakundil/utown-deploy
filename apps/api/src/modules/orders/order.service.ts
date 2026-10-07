@@ -1,5 +1,6 @@
 import { prisma } from "../../db/prisma.js";
 import { UserRole } from "@prisma/client";
+import { getIO } from "../../sockets/index.js";
 
 import type { CreateOrderDto, UpdateOrderStatusDto } from "./order.types.js";
 import { validateCreateOrder, validateUpdateOrderStatus } from "./order.validation.js";
@@ -109,6 +110,45 @@ export async function getMyOrders(userId: number) {
   });
 }
 
+export async function getRestaurantOrders(
+  restaurantId: number,
+  currentUserId: number,
+  currentUserRole: UserRole
+) {
+  const restaurant = await prisma.restaurant.findUnique({
+    where: { id: restaurantId },
+  });
+
+  if (!restaurant) {
+    throw new Error("Restaurant not found");
+  }
+
+  const canManage =
+    currentUserRole === UserRole.ADMIN ||
+    restaurant.ownerId === currentUserId;
+
+  if (!canManage) {
+    throw new Error("Forbidden");
+  }
+
+  return prisma.order.findMany({
+    where: { restaurantId },
+    include: {
+      items: true,
+      user: {
+        select: {
+          id: true,
+          name: true,
+          phone: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+}
+
 export async function getOrderById(
   orderId: number,
   userId: number
@@ -164,7 +204,7 @@ export async function updateOrderStatus(
     throw new Error("Forbidden");
   }
 
-  return prisma.order.update({
+  const updatedOrder = await prisma.order.update({
     where: {
       id: orderId,
     },
@@ -173,8 +213,14 @@ export async function updateOrderStatus(
       statusUpdatedAt: new Date(),
     },
   });
-}
 
+  getIO().to(`user:${order.userId}`).emit("order:status", {
+    orderId: updatedOrder.id,
+    status: updatedOrder.status,
+  });
+
+  return updatedOrder;
+}
 
 export async function cancelOrder(
   orderId: number,

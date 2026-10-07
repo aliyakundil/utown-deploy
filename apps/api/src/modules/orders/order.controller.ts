@@ -67,6 +67,51 @@ export async function getMyOrders(
   }
 }
 
+export async function getRestaurantOrders(
+  req: Request,
+  res: Response
+) {
+  try {
+    const currentUserId = req.user?.id;
+    const currentUserRole = req.user?.role;
+
+    if (!currentUserId || !currentUserRole) {
+      return res.status(401).json({
+        success: false,
+        error: "Unauthorized",
+      });
+    }
+
+    const restaurantId = Number(req.params.restaurantId);
+
+    if (Number.isNaN(restaurantId)) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid restaurant id",
+      });
+    }
+
+    const result = await orderService.getRestaurantOrders(
+      restaurantId,
+      currentUserId,
+      currentUserRole
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Unknown error";
+
+    return res.status(message === "Forbidden" ? 403 : 400).json({
+      success: false,
+      error: message,
+    });
+  }
+}
+
 export async function getOrderById(
   req: Request,
   res: Response
