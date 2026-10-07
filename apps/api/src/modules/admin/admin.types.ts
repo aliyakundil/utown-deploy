@@ -23,4 +23,5 @@ export interface GetUsersOptions {
   page?: string;
   limit?: string;
   search?: string;
+  role?: string;
 }

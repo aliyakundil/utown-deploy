@@ -18,6 +18,8 @@ import type {
   DayHours,
   WorkingHours,
 } from "../../restaurants/types/restaurant.types";
+import { getAllUsers } from "../api/admin.api";
+
 
 type LoadState = "loading" | "forbidden" | "ready";
 
@@ -71,6 +73,9 @@ export default function AdminEstablishmentFormPage() {
   );
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [ownerId, setOwnerId] = useState("");
+  const [restaurateurs, setRestaurateurs] = useState<{ id: number; name: string; phone: string }[]>([]);
+
 
   useEffect(() => {
     getMyProfile()
@@ -79,6 +84,10 @@ export default function AdminEstablishmentFormPage() {
           setState("forbidden");
           return;
         }
+
+        getAllUsers(1, undefined, "RESTAURATEUR").then((res) => {
+          setRestaurateurs(res.data.users);
+        })
 
         if (!isEditing) {
           setState("ready");
@@ -122,6 +131,7 @@ export default function AdminEstablishmentFormPage() {
     setIsSaving(true);
 
     const payload = {
+      ownerId: !isEditing && ownerId ? Number(ownerId) : undefined,
       name: name.trim(),
       description: description.trim() || undefined,
       address: address.trim() || undefined,
@@ -214,6 +224,24 @@ export default function AdminEstablishmentFormPage() {
               <div className="admin-establishment-form__image">
                 <span>↑</span>
               </div>
+
+              {!isEditing && (
+                <div className="admin-establishment-form__field">
+                  <label htmlFor="ownerId">Owner (restaurateur)</label>
+                  <select
+                    id="ownerId"
+                    value={ownerId}
+                    onChange={(e) => setOwnerId(e.target.value)}
+                  >
+                    <option value="">Myself (admin)</option>
+                    {restaurateurs.map((r) => (
+                      <option key={r.id} value={r.id}>
+                        {r.name} · {r.phone}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div className="admin-establishment-form__grid">
                 <div className="admin-establishment-form__field">

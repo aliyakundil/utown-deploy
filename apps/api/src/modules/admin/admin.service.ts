@@ -9,7 +9,7 @@ export async function getUsers(options: GetUsersOptions) {
   const limit = options.limit ? parseInt(options.limit) : 10;
   const offset = (page - 1) * limit;
 
-  const where = options.search
+  const where: any = options.search
     ? {
         OR: [
           { name: { contains: options.search } },
@@ -17,6 +17,10 @@ export async function getUsers(options: GetUsersOptions) {
         ],
       }
     : {};
+
+  if (options.role) {
+    where.role = options.role;
+  }
 
   const users = await prisma.user.findMany({
     where,

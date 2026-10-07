@@ -21,9 +21,9 @@ import type {
   UpdateMenuItemRequest,
 } from "../../restaurants/types/restaurant.types";
 
-export async function getAllUsers(page = 1, search?: string) {
+export async function getAllUsers(page = 1, search?: string, role?: string) {
   const response = await api.get<AdminUsersResponse>("/admin/users", {
-    params: { page, search: search || undefined },
+    params: { page, search: search || undefined, role: role || undefined, limit: role ? 100 : undefined },
   });
 
   return response.data;

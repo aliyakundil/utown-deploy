@@ -19,6 +19,7 @@ export type WorkingHours = Record<
 >;
 
 export interface CreateRestaurantDto {
+  ownerId?: number;
   name: string;
   description?: string;
   address?: string;

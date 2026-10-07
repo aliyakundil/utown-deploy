@@ -13,7 +13,12 @@ export async function createRestaurant(req: Request, res: Response) {
       });
     }
 
-    const result = await restaurantService.createRestaurant(userId, req.body);
+    const ownerId =
+      userRole === "ADMIN" && req.body.ownerId
+        ? Number(req.body.ownerId)
+        : userId;
+
+    const result = await restaurantService.createRestaurant(ownerId, req.body);
 
     return res.status(201).json({
       success: true,
