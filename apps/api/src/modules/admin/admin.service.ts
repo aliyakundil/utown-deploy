@@ -216,10 +216,56 @@ export async function getAllOrders(options: GetUsersOptions) {
 }
 
 export async function deleteUserByAdmin(id: number) {
+  const restaurants = await prisma.restaurant.findMany({
+    where: { ownerId: id },
+    select: { id: true },
+  });
+  const restaurantIds = restaurants.map((r) => r.id);
+
+  if (restaurantIds.length > 0) {
+    const menuItems = await prisma.menuItem.findMany({
+      where: { restaurantId: { in: restaurantIds } },
+      select: { id: true },
+    });
+    const menuItemIds = menuItems.map((m) => m.id);
+
+    const orders = await prisma.order.findMany({
+      where: { restaurantId: { in: restaurantIds } },
+      select: { id: true },
+    });
+    const orderIds = orders.map((o) => o.id);
+
+    await prisma.orderItem.deleteMany({ where: { orderId: { in: orderIds } } });
+    await prisma.cartItem.deleteMany({ where: { menuItemId: { in: menuItemIds } } });
+
+    await prisma.cart.updateMany({
+      where: { restaurantId: { in: restaurantIds } },
+      data: { restaurantId: null },
+    });
+
+    await prisma.notification.deleteMany({
+      where: {
+        OR: [
+          { restaurantId: { in: restaurantIds } },
+          { orderId: { in: orderIds } },
+        ],
+      },
+    });
+
+    await prisma.favorite.deleteMany({ where: { restaurantId: { in: restaurantIds } } });
+    await prisma.restaurantRating.deleteMany({ where: { restaurantId: { in: restaurantIds } } });
+    await prisma.order.deleteMany({ where: { restaurantId: { in: restaurantIds } } });
+    await prisma.menuItem.deleteMany({ where: { restaurantId: { in: restaurantIds } } });
+    await prisma.category.deleteMany({ where: { restaurantId: { in: restaurantIds } } });
+    await prisma.restaurant.deleteMany({ where: { id: { in: restaurantIds } } });
+  }
+
   await prisma.cart.deleteMany({ where: { userId: id } });
   await prisma.order.deleteMany({ where: { userId: id } });
   await prisma.favorite.deleteMany({ where: { userId: id } });
   await prisma.restaurantRating.deleteMany({ where: { userId: id } });
+  await prisma.notification.deleteMany({ where: { userId: id } });
+  await prisma.upload.deleteMany({ where: { userId: id } });
 
   return prisma.user.delete({
     where: { id },

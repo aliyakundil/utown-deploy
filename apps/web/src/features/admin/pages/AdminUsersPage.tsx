@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 import "./AdminPages.css";
 
@@ -73,9 +74,13 @@ export default function AdminUsersPage() {
     try {
       await deleteUser(userId);
       await loadUsers(page, search);
-    } catch {
-      setError("Couldn't delete the user");
-    }
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.error ?? "Couldn't delete the user");
+      } else {
+        setError("Couldn't delete the user");
+      }
+  }
   };
 
   if (state === "forbidden") {
