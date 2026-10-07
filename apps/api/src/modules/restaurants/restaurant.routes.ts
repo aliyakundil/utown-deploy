@@ -18,6 +18,25 @@ router.get("/", restaurantController.getRestaurants);
 
 /**
  * @swagger
+ * /restaurants/mine:
+ *   get:
+ *     summary: Get restaurants owned by the current user
+ *     tags: [Restaurants]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of the current user's restaurants
+ */
+router.get(
+  "/mine",
+  authenticateToken,
+  requireRoles("ADMIN", "RESTAURATEUR"),
+  restaurantController.getMyRestaurants
+);
+
+/**
+ * @swagger
  * /restaurants/{id}:
  *   get:
  *     summary: Get restaurant by id

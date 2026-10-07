@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import { login } from "../api/auth.api";
 import type { ApiErrorResponse } from "../types/auth.types";
+import { connectSocket } from "../../../lib/socket";
 
 import Input from "../../../components/ui/Input/Input";
 import Button from "../../../components/ui/Button/Button";
@@ -43,6 +44,8 @@ export default function LoginForm() {
         "accessToken",
         response.data.accessToken
       );
+
+      connectSocket();
 
       navigate("/home");
     } catch (error) {
@@ -114,6 +117,7 @@ export default function LoginForm() {
       <button
         type="button"
         className="login-form__recover"
+        onClick={() => navigate("/recover-password")}
       >
         Forgot your password? Recover it
       </button>

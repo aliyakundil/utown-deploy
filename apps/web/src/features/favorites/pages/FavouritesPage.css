@@ -1,0 +1,173 @@
+.favourites-page {
+  display: flex;
+  flex-direction: column;
+
+  min-height: 100vh;
+  max-width: 427px;
+  margin: 0 auto;
+
+  background: var(--color-white);
+}
+
+.favourites-header {
+  position: relative;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 20px 16px;
+}
+
+.favourites-header__hamburger {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  display: flex;
+
+  border: none;
+  background: transparent;
+
+  cursor: pointer;
+}
+
+.favourites-header__logo {
+  display: block;
+}
+
+.favourites-header__logo img {
+  height: 22px;
+  width: auto;
+}
+
+.favourites-header__bell {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  display: flex;
+
+  border: none;
+  background: transparent;
+
+  cursor: pointer;
+}
+
+.favourites-title {
+  padding: 0 16px;
+  margin-bottom: 16px;
+
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.favourites-content {
+  flex: 1;
+
+  padding: 0 16px 32px;
+}
+
+.favourites-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+
+  margin: 60px auto 0;
+
+  color: var(--color-gray);
+  font-size: 14px;
+  text-align: center;
+}
+
+.favourites-empty img {
+  width: 40px;
+  height: 40px;
+
+  opacity: 0.4;
+}
+
+.favourites-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.favourites-list .restaurant-card {
+  display: flex;
+  gap: 12px;
+
+  color: inherit;
+}
+
+.favourites-list .restaurant-card__image {
+  flex: 0 0 88px;
+
+  width: 88px;
+  height: 88px;
+
+  background: var(--color-border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.favourites-list .restaurant-card__image img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+.favourites-list .restaurant-card__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.favourites-list .restaurant-card__name {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.favourites-list .restaurant-card__desc {
+  margin-top: 2px;
+
+  overflow: hidden;
+
+  color: var(--color-gray);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.favourites-list .restaurant-card__favorite {
+  flex: 0 0 auto;
+  align-self: flex-start;
+}
+
+@media (min-width: 429px) and (max-width: 1024px) {
+  .favourites-page {
+    max-width: 700px;
+  }
+}
+
+@media (min-width: 1025px) {
+  .favourites-page {
+    max-width: none;
+    margin-left: 260px;
+
+    box-shadow: none;
+  }
+
+  .favourites-header__hamburger {
+    display: none;
+  }
+
+  .favourites-list {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+}

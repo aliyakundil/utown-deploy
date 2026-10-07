@@ -1,0 +1,15 @@
+.favorite-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 32px;
+  height: 32px;
+
+  border: none;
+  border-radius: 50%;
+  background: var(--color-white);
+
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}

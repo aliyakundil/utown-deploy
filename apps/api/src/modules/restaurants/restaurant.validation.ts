@@ -11,8 +11,11 @@ export function validateCreateRestaurant(data: CreateRestaurantDto) {
   const name = data.name?.trim();
   const description = data.description?.trim();
   const address = data.address?.trim();
+  const city = data.city?.trim();
   const phone = data.phone?.trim();
   const imageUrl = data.imageUrl?.trim();
+  const category = data.category?.trim();
+  const deliveryArea = data.deliveryArea?.trim();
 
   if (!name) {
     throw new Error("Restaurant name is required");
@@ -44,8 +47,12 @@ export function validateCreateRestaurant(data: CreateRestaurantDto) {
     name,
     description,
     address,
+    city,
     phone,
     imageUrl,
+    category,
+    deliveryArea,
+    workingHours: data.workingHours,
     status: data.status ?? StatusRestaurants.OPEN,
     minimumOrder: data.minimumOrder,
   };
@@ -88,6 +95,22 @@ export function validateUpdateRestaurant(data: UpdateRestaurantDto) {
 
   if (data.imageUrl !== undefined) {
     result.imageUrl = data.imageUrl.trim();
+  }
+
+  if (data.city !== undefined) {
+    result.city = data.city.trim();
+  }
+
+  if (data.category !== undefined) {
+    result.category = data.category.trim();
+  }
+
+  if (data.deliveryArea !== undefined) {
+    result.deliveryArea = data.deliveryArea.trim();
+  }
+
+  if (data.workingHours !== undefined) {
+    result.workingHours = data.workingHours;
   }
 
   if (data.status !== undefined) {
