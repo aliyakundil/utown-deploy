@@ -5,6 +5,7 @@ import type {
   UserRole,
   CreateClientRequest,
   AdminUserResponse,
+  CreateUserByAdminResponse,
 } from "../types/admin.types";
 import type {
   RestaurantListResponse,
@@ -77,7 +78,7 @@ export async function getUserById(userId: number) {
 }
 
 export async function createClient(data: CreateClientRequest) {
-  const response = await api.post<AdminUserResponse>("/admin/users", data);
+  const response = await api.post<CreateUserByAdminResponse>("/admin/users", data);
   return response.data;
 }
 

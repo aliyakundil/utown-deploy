@@ -64,3 +64,11 @@ export interface AdminUserResponse {
   success: boolean;
   data: AdminUser;
 }
+
+export interface CreateUserByAdminResponse {
+  success: boolean;
+  data: {
+    user: AdminUser;
+    generatedPassword?: string;
+  };
+}

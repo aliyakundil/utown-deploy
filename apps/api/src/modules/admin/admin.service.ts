@@ -88,6 +88,8 @@ export async function createUserByAdmin(input: CreateUserByAdminDto) {
     throw new Error("Phone is required");
   }
 
+  const wasGenerated = !input.password?.trim();
+
   const password =
     input.password?.trim() || crypto.randomBytes(6).toString("hex");
   const hashPassword = await bcrypt.hash(password, 10);
@@ -115,7 +117,10 @@ export async function createUserByAdmin(input: CreateUserByAdminDto) {
     },
   });
 
-  return newUser;
+  return {
+    user: newUser,
+    generatedPassword: wasGenerated ? password : undefined,
+  };
 }
 
 export async function updateUserByAdmin(id: number, input: any) {

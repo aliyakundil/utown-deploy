@@ -23,6 +23,8 @@ export default function AdminClientFormPage() {
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
+  const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
+
   useEffect(() => {
     getMyProfile()
       .then((res) => {
@@ -64,15 +66,20 @@ export default function AdminClientFormPage() {
           phone: phone.trim(),
           address: address.trim() || undefined,
         });
+        navigate("/admin/users");
       } else {
-        await createClient({
+        const response = await createClient({
           username: name.trim(),
           phone: phone.trim(),
           address: address.trim() || undefined,
         });
-      }
 
-      navigate("/admin/users");
+        if (response.data.generatedPassword) {
+          setGeneratedPassword(response.data.generatedPassword);
+        } else {
+          navigate("/admin/users");
+        }
+      }
     } catch (err) {
       if (axios.isAxiosError(err)) {
         setError(err.response?.data?.error ?? "Couldn't save the client");
@@ -97,6 +104,35 @@ export default function AdminClientFormPage() {
       </>
     );
   }
+
+  if (generatedPassword) {
+    return (
+      <>
+        <AdminSidebar />
+        <main className="admin-page">
+          <AdminTopBar />
+          <div className="admin-content">
+            <p className="admin-breadcrumb">Home / Users / Clients / Add</p>
+            <h1 className="admin-form-title">Client created</h1>
+            <p className="admin-message">
+              Save this password now — it won't be shown again:
+            </p>
+            <p className="admin-form-title" style={{ fontFamily: "monospace" }}>
+              {generatedPassword}
+            </p>
+            <button
+              type="button"
+              className="admin-client-form__save"
+              onClick={() => navigate("/admin/users")}
+            >
+              Done
+            </button>
+          </div>
+        </main>
+      </>
+    );
+  }
+
 
   return (
     <>
