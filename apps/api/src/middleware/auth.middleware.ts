@@ -13,7 +13,7 @@ function getEnv(name: string): string {
 
 const ACCESS_SECRET = getEnv("ACCESS_TOKEN_SECRET");
 
-function isJwtPayload(payload: unknown): payload is JwtPayload {
+export function isJwtPayload(payload: unknown): payload is JwtPayload {
   if (typeof payload !== "object" || payload === null) {
     return false;
   }
