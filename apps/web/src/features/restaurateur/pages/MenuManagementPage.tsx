@@ -33,6 +33,20 @@ export default function MenuManagementPage() {
   const [itemPrice, setItemPrice] = useState("");
   const [itemDescription, setItemDescription] = useState("");
 
+  const openItemFormFor = (categoryId: number) => {
+    setItemName("");
+    setItemPrice("");
+    setItemDescription("");
+    setOpenItemForm(categoryId);
+  };
+
+  const closeItemForm = () => {
+    setItemName("");
+    setItemPrice("");
+    setItemDescription("");
+    setOpenItemForm(null);
+  };
+
   useEffect(() => {
     getMyProfile()
       .then((res) => {
@@ -304,7 +318,7 @@ export default function MenuManagementPage() {
                       <button
                         type="button"
                         className="menu-mgmt-link-button"
-                        onClick={() => setOpenItemForm(null)}
+                        onClick={closeItemForm}
                       >
                         Cancel
                       </button>
@@ -314,7 +328,7 @@ export default function MenuManagementPage() {
                   <button
                     type="button"
                     className="menu-mgmt-add-item-button"
-                    onClick={() => setOpenItemForm(category.id)}
+                    onClick={() => openItemFormFor(category.id)}
                   >
                     + Add item
                   </button>
