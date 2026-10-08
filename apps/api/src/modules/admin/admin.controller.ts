@@ -161,6 +161,9 @@ export async function deleteUserByAdmin(req: Request, res: Response, next: NextF
 
     return res.status(204).send();
   } catch (error) {
-    next(error);
+    return res.status(400).json({
+      success: false,
+      error: error instanceof Error ? error.message : "Couldn't delete the user",
+    });
   }
 }

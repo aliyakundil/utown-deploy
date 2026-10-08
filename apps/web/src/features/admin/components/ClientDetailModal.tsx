@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 import "./ClientDetailModal.css";
 
@@ -33,8 +34,14 @@ export default function ClientDetailModal({
     try {
       await deleteUser(userId);
       onDeleted();
-    } catch {
-      setError("Couldn't delete this client");
+    } catch (err) {
+      setIsConfirmingDelete(false);
+
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.error ?? "Couldn't delete this client");
+      } else {
+        setError("Couldn't delete this client");
+      }
     }
   };
 
