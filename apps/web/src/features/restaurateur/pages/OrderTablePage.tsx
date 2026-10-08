@@ -5,10 +5,10 @@ import "./OrderTablePage.css";
 
 import BusinessSidebar from "../components/BusinessSidebar";
 import { useSidebar } from "../../../components/layout/Sidebar/SidebarContext";
-import { getMyProfile } from "../../profile/api/profile.api";
-import { getMyRestaurants, getRestaurantOrders } from "../api/restaurateur.api";
+import { useMyRestaurant } from "../context/RestaurantContext";
+import { getRestaurantOrders } from "../api/restaurateur.api";
 import { updateOrderStatus } from "../../orders/api/orders.api";
-import type { MyRestaurant, RestaurantOrder } from "../types/restaurateur.types";
+import type { RestaurantOrder } from "../types/restaurateur.types";
 import type { OrderStatus } from "../../orders/types/order.types";
 
 const STATUS_OPTIONS: OrderStatus[] = [
@@ -20,47 +20,27 @@ const STATUS_OPTIONS: OrderStatus[] = [
   "CANCELLED",
 ];
 
-type LoadState = "loading" | "forbidden" | "no-restaurant" | "ready";
-
 export default function OrderTablePage() {
   const navigate = useNavigate();
   const { open } = useSidebar();
+  const { state: restaurantState, restaurant } = useMyRestaurant();
 
-  const [state, setState] = useState<LoadState>("loading");
-  const [restaurant, setRestaurant] = useState<MyRestaurant | null>(null);
   const [orders, setOrders] = useState<RestaurantOrder[]>([]);
+  const [ordersLoaded, setOrdersLoaded] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    getMyProfile()
-      .then((res) => {
-        if (res.data.role !== "RESTAURATEUR" && res.data.role !== "ADMIN") {
-          setState("forbidden");
-          return;
-        }
-
-        return getMyRestaurants().then((restaurantsRes) => {
-          const first = restaurantsRes.data[0];
-
-          if (!first) {
-            setState("no-restaurant");
-            return;
-          }
-
-          setRestaurant(first);
-          return loadOrders(first.id);
-        });
-      })
-      .catch(() => setState("forbidden"));
-  }, []);
+    if (!restaurant) return;
+    loadOrders(restaurant.id);
+  }, [restaurant]);
 
   function loadOrders(restaurantId: number) {
     return getRestaurantOrders(restaurantId)
       .then((res) => {
         setOrders(res.data);
-        setState("ready");
+        setOrdersLoaded(true);
       })
-      .catch(() => setState("forbidden"));
+      .catch(() => {});
   }
 
   const handleStatusChange = async (orderId: number, status: OrderStatus) => {
@@ -74,7 +54,18 @@ export default function OrderTablePage() {
     }
   };
 
-  if (state === "forbidden") {
+  if (restaurantState === "loading" || restaurantState === "idle") {
+    return (
+      <>
+        <BusinessSidebar />
+        <main className="order-table-page">
+          <p className="order-table-message">Loading...</p>
+        </main>
+      </>
+    );
+  }
+
+  if (restaurantState === "forbidden") {
     return (
       <>
         <BusinessSidebar />
@@ -94,7 +85,7 @@ export default function OrderTablePage() {
     );
   }
 
-  if (state === "no-restaurant") {
+  if (!restaurant) {
     return (
       <>
         <BusinessSidebar />
@@ -129,18 +120,14 @@ export default function OrderTablePage() {
             </svg>
           </button>
 
-          <h1 className="order-table-title">
-            {restaurant ? restaurant.name : "Order table"}
-          </h1>
+          <h1 className="order-table-title">{restaurant.name}</h1>
         </header>
 
         {error && <p className="order-table-error">{error}</p>}
 
-        {state === "loading" && (
-          <p className="order-table-message">Loading...</p>
-        )}
+        {!ordersLoaded && <p className="order-table-message">Loading...</p>}
 
-        {state === "ready" && orders.length === 0 && (
+        {ordersLoaded && orders.length === 0 && (
           <p className="order-table-message">No orders yet.</p>
         )}
 

@@ -5,9 +5,9 @@ import "./StatisticsPage.css";
 
 import BusinessSidebar from "../components/BusinessSidebar";
 import { useSidebar } from "../../../components/layout/Sidebar/SidebarContext";
-import { getMyProfile } from "../../profile/api/profile.api";
-import { getMyRestaurants, getRestaurantOrders } from "../api/restaurateur.api";
-import type { MyRestaurant, RestaurantOrder } from "../types/restaurateur.types";
+import { useMyRestaurant } from "../context/RestaurantContext";
+import { getRestaurantOrders } from "../api/restaurateur.api";
+import type { RestaurantOrder } from "../types/restaurateur.types";
 import type { OrderStatus } from "../../orders/types/order.types";
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
@@ -28,44 +28,35 @@ const STATUS_ORDER: OrderStatus[] = [
   "CANCELLED",
 ];
 
-type LoadState = "loading" | "forbidden" | "no-restaurant" | "ready";
-
 export default function StatisticsPage() {
   const navigate = useNavigate();
   const { open } = useSidebar();
+  const { state: restaurantState, restaurant } = useMyRestaurant();
 
-  const [state, setState] = useState<LoadState>("loading");
-  const [restaurant, setRestaurant] = useState<MyRestaurant | null>(null);
   const [orders, setOrders] = useState<RestaurantOrder[]>([]);
+  const [ordersLoaded, setOrdersLoaded] = useState(false);
 
   useEffect(() => {
-    getMyProfile()
-      .then((res) => {
-        if (res.data.role !== "RESTAURATEUR" && res.data.role !== "ADMIN") {
-          setState("forbidden");
-          return;
-        }
+    if (!restaurant) return;
 
-        return getMyRestaurants().then((restaurantsRes) => {
-          const first = restaurantsRes.data[0];
+    getRestaurantOrders(restaurant.id).then((ordersRes) => {
+      setOrders(ordersRes.data);
+      setOrdersLoaded(true);
+    });
+  }, [restaurant]);
 
-          if (!first) {
-            setState("no-restaurant");
-            return;
-          }
+  if (restaurantState === "loading" || restaurantState === "idle") {
+    return (
+      <>
+        <BusinessSidebar />
+        <main className="stats-page">
+          <p className="stats-message">Loading...</p>
+        </main>
+      </>
+    );
+  }
 
-          setRestaurant(first);
-
-          return getRestaurantOrders(first.id).then((ordersRes) => {
-            setOrders(ordersRes.data);
-            setState("ready");
-          });
-        });
-      })
-      .catch(() => setState("forbidden"));
-  }, []);
-
-  if (state === "forbidden") {
+  if (restaurantState === "forbidden") {
     return (
       <>
         <BusinessSidebar />
@@ -85,7 +76,7 @@ export default function StatisticsPage() {
     );
   }
 
-  if (state === "no-restaurant") {
+  if (!restaurant) {
     return (
       <>
         <BusinessSidebar />
@@ -133,12 +124,10 @@ export default function StatisticsPage() {
             </svg>
           </button>
 
-          <h1 className="stats-title">
-            {restaurant ? restaurant.name : "Statistics"}
-          </h1>
+          <h1 className="stats-title">{restaurant.name}</h1>
         </header>
 
-        {state === "loading" && <p className="stats-message">Loading...</p>}
+        {!ordersLoaded && <p className="stats-message">Loading...</p>}
 
         <div className="stats-body">
           <div className="stats-tiles">

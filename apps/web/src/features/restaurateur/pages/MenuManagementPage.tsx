@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -6,25 +6,20 @@ import "./MenuManagementPage.css";
 
 import BusinessSidebar from "../components/BusinessSidebar";
 import { useSidebar } from "../../../components/layout/Sidebar/SidebarContext";
-import { getMyProfile } from "../../profile/api/profile.api";
+import { useMyRestaurant } from "../context/RestaurantContext";
 import {
-  getMyRestaurants,
   createCategory,
   deleteCategory,
   createMenuItem,
   updateMenuItem,
   deleteMenuItem,
 } from "../api/restaurateur.api";
-import type { MyRestaurant } from "../types/restaurateur.types";
-
-type LoadState = "loading" | "forbidden" | "no-restaurant" | "ready";
 
 export default function MenuManagementPage() {
   const navigate = useNavigate();
   const { open } = useSidebar();
+  const { state: restaurantState, restaurant, refresh: refreshRestaurant } = useMyRestaurant();
 
-  const [state, setState] = useState<LoadState>("loading");
-  const [restaurant, setRestaurant] = useState<MyRestaurant | null>(null);
   const [error, setError] = useState("");
 
   const [newCategoryName, setNewCategoryName] = useState("");
@@ -47,33 +42,6 @@ export default function MenuManagementPage() {
     setOpenItemForm(null);
   };
 
-  useEffect(() => {
-    getMyProfile()
-      .then((res) => {
-        if (res.data.role !== "RESTAURATEUR" && res.data.role !== "ADMIN") {
-          setState("forbidden");
-          return;
-        }
-
-        return loadRestaurant();
-      })
-      .catch(() => setState("forbidden"));
-  }, []);
-
-  function loadRestaurant() {
-    return getMyRestaurants().then((res) => {
-      const first = res.data[0];
-
-      if (!first) {
-        setState("no-restaurant");
-        return;
-      }
-
-      setRestaurant(first);
-      setState("ready");
-    });
-  }
-
   const handleAddCategory = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -83,7 +51,7 @@ export default function MenuManagementPage() {
     try {
       await createCategory(restaurant.id, { name: newCategoryName.trim() });
       setNewCategoryName("");
-      await loadRestaurant();
+      await refreshRestaurant();
     } catch (err) {
       if (axios.isAxiosError(err)) {
         setError(err.response?.data?.error ?? "Couldn't add category");
@@ -96,7 +64,7 @@ export default function MenuManagementPage() {
 
     try {
       await deleteCategory(categoryId);
-      await loadRestaurant();
+      await refreshRestaurant();
     } catch {
       setError("Couldn't delete category — remove its items first");
     }
@@ -119,7 +87,7 @@ export default function MenuManagementPage() {
       setItemPrice("");
       setItemDescription("");
       setOpenItemForm(null);
-      await loadRestaurant();
+      await refreshRestaurant();
     } catch (err) {
       if (axios.isAxiosError(err)) {
         setError(err.response?.data?.error ?? "Couldn't add item");
@@ -135,7 +103,7 @@ export default function MenuManagementPage() {
 
     try {
       await updateMenuItem(menuItemId, { isAvailable: !isAvailable });
-      await loadRestaurant();
+      await refreshRestaurant();
     } catch {
       setError("Couldn't update item");
     }
@@ -146,13 +114,24 @@ export default function MenuManagementPage() {
 
     try {
       await deleteMenuItem(menuItemId);
-      await loadRestaurant();
+      await refreshRestaurant();
     } catch {
       setError("Couldn't delete item");
     }
   };
 
-  if (state === "forbidden") {
+  if (restaurantState === "loading" || restaurantState === "idle") {
+    return (
+      <>
+        <BusinessSidebar />
+        <main className="menu-mgmt-page">
+          <p className="menu-mgmt-message">Loading...</p>
+        </main>
+      </>
+    );
+  }
+
+  if (restaurantState === "forbidden") {
     return (
       <>
         <BusinessSidebar />
@@ -172,7 +151,7 @@ export default function MenuManagementPage() {
     );
   }
 
-  if (state === "no-restaurant") {
+  if (!restaurant) {
     return (
       <>
         <BusinessSidebar />
@@ -183,7 +162,7 @@ export default function MenuManagementPage() {
     );
   }
 
-  const categories = restaurant?.categories.slice().sort((a, b) => a.priority - b.priority) ?? [];
+  const categories = restaurant.categories.slice().sort((a, b) => a.priority - b.priority);
 
   return (
     <>
@@ -207,22 +186,16 @@ export default function MenuManagementPage() {
             </svg>
           </button>
 
-          <h1 className="menu-mgmt-title">
-            {restaurant ? restaurant.name : "Menu"}
-          </h1>
+          <h1 className="menu-mgmt-title">{restaurant.name}</h1>
         </header>
 
         {error && <p className="menu-mgmt-error">{error}</p>}
 
-        {state === "loading" && (
-          <p className="menu-mgmt-message">Loading...</p>
-        )}
-
         <div className="menu-mgmt-body">
           {categories.map((category) => {
-            const items = restaurant?.menuItems.filter(
+            const items = restaurant.menuItems.filter(
               (item) => item.categoryId === category.id
-            ) ?? [];
+            );
 
             return (
               <section key={category.id} className="menu-mgmt-category">
