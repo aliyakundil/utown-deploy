@@ -46,9 +46,18 @@ export async function getMenuItems(
   res: Response
 ) {
   try {
-    const restaurantId = req.query.restaurantId
-      ? Number(req.query.restaurantId)
-      : undefined;
+    const rawRestaurantId = req.query.restaurantId;
+    const restaurantId =
+      typeof rawRestaurantId === "string" && rawRestaurantId.trim() !== ""
+        ? Number(rawRestaurantId)
+        : undefined;
+
+    if (restaurantId !== undefined && !Number.isFinite(restaurantId)) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid restaurantId",
+      });
+    }
 
     const result = await menuItemService.getMenuItem(restaurantId);
 
