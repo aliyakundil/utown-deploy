@@ -372,20 +372,27 @@ export async function changePassword(
   userId: number,
   data: ChangePasswordDto
 ): Promise<RefreshTokenResponse> {
-  const { newPassword } = validateChangePassword(data);
+  const { currentPassword, newPassword } = validateChangePassword(data);
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+
+  if (!isPasswordValid) {
+    throw new Error("Current password is incorrect");
+  }
 
   const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-  const user = await prisma.user.update({
-    where: { id: userId },
-    data: { password: hashedPassword },
-  });
-
   const tokens = issueTokens(user.id, user.role as UserRole);
 
   await prisma.user.update({
     where: { id: user.id },
     data: {
+      password: hashedPassword,
       refreshToken: hashRefreshToken(tokens.refreshToken),
     },
   });

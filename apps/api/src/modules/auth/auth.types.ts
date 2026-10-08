@@ -58,5 +58,6 @@ export interface ResetPasswordDto {
 }
 
 export interface ChangePasswordDto {
+  currentPassword: string;
   newPassword: string;
 }

@@ -3,6 +3,16 @@ import * as authService from "./auth.service.js";
 
 type ErrorField = "phone" | "password" | "general";
 
+const REFRESH_COOKIE_NAME = "refreshToken";
+
+const refreshCookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax" as const,
+  path: "/api/auth",
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+};
+
 function classifyAuthErrorField(message: string): ErrorField {
   switch (message) {
     case "Phone is required":
@@ -45,13 +55,15 @@ export async function register(req: Request, res: Response) {
 
 export async function refresh(req: Request, res: Response) {
   try {
-    const { refreshToken } = req.body;
+    const refreshToken = req.cookies?.[REFRESH_COOKIE_NAME];
 
     const result = await authService.refresh(refreshToken);
 
+    res.cookie(REFRESH_COOKIE_NAME, result.refreshToken, refreshCookieOptions);
+
     res.status(200).json({
       success: true,
-      data: result,
+      data: { accessToken: result.accessToken },
     });
   } catch (error) {
     res.status(401).json({
@@ -67,10 +79,13 @@ export async function verifyCode(
 ) {
   try {
     const result = await authService.verifyCode(req.body);
+    const { refreshToken, ...data } = result;
+
+    res.cookie(REFRESH_COOKIE_NAME, refreshToken, refreshCookieOptions);
 
     res.status(200).json({
       success: true,
-      data: result,
+      data,
     });
   } catch (error) {
     res.status(400).json({
@@ -134,10 +149,13 @@ export async function resetPassword(req: Request, res: Response) {
 export async function login(req: Request, res: Response) {
   try {
     const result = await authService.login(req.body);
+    const { refreshToken, ...data } = result;
+
+    res.cookie(REFRESH_COOKIE_NAME, refreshToken, refreshCookieOptions);
 
     res.status(200).json({
       success: true,
-      data: result,
+      data,
     });
   } catch (error) {
     const message =
@@ -165,10 +183,13 @@ export async function changePassword(req: Request, res: Response) {
     }
 
     const result = await authService.changePassword(userId, req.body);
+    const { refreshToken, ...data } = result;
+
+    res.cookie(REFRESH_COOKIE_NAME, refreshToken, refreshCookieOptions);
 
     return res.status(200).json({
       success: true,
-      data: result,
+      data,
     });
   } catch (error) {
     const message =
@@ -194,6 +215,8 @@ export async function logout(req: Request, res: Response) {
     }
 
     await authService.logout(userId);
+
+    res.clearCookie(REFRESH_COOKIE_NAME, { path: "/api/auth" });
 
     return res.status(200).json({
       success: true,

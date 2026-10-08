@@ -17,6 +17,8 @@ export default function PasswordPage() {
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
+  const [currentPassword, setCurrentPassword] = useState("");
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
@@ -29,9 +31,8 @@ export default function PasswordPage() {
     setIsSaving(true);
 
     try {
-      const res = await changePassword({ newPassword });
+       const res = await changePassword({ currentPassword, newPassword });
       localStorage.setItem("accessToken", res.data.accessToken);
-      localStorage.setItem("refreshToken", res.data.refreshToken);
       navigate("/profile/account");
     } catch (err) {
       if (axios.isAxiosError(err)) {
@@ -55,6 +56,18 @@ export default function PasswordPage() {
       <h1 className="profile-form-title">Password</h1>
 
       <form className="profile-form" onSubmit={handleSubmit}>
+        <label className="profile-form__label" htmlFor="currentPassword">
+          Current Password
+        </label>
+        <input
+          id="currentPassword"
+          type="password"
+          className="profile-form__input"
+          value={currentPassword}
+          onChange={(e) => setCurrentPassword(e.target.value)}
+          placeholder="Enter current password"
+        />
+
         <label className="profile-form__label" htmlFor="newPassword">
           New Password
         </label>

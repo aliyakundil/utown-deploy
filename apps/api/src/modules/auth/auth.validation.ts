@@ -125,7 +125,12 @@ export function validateResetPassword(data: ResetPasswordDto) {
 }
 
 export function validateChangePassword(data: ChangePasswordDto) {
+  const currentPassword = data.currentPassword?.trim();
   const newPassword = data.newPassword?.trim();
+
+  if (!currentPassword) {
+    throw new Error("Current password is required");
+  }
 
   if (!newPassword) {
     throw new Error("Password is required");
@@ -137,5 +142,5 @@ export function validateChangePassword(data: ChangePasswordDto) {
     );
   }
 
-  return { newPassword };
+  return { currentPassword, newPassword };
 }

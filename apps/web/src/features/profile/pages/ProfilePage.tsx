@@ -23,6 +23,8 @@ import ServicesIcon from "../../../assets/images/reserve.svg";
 import JobsIcon from "../../../assets/images/wallet-check.svg";
 import OrdersIcon from "../../../assets/images/sms-tracking.svg";
 
+import { logout } from "../../auth/api/auth.api";
+
 const quickActions = [
   { label: "Food", color: "var(--tile-purple)", icon: FoodIcon },
   { label: "Connection", color: "var(--tile-green)", icon: ConnectionIcon },
@@ -53,7 +55,13 @@ export default function ProfilePage() {
       .catch(() => setName(""));
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch {
+      //
+    }
+
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     disconnectSocket();

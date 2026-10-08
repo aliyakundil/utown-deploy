@@ -20,6 +20,11 @@ export async function login(data: LoginRequest) {
   return response.data;
 }
 
+export async function logout() {
+  const response = await api.post("/auth/logout");
+  return response.data;
+}
+
 export async function register(
   data: RegisterRequest
 ): Promise<AuthResponse> {
