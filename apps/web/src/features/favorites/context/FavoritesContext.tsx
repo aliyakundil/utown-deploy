@@ -50,7 +50,6 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     const currentlyFavorite = isFavorite(restaurantId);
     const setPending = currentlyFavorite ? setPendingRemoves : setPendingAdds;
 
-
     setPending((s) => new Set(s).add(restaurantId));
 
     try {
