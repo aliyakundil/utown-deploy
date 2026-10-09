@@ -46,6 +46,10 @@ model Restaurant {
   name         String
   description  String?
   address      String?
+  city         String?
+  category     String?
+  deliveryArea String?
+  workingHours Json?  
   phone        String?
   status       StatusRestaurants @default(OPEN)
   imageUrl     String?

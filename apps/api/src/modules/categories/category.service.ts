@@ -30,22 +30,33 @@ export async function createCategory(
     throw new Error("Forbidden");
   }
 
+  let priority = validatedData.priority;
+
+  if (priority === undefined) {
+    const lastCategory = await prisma.category.findFirst({
+      where: { restaurantId },
+      orderBy: { priority: "desc" },
+    });
+
+    priority = (lastCategory?.priority ?? -1) + 1;
+  }
+
   return prisma.category.create({
   data: {
     restaurantId,
     name: validatedData.name,
+    priority,
     ...(validatedData.imageUrl !== undefined && {
       imageUrl: validatedData.imageUrl,
-    }),
-    ...(validatedData.priority !== undefined && {
-      priority: validatedData.priority,
     }),
   },
 });
 }
 
-export async function getCategories() {
+export async function getCategories(restaurantId?: number) {
   return prisma.category.findMany({
+    ...(restaurantId !== undefined && { where: { restaurantId } }),
+    orderBy: { priority: "asc" },
     include: {
       restaurant: true,
     },

@@ -17,6 +17,13 @@ export function validateCreateRestaurant(data: CreateRestaurantDto) {
   const category = data.category?.trim();
   const deliveryArea = data.deliveryArea?.trim();
 
+  if (
+    data.ownerId !== undefined &&
+    (typeof data.ownerId !== "number" || data.ownerId <= 0)
+  ) {
+    throw new Error("Invalid owner id");
+  }
+  
   if (!name) {
     throw new Error("Restaurant name is required");
   }
@@ -44,6 +51,7 @@ export function validateCreateRestaurant(data: CreateRestaurantDto) {
   }
 
   return {
+    ownerId: data.ownerId,
     name,
     description,
     address,

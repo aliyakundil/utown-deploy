@@ -1,6 +1,8 @@
 import type { Request, Response, NextFunction } from "express";
 import * as authService from "./auth.service.js";
 
+type ErrorField = "phone" | "password" | "general";
+
 const REFRESH_COOKIE_NAME = "refreshToken";
 
 const refreshCookieOptions = {
@@ -10,8 +12,6 @@ const refreshCookieOptions = {
   path: "/api/auth",
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };
-
-type ErrorField = "phone" | "password" | "general";
 
 function classifyAuthErrorField(message: string): ErrorField {
   switch (message) {
@@ -33,7 +33,7 @@ function classifyAuthErrorField(message: string): ErrorField {
 }
 
 export async function register(req: Request, res: Response) {
-  
+
   try {
     const result = await authService.register(req.body);
 
@@ -59,11 +59,7 @@ export async function refresh(req: Request, res: Response) {
 
     const result = await authService.refresh(refreshToken);
 
-    res.cookie(
-      REFRESH_COOKIE_NAME,
-      result.refreshToken,
-      refreshCookieOptions
-    );
+    res.cookie(REFRESH_COOKIE_NAME, result.refreshToken, refreshCookieOptions);
 
     res.status(200).json({
       success: true,
@@ -98,6 +94,22 @@ export async function verifyCode(
         error instanceof Error
           ? error.message
           : "Unknown error",
+    });
+  }
+}
+
+export async function resendCode(req: Request, res: Response) {
+  try {
+    const result = await authService.resendVerificationCode(req.body);
+
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
     });
   }
 }
@@ -152,6 +164,38 @@ export async function login(req: Request, res: Response) {
         : "Unknown error";
 
     res.status(400).json({
+      success: false,
+      field: classifyAuthErrorField(message),
+      error: message,
+    });
+  }
+}
+
+export async function changePassword(req: Request, res: Response) {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        error: "Unauthorized",
+      });
+    }
+
+    const result = await authService.changePassword(userId, req.body);
+    const { refreshToken, ...data } = result;
+
+    res.cookie(REFRESH_COOKIE_NAME, refreshToken, refreshCookieOptions);
+
+    return res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Unknown error";
+
+    return res.status(400).json({
       success: false,
       field: classifyAuthErrorField(message),
       error: message,

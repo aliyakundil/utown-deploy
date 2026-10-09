@@ -53,8 +53,10 @@ export async function createMenuItem(
   });
 }
 
-export async function getMenuItem() {
+export async function getMenuItem(restaurantId?: number) {
   return prisma.menuItem.findMany({
+    ...(restaurantId !== undefined && { where: { restaurantId } }),
+    orderBy: { id: "desc" },
     include: {
       category: true,
       restaurant: true,
@@ -107,6 +109,16 @@ export async function updateMenuItem(
 
   if (!canManage) {
     throw new Error("Forbidden");
+  }
+
+  if (validatedData.categoryId !== undefined) {
+    const category = await prisma.category.findUnique({
+      where: { id: validatedData.categoryId },
+    });
+
+    if (!category || category.restaurantId !== menuItem.restaurantId) {
+      throw new Error("Invalid category for this restaurant");
+    }
   }
 
   return prisma.menuItem.update({

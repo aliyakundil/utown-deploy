@@ -16,6 +16,15 @@ export async function createRestaurant(
   data: CreateRestaurantDto
 ) {
   const validatedData = validateCreateRestaurant(data);
+
+  const owner = await prisma.user.findUnique({
+    where: { id: ownerId },
+  });
+
+  if (!owner) {
+    throw new Error("Owner not found");
+  }
+  
   return prisma.restaurant.create({
     data: {
       ownerId,

@@ -40,8 +40,18 @@ router.post("/register", authController.register);
  * /auth/refresh:
  *   post:
  *     summary: Refresh access token
- *     description: Reads the refresh token from the httpOnly "refreshToken" cookie set on login/verify-code. No request body needed.
  *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - refreshToken
+ *             properties:
+ *               refreshToken:
+ *                 type: string
  *     responses:
  *       200:
  *         description: New access token
@@ -81,6 +91,8 @@ router.post(
   "/verify-code",
   authController.verifyCode
 );
+
+router.post("/resend-code", authController.resendCode);
 
 /**
  * @swagger
@@ -126,6 +138,7 @@ router.post("/logout", authenticateToken, authController.logout);
 
 router.post("/forgot-password", authController.forgotPassword);
 router.post("/reset-password", authController.resetPassword);
+router.patch("/change-password", authenticateToken, authController.changePassword);
 
 
 export default router;

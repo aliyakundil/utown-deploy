@@ -5,7 +5,7 @@ import { authenticateToken, requireRoles } from "../../middleware/auth.middlewar
 const router = Router();
 
 router.use(authenticateToken);
-router.use(requireRoles("ADMIN", "RESTAURATEUR"));
+router.use(requireRoles("ADMIN"));
 
 /**
  * @swagger
@@ -60,7 +60,6 @@ router.get("/users/:id", adminController.getUserById);
  *             required:
  *               - username
  *               - phone
- *               - password
  *             properties:
  *               username:
  *                 type: string
@@ -70,10 +69,14 @@ router.get("/users/:id", adminController.getUserById);
  *                 example: "996555123456"
  *               password:
  *                 type: string
+ *                 description: Optional - a random password is generated if omitted
  *                 example: Password123
  *               email:
  *                 type: string
  *                 example: alia@example.com
+ *               address:
+ *                 type: string
+ *                 example: "25 Manasa Street"
  *               role:
  *                 type: string
  *                 enum:
@@ -148,5 +151,19 @@ router.patch("/users/:id", adminController.patchUserByAdmin);
  *         description: User not found
  */
 router.delete("/users/:id", adminController.deleteUserByAdmin);
+
+/**
+ * @swagger
+ * /admin/orders:
+ *   get:
+ *     summary: Get all orders across the platform
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all orders
+ */
+router.get("/orders", adminController.getAllOrders);
 
 export default router;

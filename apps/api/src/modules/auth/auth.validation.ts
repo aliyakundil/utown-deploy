@@ -1,4 +1,4 @@
-import type { RegisterDto, LoginDto, VerifyCodeDto, ForgotPasswordDto, ResetPasswordDto } from "./auth.types.js";
+import type { RegisterDto, LoginDto, VerifyCodeDto, ForgotPasswordDto, ResetPasswordDto, ChangePasswordDto } from "./auth.types.js";
 
 const phoneRegex = /^\+?[0-9]{10,15}$/;
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{9,}$/;
@@ -122,4 +122,25 @@ export function validateResetPassword(data: ResetPasswordDto) {
   }
 
   return { phone, code, newPassword };
+}
+
+export function validateChangePassword(data: ChangePasswordDto) {
+  const currentPassword = data.currentPassword?.trim();
+  const newPassword = data.newPassword?.trim();
+
+  if (!currentPassword) {
+    throw new Error("Current password is required");
+  }
+
+  if (!newPassword) {
+    throw new Error("Password is required");
+  }
+
+  if (!passwordRegex.test(newPassword)) {
+    throw new Error(
+      "Password must contain at least 9 characters, one uppercase letter and one digit"
+    );
+  }
+
+  return { currentPassword, newPassword };
 }

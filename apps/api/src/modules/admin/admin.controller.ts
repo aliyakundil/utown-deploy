@@ -123,6 +123,22 @@ export async function patchUserByAdmin(req: Request, res: Response, next: NextFu
   }
 }
 
+export async function getAllOrders(req: Request, res: Response, next: NextFunction) {
+  try {
+    const result = await adminService.getAllOrders(req.query);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        orders: result.orders,
+        meta: result.meta,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function deleteUserByAdmin(req: Request, res: Response, next: NextFunction) {
   try {
     const id = Number(req.params.id);
@@ -145,6 +161,9 @@ export async function deleteUserByAdmin(req: Request, res: Response, next: NextF
 
     return res.status(204).send();
   } catch (error) {
-    next(error);
+    return res.status(400).json({
+      success: false,
+      error: error instanceof Error ? error.message : "Couldn't delete the user",
+    });
   }
 }

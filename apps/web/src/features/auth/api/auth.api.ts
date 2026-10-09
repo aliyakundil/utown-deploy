@@ -20,6 +20,11 @@ export async function login(data: LoginRequest) {
   return response.data;
 }
 
+export async function logout() {
+  const response = await api.post("/auth/logout");
+  return response.data;
+}
+
 export async function register(
   data: RegisterRequest
 ): Promise<AuthResponse> {
@@ -36,6 +41,17 @@ export async function verifyCode(
 ): Promise<AuthResponse> {
   const response = await api.post<AuthResponse>(
     "/auth/verify-code",
+    data
+  );
+
+  return response.data;
+}
+
+export async function resendCode(
+  data: ForgotPasswordRequest
+): Promise<MessageResponse> {
+  const response = await api.post<MessageResponse>(
+    "/auth/resend-code",
     data
   );
 

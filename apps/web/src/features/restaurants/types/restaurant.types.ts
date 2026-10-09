@@ -74,6 +74,7 @@ export interface RestaurantDetailResponse {
 }
 
 export interface CreateRestaurantRequest {
+  ownerId?: number;
   name: string;
   description?: string;
   address?: string;
