@@ -83,35 +83,28 @@ export async function getRestaurants(
     ...(status ? { status } : {}),
   };
 
+  if (ownerId !== undefined) {
+    return prisma.restaurant.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      include: { categories: true, menuItems: true },
+    });
+  }
+
   const [restaurants, total] = await Promise.all([
     prisma.restaurant.findMany({
       where,
-      ...(ownerId === undefined && {
-        skip: (page - 1) * limit,
-        take: limit,
-      }),
-      orderBy: {
-        createdAt: "desc",
+      skip: (page - 1) * limit,
+      take: limit,
+      orderBy: { createdAt: "desc" },
+      include: {
+        owner: {
+          select: { id: true, name: true, phone: true },
+        },
       },
-      include:
-        ownerId !== undefined
-          ? { categories: true, menuItems: true }
-          : {
-              owner: {
-                select: {
-                  id: true,
-                  name: true,
-                  phone: true,
-                },
-              },
-            },
     }),
     prisma.restaurant.count({ where }),
   ]);
-
-  if (ownerId !== undefined) {
-    return restaurants;
-  }
 
   return {
     data: restaurants,

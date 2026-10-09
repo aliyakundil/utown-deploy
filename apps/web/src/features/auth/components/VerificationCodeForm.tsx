@@ -8,6 +8,7 @@ import "./VerificationCodeForm.css";
 import { useLocation, useNavigate } from "react-router-dom";
 import { verifyCode, resendCode, forgotPassword } from "../api/auth.api";
 import { connectSocket } from "../../../lib/socket";
+import { useFavorites } from "../../favorites/context/FavoritesContext";
 import axios from "axios";
 
 const CODE_TTL_SECONDS = 159;
@@ -21,6 +22,7 @@ export default function VerificationCodeForm() {
 
   const navigate = useNavigate();
   const location = useLocation();
+  const { refresh: refreshFavorites } = useFavorites();
 
   const phone = location.state?.phone ?? "";
   const mode = location.state?.mode ?? "register";
@@ -60,6 +62,7 @@ export default function VerificationCodeForm() {
         response.data.accessToken
       );
 
+      refreshFavorites();
       connectSocket();
 
       setIsRegisterSuccess(true);

@@ -14,6 +14,7 @@ interface FavoritesContextValue {
   isLoading: boolean;
   isFavorite: (restaurantId: number) => boolean;
   toggleFavorite: (restaurantId: number) => Promise<void>;
+  refresh: () => Promise<void>;
 }
 
 const FavoritesContext = createContext<FavoritesContextValue | null>(null);
@@ -21,37 +22,55 @@ const FavoritesContext = createContext<FavoritesContextValue | null>(null);
 export function FavoritesProvider({ children }: { children: ReactNode }) {
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [pendingAdds, setPendingAdds] = useState<Set<number>>(new Set());
+  const [pendingRemoves, setPendingRemoves] = useState<Set<number>>(new Set());
 
-  useEffect(() => {
-    getFavorites()
+  const load = () => {
+    setIsLoading(true);
+
+    return getFavorites()
       .then((res) => setFavorites(res.data))
       .catch(() => setFavorites([]))
       .finally(() => setIsLoading(false));
+  };
+
+  useEffect(() => {
+    load();
   }, []);
 
-  const isFavorite = (restaurantId: number) =>
-    favorites.some((f) => f.restaurantId === restaurantId);
+  const isFavorite = (restaurantId: number) => {
+    if (pendingAdds.has(restaurantId)) return true;
+    if (pendingRemoves.has(restaurantId)) return false;
+    return favorites.some((f) => f.restaurantId === restaurantId);
+  };
 
   const toggleFavorite = async (restaurantId: number) => {
-    const existing = favorites.find((f) => f.restaurantId === restaurantId);
+    const currentlyFavorite = isFavorite(restaurantId);
+    const setPending = currentlyFavorite ? setPendingRemoves : setPendingAdds;
 
-    if (existing) {
-      setFavorites((list) =>
-        list.filter((f) => f.restaurantId !== restaurantId)
-      );
-      await removeFavorite(restaurantId).catch(() => {});
-    } else {
-      await addFavorite(restaurantId).catch(() => {});
+    setPending((s) => new Set(s).add(restaurantId));
 
-      getFavorites()
-        .then((res) => setFavorites(res.data))
-        .catch(() => {});
+    try {
+      if (currentlyFavorite) {
+        await removeFavorite(restaurantId);
+      } else {
+        await addFavorite(restaurantId);
+      }
+    } catch {
+      // ничего — ниже всё равно пересинхронизируем с сервером
+    } finally {
+      await load();
+      setPending((s) => {
+        const next = new Set(s);
+        next.delete(restaurantId);
+        return next;
+      });
     }
   };
 
   return (
     <FavoritesContext.Provider
-      value={{ favorites, isLoading, isFavorite, toggleFavorite }}
+      value={{ favorites, isLoading, isFavorite, toggleFavorite, refresh: load }}
     >
       {children}
     </FavoritesContext.Provider>
