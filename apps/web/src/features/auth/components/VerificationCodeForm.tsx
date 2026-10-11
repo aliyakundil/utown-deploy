@@ -26,12 +26,14 @@ export default function VerificationCodeForm() {
   const mode = location.state?.mode ?? "register";
 
   useEffect(() => {
+    if (isRegisterSuccess) return;
+
     const interval = setInterval(() => {
       setSecondsLeft((s) => (s > 0 ? s - 1 : 0));
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [isRegisterSuccess]);
 
   const submitCode = async () => {
     if (isSubmitting) return;
