@@ -49,7 +49,7 @@ model Restaurant {
   city         String?
   category     String?
   deliveryArea String?
-  workingHours Json?  
+  workingHours Json?
   phone        String?
   status       StatusRestaurants @default(OPEN)
   imageUrl     String?
