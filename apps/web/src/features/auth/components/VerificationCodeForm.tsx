@@ -17,7 +17,6 @@ export default function VerificationCodeForm() {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(CODE_TTL_SECONDS);
-  const [isCodeConfirmed, setIsCodeConfirmed] = useState(false);
   const [isRegisterSuccess, setIsRegisterSuccess] = useState(false);
 
   const navigate = useNavigate();
@@ -40,7 +39,9 @@ export default function VerificationCodeForm() {
     setError("");
 
     if (mode === "reset") {
-      setIsCodeConfirmed(true);
+      navigate("/new-password", {
+        state: { phone, code: code.join("") },
+      });
       return;
     }
 
@@ -55,11 +56,6 @@ export default function VerificationCodeForm() {
       localStorage.setItem(
         "accessToken",
         response.data.accessToken
-      );
-
-      localStorage.setItem(
-        "refreshToken",
-        response.data.refreshToken
       );
 
       connectSocket();
@@ -164,18 +160,6 @@ export default function VerificationCodeForm() {
         </Button>
 
       </form>
-
-      {isCodeConfirmed && (
-        <SuccessModal
-          title="Password successfully reset"
-          subtitle="You can now log in with your new password"
-          onConfirm={() =>
-            navigate("/new-password", {
-              state: { phone, code: code.join("") },
-            })
-          }
-        />
-      )}
 
       {isRegisterSuccess && (
         <SuccessModal
