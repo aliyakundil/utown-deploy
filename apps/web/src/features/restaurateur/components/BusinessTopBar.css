@@ -1,0 +1,49 @@
+.business-topbar {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px 16px 12px;
+}
+
+.business-topbar__hamburger {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  display: flex;
+
+  border: none;
+  background: transparent;
+  color: var(--color-black);
+
+  cursor: pointer;
+}
+
+.business-topbar__logo {
+  height: 20px;
+  width: auto;
+}
+
+.business-topbar__action {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  display: flex;
+  align-items: center;
+}
+
+@media (min-width: 1025px) {
+  .business-topbar__hamburger {
+    display: none;
+  }
+
+  .business-topbar {
+    padding: 24px 40px;
+  }
+}

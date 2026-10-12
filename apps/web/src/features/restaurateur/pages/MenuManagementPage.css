@@ -30,6 +30,8 @@
 }
 
 .menu-mgmt-title {
+  margin: 20px 16px 16px;
+
   font-size: 18px;
   font-weight: 700;
 }
@@ -273,16 +275,19 @@
     margin-left: 260px;
   }
 
-  .menu-mgmt-hamburger {
-    display: none;
+  .menu-mgmt-title,
+  .menu-mgmt-body {
+    width: 100%;
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
-  .menu-mgmt-header {
-    padding: 24px 40px;
+  .menu-mgmt-title {
+    padding: 0 40px;
   }
 
   .menu-mgmt-body {
-    max-width: 720px;
     padding: 24px 40px;
   }
 }

@@ -5,6 +5,7 @@ import axios from "axios";
 import "./MenuManagementPage.css";
 
 import BusinessSidebar from "../components/BusinessSidebar";
+import BusinessTopBar from "../components/BusinessTopBar";
 import { useSidebar } from "../../../components/layout/Sidebar/SidebarContext";
 import { useMyRestaurant } from "../context/RestaurantContext";
 import {
@@ -169,25 +170,9 @@ export default function MenuManagementPage() {
       <BusinessSidebar />
 
       <main className="menu-mgmt-page">
-        <header className="menu-mgmt-header">
-          <button
-            type="button"
-            className="menu-mgmt-hamburger"
-            aria-label="Open menu"
-            onClick={open}
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M3 6h18M3 12h18M3 18h18"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            </svg>
-          </button>
+        <BusinessTopBar onOpenMenu={open} />
 
-          <h1 className="menu-mgmt-title">{restaurant.name}</h1>
-        </header>
+        <h1 className="menu-mgmt-title">{restaurant.name}</h1>
 
         {error && <p className="menu-mgmt-error">{error}</p>}
 

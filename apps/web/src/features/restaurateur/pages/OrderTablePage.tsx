@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import "./OrderTablePage.css";
 
 import BusinessSidebar from "../components/BusinessSidebar";
+import BusinessTopBar from "../components/BusinessTopBar";
 import { useSidebar } from "../../../components/layout/Sidebar/SidebarContext";
 import { useMyRestaurant } from "../context/RestaurantContext";
 import { getRestaurantOrders } from "../api/restaurateur.api";
@@ -170,25 +171,21 @@ export default function OrderTablePage() {
       <BusinessSidebar />
 
       <main className="order-table-page">
-        <header className="order-table-header">
-          <button
-            type="button"
-            className="order-table-hamburger"
-            aria-label="Open menu"
-            onClick={open}
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M3 6h18M3 12h18M3 18h18"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            </svg>
-          </button>
+        <BusinessTopBar
+          onOpenMenu={open}
+          rightAction={
+            <button
+              type="button"
+              className="order-table-refresh"
+              aria-label="Refresh"
+              onClick={refresh}
+            >
+              ↻
+            </button>
+          }
+        />
 
-          <h1 className="order-table-title">{restaurant.name}</h1>
-        </header>
+        <h1 className="order-table-title">Order Table</h1>
 
         <div className="order-table-tabs">
           <button

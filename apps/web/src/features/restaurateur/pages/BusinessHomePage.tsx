@@ -4,12 +4,11 @@ import { Link, useNavigate } from "react-router-dom";
 import "./BusinessHomePage.css";
 
 import BusinessSidebar from "../components/BusinessSidebar";
+import BusinessTopBar from "../components/BusinessTopBar";
 import { useSidebar } from "../../../components/layout/Sidebar/SidebarContext";
 import { useMyRestaurant } from "../context/RestaurantContext";
 import { updateRestaurant } from "../api/restaurateur.api";
 import type { MyRestaurant } from "../types/restaurateur.types";
-
-import LogoBusiness from "../../../assets/images/LogoBusiness.svg";
 
 const DAYS_PREVIEW: {
   key: keyof NonNullable<MyRestaurant["workingHours"]>;
@@ -86,24 +85,7 @@ export default function BusinessHomePage() {
       <BusinessSidebar />
 
       <main className="business-home-page">
-        <header className="business-home-header">
-          <button
-            type="button"
-            className="business-home-hamburger"
-            aria-label="Open menu"
-            onClick={open}
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M3 6h18M3 12h18M3 18h18"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            </svg>
-          </button>
-          <img src={LogoBusiness} alt="UT.BUSINESS" className="business-home-logo" />
-        </header>
+        <BusinessTopBar onOpenMenu={open} />
 
         {!restaurant && (
           <div className="business-home-message">

@@ -3,11 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import "./WorkingHoursPage.css";
 
 import BusinessSidebar from "../components/BusinessSidebar";
+import BusinessTopBar from "../components/BusinessTopBar";
 import { useSidebar } from "../../../components/layout/Sidebar/SidebarContext";
 import { useMyRestaurant } from "../context/RestaurantContext";
 import { DAYS } from "../../restaurants/constants/establishment";
-
-import LogoBusiness from "../../../assets/images/LogoBusiness.svg";
 
 export default function WorkingHoursPage() {
   const navigate = useNavigate();
@@ -63,25 +62,7 @@ export default function WorkingHoursPage() {
       <BusinessSidebar />
 
       <main className="working-hours-page">
-        <div className="working-hours-topbar">
-          <button
-            type="button"
-            className="working-hours-hamburger"
-            aria-label="Open menu"
-            onClick={open}
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M3 6h18M3 12h18M3 18h18"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            </svg>
-          </button>
-
-          <img src={LogoBusiness} alt="UT.BUSINESS" className="working-hours-logo" />
-        </div>
+        <BusinessTopBar onOpenMenu={open} />
 
         <h1 className="working-hours-title">Opening hours of the establishment</h1>
 
