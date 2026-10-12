@@ -1,5 +1,8 @@
 import { prisma } from "../../db/prisma.js";
-import { unlink } from "node:fs/promises";
+import crypto from "node:crypto";
+import path from "node:path";
+
+import { uploadToS3, deleteFromS3 } from "../../lib/s3.js";
 
 import type { CreateUploadDto } from "./upload.types.js";
 
@@ -9,12 +12,19 @@ export async function createUpload(
   userId: number,
   file: Express.Multer.File
 ) {
+  const key = `${userId}/${Date.now()}-${crypto.randomUUID()}${path.extname(
+    file.originalname
+  )}`;
+
+  const url = await uploadToS3(key, file.buffer, file.mimetype);
+
   const uploadData: CreateUploadDto = {
-    fileName: file.filename,
+    fileName: path.basename(key),
     originalName: file.originalname,
     mimeType: file.mimetype,
     fileSize: file.size,
-    filePath: file.path,
+    filePath: key,
+    url,
   };
 
   const validatedData =
@@ -75,9 +85,9 @@ export async function deleteUpload(
   }
 
   try {
-    await unlink(upload.filePath);
+    await deleteFromS3(upload.filePath);
   } catch {
-    // Файл уже отсутствует
+    // Файл уже отсутствует в S3
   }
 
   await prisma.upload.delete({

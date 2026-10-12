@@ -7,6 +7,7 @@ export function validateCreateUpload(
   const originalName = data.originalName.trim();
   const mimeType = data.mimeType.trim();
   const filePath = data.filePath.trim();
+  const url = data.url.trim();
 
   if (!fileName) {
     throw new Error("File name is required");
@@ -28,11 +29,16 @@ export function validateCreateUpload(
     throw new Error("File path is required");
   }
 
+  if (!url) {
+    throw new Error("Url is required");
+  }
+
   return {
     fileName,
     originalName,
     mimeType,
     fileSize: data.fileSize,
     filePath,
+    url,
   };
 }

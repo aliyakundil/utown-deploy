@@ -243,6 +243,7 @@ model Upload {
   mimeType     String
   fileSize     Int
   filePath     String
+  url          String?
 
   createdAt DateTime @default(now())
 
