@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import "./NotificationToast.css";
 
-import type { OrderStatusEvent } from "../../../lib/socket";
+import type { OrderStatusEvent, OrderNewEvent } from "../../../lib/socket";
 
 const STATUS_LABELS: Record<string, string> = {
   PENDING: "Order received",
@@ -26,10 +26,21 @@ export default function NotificationToast() {
       window.setTimeout(() => setMessage(null), 5000);
     }
 
-    window.addEventListener("order:status", handleOrderStatus);
+    function handleOrderNew(e: Event) {
+      const { detail } = e as CustomEvent<OrderNewEvent>;
 
-    return () =>
+      setMessage(`New order #${detail.orderId} received`);
+
+      window.setTimeout(() => setMessage(null), 5000);
+    }
+
+    window.addEventListener("order:status", handleOrderStatus);
+    window.addEventListener("order:new", handleOrderNew);
+
+    return () => {
       window.removeEventListener("order:status", handleOrderStatus);
+      window.removeEventListener("order:new", handleOrderNew);
+    };
   }, []);
 
   if (!message) return null;

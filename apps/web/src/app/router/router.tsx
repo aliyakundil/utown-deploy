@@ -37,6 +37,7 @@ import AdminCategoryFormPage from "../../features/admin/pages/AdminCategoryFormP
 import AdminMenuItemsPage from "../../features/admin/pages/AdminMenuItemsPage";
 import AdminMenuItemFormPage from "../../features/admin/pages/AdminMenuItemFormPage";
 import BusinessHomePage from "../../features/restaurateur/pages/BusinessHomePage";
+import BusinessNotificationsPage from "../../features/restaurateur/pages/BusinessNotificationsPage";
 
 export const router = createBrowserRouter([
   {
@@ -210,5 +211,9 @@ export const router = createBrowserRouter([
   {
     path: "/admin/restaurants/:restaurantId/menu-items/:menuItemId/edit",
     element: <AdminMenuItemFormPage />,
+  },
+  {
+    path: "/business/notifications",
+    element: <BusinessNotificationsPage />,
   },
 ]);
