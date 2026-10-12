@@ -1,4 +1,5 @@
 import SidebarBase from "../../../components/layout/Sidebar/SidebarBase";
+import LogoBusiness from "../../../assets/images/LogoBusiness.svg";
 
 const items = [
   { to: "/business/orders", label: "Order table" },
@@ -10,5 +11,5 @@ const items = [
 ];
 
 export default function BusinessSidebar() {
-  return <SidebarBase logoTo="/business" logoAlt="UTOWN BUSINESS" items={items} />;
+  return <SidebarBase logoTo="/business" logoAlt="UTOWN BUSINESS" logoSrc={LogoBusiness} items={items} />;
 }
