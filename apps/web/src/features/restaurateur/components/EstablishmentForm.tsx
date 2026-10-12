@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 
 import { createRestaurant, updateRestaurant } from "../api/restaurateur.api";
 import type { MyRestaurant } from "../types/restaurateur.types";
 import { CATEGORY_OPTIONS } from "../../restaurants/constants/establishment";
+import { uploadImage, resolveUploadUrl } from "../../../lib/upload";
 
 interface EstablishmentFormProps {
   restaurant: MyRestaurant | null;
@@ -22,7 +24,10 @@ export default function EstablishmentForm({ restaurant, onSaved }: Establishment
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const [image, setImage] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
 
@@ -33,16 +38,26 @@ export default function EstablishmentForm({ restaurant, onSaved }: Establishment
 
     setIsSaving(true);
 
-    const payload = {
-      name: name.trim(),
-      description: description.trim() || undefined,
-      address: address.trim() || undefined,
-      phone: phone.trim() || undefined,
-      minimumOrder: minimumOrder ? Number(minimumOrder) : undefined,
-      category: category || undefined,
-    };
-
     try {
+      let imageUrl: string | undefined;
+
+      if (image) {
+        setIsUploading(true);
+        const uploaded = await uploadImage(image);
+        imageUrl = resolveUploadUrl(uploaded.data.fileName);
+        setIsUploading(false);
+      }
+
+      const payload = {
+        name: name.trim(),
+        description: description.trim() || undefined,
+        address: address.trim() || undefined,
+        phone: phone.trim() || undefined,
+        minimumOrder: minimumOrder ? Number(minimumOrder) : undefined,
+        category: category || undefined,
+        ...(imageUrl && { imageUrl }),
+      };
+
       if (restaurant) {
         await updateRestaurant(restaurant.id, {
           ...payload,
@@ -59,6 +74,7 @@ export default function EstablishmentForm({ restaurant, onSaved }: Establishment
       }
     } finally {
       setIsSaving(false);
+      setIsUploading(false);
     }
   };
 
@@ -138,8 +154,30 @@ export default function EstablishmentForm({ restaurant, onSaved }: Establishment
         ))}
       </select>
 
+      <label className="establishment-form__label" htmlFor="image">
+        Image of establishment
+      </label>
+      <input
+        id="image"
+        type="file"
+        accept="image/*"
+        className="establishment-form__file"
+        onChange={(e) => setImage(e.target.files?.[0] ?? null)}
+      />
+
       {restaurant && (
         <>
+          <span className="establishment-form__label">Delivery area</span>
+          <Link
+            to="/business/establishment/delivery-city"
+            className="establishment-form__delivery-area"
+          >
+            {restaurant.city && restaurant.deliveryArea
+              ? `${restaurant.city} — ${restaurant.deliveryArea}`
+              : "Not set"}
+            <span>›</span>
+          </Link>
+
           <span className="establishment-form__label">Status</span>
           <div className="establishment-status">
             <button
@@ -171,7 +209,7 @@ export default function EstablishmentForm({ restaurant, onSaved }: Establishment
         className="establishment-save-button"
         disabled={isSaving}
       >
-        {restaurant ? "Save changes" : "Create restaurant"}
+        {isUploading ? "Uploading..." : restaurant ? "Save changes" : "Create restaurant"}
       </button>
     </form>
   );
