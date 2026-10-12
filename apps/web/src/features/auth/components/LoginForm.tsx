@@ -51,7 +51,13 @@ export default function LoginForm() {
       connectSocket();
       refreshFavorites();
 
-      navigate("/home");
+      if (response.data.user.role === "RESTAURATEUR") {
+        navigate("/business/orders");
+      } else if (response.data.user.role === "ADMIN") {
+        navigate("/admin");
+      } else {
+        navigate("/home");
+      }
     } catch (error) {
       if (axios.isAxiosError<ApiErrorResponse>(error)) {
         const message =
