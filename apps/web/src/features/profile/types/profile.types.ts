@@ -20,6 +20,7 @@ export interface UpdateProfileRequest {
   email?: string;
   city?: string;
   address?: string;
+  imageUrl?: string;
 }
 
 export interface ChangePasswordRequest {

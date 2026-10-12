@@ -9,6 +9,7 @@ export interface UploadResponse {
     mimeType: string;
     fileSize: number;
     filePath: string;
+    url?: string;
     createdAt: string;
   };
 }
