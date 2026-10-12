@@ -5,6 +5,8 @@ import { getIO } from "../../sockets/index.js";
 import type { CreateOrderDto, UpdateOrderStatusDto } from "./order.types.js";
 import { validateCreateOrder, validateUpdateOrderStatus } from "./order.validation.js";
 
+import { createNotification } from "../notifications/notification.service.js";
+
 export async function createOrder(
   userId: number,
   data: CreateOrderDto
@@ -20,6 +22,9 @@ export async function createOrder(
         include: {
           menuItem: true,
         },
+      },
+      restaurant: {
+        select: { ownerId: true },
       },
     },
   });
@@ -76,6 +81,22 @@ export async function createOrder(
       items: true,
     },
   });
+
+  if (cart.restaurant) {
+    await createNotification({
+      userId: cart.restaurant.ownerId,
+      type: "ORDER_CREATED",
+      title: "New order",
+      message: `Order #${order.id} was just placed`,
+      orderId: order.id,
+      restaurantId: cart.restaurantId,
+    });
+
+    getIO().to(`user:${cart.restaurant.ownerId}`).emit("order:new", {
+      orderId: order.id,
+      restaurantId: cart.restaurantId,
+    });
+  }
 
   await prisma.cartItem.deleteMany({
     where: {
@@ -219,7 +240,25 @@ export async function updateOrderStatus(
     status: updatedOrder.status,
   });
 
+  const notificationType =
+    updatedOrder.status === "ACCEPTED" ? "ORDER_ACCEPTED" :
+    updatedOrder.status === "READY" ? "ORDER_READY" :
+    updatedOrder.status === "CANCELLED" ? "ORDER_CANCELLED" :
+    null;
+
+  if (notificationType) {
+    await createNotification({
+      userId: order.userId,
+      type: notificationType,
+      title: "Order update",
+      message: `Order #${updatedOrder.id} is now ${updatedOrder.status.toLowerCase()}`,
+      orderId: updatedOrder.id,
+      restaurantId: order.restaurantId,
+    });
+  }
+
   return updatedOrder;
+
 }
 
 export async function cancelOrder(
