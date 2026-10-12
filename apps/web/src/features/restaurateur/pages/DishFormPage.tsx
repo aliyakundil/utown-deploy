@@ -6,6 +6,7 @@ import "./DishFormPage.css";
 
 import BusinessSidebar from "../components/BusinessSidebar";
 import BusinessTopBar from "../components/BusinessTopBar";
+import ImageUploadField from "../../../components/ui/ImageUploadField/ImageUploadField";
 import { useSidebar } from "../../../components/layout/Sidebar/SidebarContext";
 import { useMyRestaurant } from "../context/RestaurantContext";
 import { uploadImage, resolveUploadUrl } from "../../../lib/upload";
@@ -204,15 +205,12 @@ export default function DishFormPage() {
             placeholder="Beef, zucchini, celery, cheese, pepper, cheese crusts, etc."
           />
 
-          <label className="dish-form__label" htmlFor="image">
-            Product image
-          </label>
-          <input
+          <ImageUploadField
             id="image"
-            type="file"
-            accept="image/*"
-            className="dish-form__file"
-            onChange={(e) => setImage(e.target.files?.[0] ?? null)}
+            label="Product image"
+            value={image}
+            onChange={setImage}
+            existingUrl={item?.imageUrl}
           />
 
           <label className="dish-form__label" htmlFor="price">

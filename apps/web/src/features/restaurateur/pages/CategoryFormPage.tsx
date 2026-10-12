@@ -6,6 +6,7 @@ import "./CategoryFormPage.css";
 
 import BusinessSidebar from "../components/BusinessSidebar";
 import BusinessTopBar from "../components/BusinessTopBar";
+import ImageUploadField from "../../../components/ui/ImageUploadField/ImageUploadField";
 import { useSidebar } from "../../../components/layout/Sidebar/SidebarContext";
 import { useMyRestaurant } from "../context/RestaurantContext";
 import { uploadImage, resolveUploadUrl } from "../../../lib/upload";
@@ -145,15 +146,12 @@ export default function CategoryFormPage() {
             placeholder="Category name"
           />
 
-          <label className="category-form__label" htmlFor="image">
-            Category image
-          </label>
-          <input
+          <ImageUploadField
             id="image"
-            type="file"
-            accept="image/*"
-            className="category-form__file"
-            onChange={(e) => setImage(e.target.files?.[0] ?? null)}
+            label="Category image"
+            value={image}
+            onChange={setImage}
+            existingUrl={category?.imageUrl}
           />
 
           <label className="category-form__label" htmlFor="priority">

@@ -1,0 +1,29 @@
+.image-upload-field {
+  margin-bottom: 20px;
+}
+
+.image-upload-field__label {
+  display: block;
+  margin-bottom: 8px;
+
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-gray);
+}
+
+.image-upload-field__preview {
+  display: block;
+  width: 96px;
+  height: 96px;
+  margin-bottom: 10px;
+
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.image-upload-field__error {
+  margin-top: 6px;
+
+  color: var(--color-error);
+  font-size: 12px;
+}
