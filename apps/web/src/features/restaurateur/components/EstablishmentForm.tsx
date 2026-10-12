@@ -4,41 +4,15 @@ import axios from "axios";
 import { createRestaurant, updateRestaurant } from "../api/restaurateur.api";
 import type { MyRestaurant } from "../types/restaurateur.types";
 import type { DayHours, WorkingHours } from "../../restaurants/types/restaurant.types";
+import {
+  CATEGORY_OPTIONS,
+  DAYS,
+  buildDefaultWorkingHours,
+} from "../../restaurants/constants/establishment";
 
 interface EstablishmentFormProps {
   restaurant: MyRestaurant | null;
   onSaved: () => Promise<void>;
-}
-
-const CATEGORY_OPTIONS = [
-  "Korean BBQ",
-  "Fried Chicken",
-  "Bunsik",
-  "Cafe & Desserts",
-  "Noodles",
-  "Bakery",
-  "Fast food",
-  "Other",
-];
-
-const DAYS: { key: keyof WorkingHours; label: string }[] = [
-  { key: "monday", label: "Monday" },
-  { key: "tuesday", label: "Tuesday" },
-  { key: "wednesday", label: "Wednesday" },
-  { key: "thursday", label: "Thursday" },
-  { key: "friday", label: "Friday" },
-  { key: "saturday", label: "Saturday" },
-  { key: "sunday", label: "Sunday" },
-];
-
-function buildDefaultWorkingHours(): WorkingHours {
-  const result = {} as WorkingHours;
-
-  for (const { key } of DAYS) {
-    result[key] = { isClosed: false, open: "09:00", close: "22:00" };
-  }
-
-  return result;
 }
 
 export default function EstablishmentForm({ restaurant, onSaved }: EstablishmentFormProps) {
@@ -48,9 +22,10 @@ export default function EstablishmentForm({ restaurant, onSaved }: Establishment
   const [phone, setPhone] = useState(restaurant?.phone ?? "");
   const [minimumOrder, setMinimumOrder] = useState(restaurant?.minimumOrder ?? "");
   const [category, setCategory] = useState(restaurant?.category ?? "");
-  const [workingHours, setWorkingHours] = useState<WorkingHours>(
-    restaurant?.workingHours ?? buildDefaultWorkingHours()
-  );
+  const [workingHours, setWorkingHours] = useState<WorkingHours>(() => ({
+    ...buildDefaultWorkingHours(),
+    ...restaurant?.workingHours,
+  }));
   const [status, setStatus] = useState<"OPEN" | "CLOSED">(restaurant?.status ?? "OPEN");
 
   const [error, setError] = useState("");

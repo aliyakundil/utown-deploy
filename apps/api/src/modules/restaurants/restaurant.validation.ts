@@ -7,6 +7,34 @@ import type {
 
 const phoneRegex = /^\+?[0-9]{10,15}$/;
 
+const WORKING_HOURS_DAYS = [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
+] as const;
+
+function isValidWorkingHours(value: unknown): boolean {
+  if (typeof value !== "object" || value === null) return false;
+
+  return WORKING_HOURS_DAYS.every((day) => {
+    const dayValue = (value as Record<string, unknown>)[day];
+
+    if (typeof dayValue !== "object" || dayValue === null) return false;
+
+    const { isClosed, open, close } = dayValue as Record<string, unknown>;
+
+    if (typeof isClosed !== "boolean") return false;
+    if (open !== undefined && typeof open !== "string") return false;
+    if (close !== undefined && typeof close !== "string") return false;
+
+    return true;
+  });
+}
+
 export function validateCreateRestaurant(data: CreateRestaurantDto) {
   const name = data.name?.trim();
   const description = data.description?.trim();
@@ -48,6 +76,13 @@ export function validateCreateRestaurant(data: CreateRestaurantDto) {
     (typeof data.minimumOrder !== "number" || data.minimumOrder < 0)
   ) {
     throw new Error("Minimum order must be a positive number");
+  }
+
+  if (
+    data.workingHours !== undefined &&
+    !isValidWorkingHours(data.workingHours)
+  ) {
+    throw new Error("Invalid working hours format");
   }
 
   return {
@@ -118,6 +153,10 @@ export function validateUpdateRestaurant(data: UpdateRestaurantDto) {
   }
 
   if (data.workingHours !== undefined) {
+    if (!isValidWorkingHours(data.workingHours)) {
+      throw new Error("Invalid working hours format");
+    }
+
     result.workingHours = data.workingHours;
   }
 

@@ -1,17 +1,15 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import "./BusinessHomePage.css";
 
 import BusinessSidebar from "../components/BusinessSidebar";
 import { useSidebar } from "../../../components/layout/Sidebar/SidebarContext";
-import { getMyProfile } from "../../profile/api/profile.api";
-import { getMyRestaurants, updateRestaurant } from "../api/restaurateur.api";
+import { useMyRestaurant } from "../context/RestaurantContext";
+import { updateRestaurant } from "../api/restaurateur.api";
 import type { MyRestaurant } from "../types/restaurateur.types";
 
 import LogoBusiness from "../../../assets/images/LogoBusiness.svg";
-
-type LoadState = "loading" | "forbidden" | "ready";
 
 const DAYS_PREVIEW: {
   key: keyof NonNullable<MyRestaurant["workingHours"]>;
@@ -29,26 +27,10 @@ const DAYS_PREVIEW: {
 export default function BusinessHomePage() {
   const navigate = useNavigate();
   const { open } = useSidebar();
+  const { state: restaurantState, restaurant, refresh: refreshRestaurant } = useMyRestaurant();
 
-  const [state, setState] = useState<LoadState>("loading");
-  const [restaurant, setRestaurant] = useState<MyRestaurant | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-
-  useEffect(() => {
-    getMyProfile()
-      .then((res) => {
-        if (res.data.role !== "RESTAURATEUR" && res.data.role !== "ADMIN") {
-          setState("forbidden");
-          return;
-        }
-
-        return getMyRestaurants().then((res) => {
-          setRestaurant(res.data[0] ?? null);
-          setState("ready");
-        });
-      })
-      .catch(() => setState("forbidden"));
-  }, []);
+  const [error, setError] = useState("");
 
   const handleToggleSuspend = async () => {
     if (!restaurant || isSaving) return;
@@ -56,18 +38,30 @@ export default function BusinessHomePage() {
     const nextStatus = restaurant.status === "OPEN" ? "CLOSED" : "OPEN";
 
     setIsSaving(true);
+    setError("");
 
     try {
-      const response = await updateRestaurant(restaurant.id, {
-        status: nextStatus,
-      });
-      setRestaurant(response.data);
+      await updateRestaurant(restaurant.id, { status: nextStatus });
+      await refreshRestaurant();
+    } catch {
+      setError("Couldn't update the restaurant status");
     } finally {
       setIsSaving(false);
     }
   };
 
-  if (state === "forbidden") {
+  if (restaurantState === "loading" || restaurantState === "idle") {
+    return (
+      <>
+        <BusinessSidebar />
+        <main className="business-home-page">
+          <p className="business-home-message">Loading...</p>
+        </main>
+      </>
+    );
+  }
+
+  if (restaurantState === "forbidden") {
     return (
       <>
         <BusinessSidebar />
@@ -111,20 +105,18 @@ export default function BusinessHomePage() {
           <img src={LogoBusiness} alt="UT.BUSINESS" className="business-home-logo" />
         </header>
 
-        {state === "loading" && (
-          <p className="business-home-message">Loading...</p>
-        )}
-
-        {state === "ready" && !restaurant && (
+        {!restaurant && (
           <div className="business-home-message">
             <p>You don't have a restaurant yet.</p>
             <Link to="/business/establishment">Create your restaurant</Link>
           </div>
         )}
 
-        {state === "ready" && restaurant && (
+        {restaurant && (
           <div className="business-home-content">
             <h1 className="business-home-title">{restaurant.name}</h1>
+
+            {error && <p className="business-home-message">{error}</p>}
 
             <div className="business-home-suspend">
               <div className="business-home-suspend__text">
