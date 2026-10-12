@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "node:crypto";
 import { prisma } from "../../db/prisma.js";
+import { getIO } from "../../sockets/index.js";
 import type { GetUsersOptions, CreateUserByAdminDto, UpdateUserByAdminDto } from "./admin.types.js";
 
 export async function getUsers(options: GetUsersOptions) {
@@ -244,4 +245,54 @@ export async function deleteUserByAdmin(id: number) {
     prisma.upload.deleteMany({ where: { userId: id } }),
     prisma.user.delete({ where: { id } }),
   ]);
+}
+
+export async function sendSystemNotification(
+  title: string,
+  message: string,
+  userId?: number
+) {
+  if (!title.trim()) {
+    throw new Error("Title is required");
+  }
+
+  if (!message.trim()) {
+    throw new Error("Message is required");
+  }
+
+  if (userId !== undefined) {
+    const notification = await prisma.notification.create({
+      data: {
+        userId,
+        type: "SYSTEM",
+        title: title.trim(),
+        message: message.trim(),
+      },
+    });
+
+    getIO().to(`user:${userId}`).emit("notification:system", {
+      title: notification.title,
+      message: notification.message,
+    });
+
+    return { success: true, count: 1 };
+  }
+
+  const users = await prisma.user.findMany({ select: { id: true } });
+
+  await prisma.notification.createMany({
+    data: users.map((user) => ({
+      userId: user.id,
+      type: "SYSTEM" as const,
+      title: title.trim(),
+      message: message.trim(),
+    })),
+  });
+
+  getIO().emit("notification:system", {
+    title: title.trim(),
+    message: message.trim(),
+  });
+
+  return { success: true, count: users.length };
 }

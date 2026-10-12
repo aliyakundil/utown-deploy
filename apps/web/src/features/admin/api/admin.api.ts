@@ -200,3 +200,12 @@ export async function deleteMenuItem(menuItemId: number) {
   const response = await api.delete(`/menu-items/${menuItemId}`);
   return response.data;
 }
+
+export async function sendSystemNotification(data: {
+  title: string;
+  message: string;
+  userId?: number;
+}) {
+  const response = await api.post("/admin/notifications/system", data);
+  return response.data;
+}

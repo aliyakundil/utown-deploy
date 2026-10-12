@@ -29,6 +29,7 @@ const groups: AdminNavGroup[] = [
     items: [
       { to: null, label: "Services" },
       { to: null, label: "Vacancies" },
+      { to: "/admin/notifications", label: "Notifications" },
     ],
   },
 ];

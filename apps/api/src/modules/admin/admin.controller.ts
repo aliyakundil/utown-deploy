@@ -167,3 +167,31 @@ export async function deleteUserByAdmin(req: Request, res: Response, next: NextF
     });
   }
 }
+
+export async function sendSystemNotification(
+  req: Request,
+  res: Response
+) {
+  try {
+    const { title, message, userId } = req.body;
+
+    const result = await adminService.sendSystemNotification(
+      title,
+      message,
+      userId !== undefined ? Number(userId) : undefined
+    );
+
+    return res.status(201).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Unknown error",
+    });
+  }
+}
