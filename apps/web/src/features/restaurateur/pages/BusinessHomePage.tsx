@@ -189,7 +189,7 @@ export default function BusinessHomePage() {
             <button
               type="button"
               className="business-home-hours-button"
-              onClick={() => navigate("/business/establishment")}
+              onClick={() => navigate("/business/establishment/hours")}
             >
               Specify the establishment's working hours
             </button>

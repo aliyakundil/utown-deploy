@@ -6,7 +6,7 @@ const items = [
   { to: "/business/statistics", label: "Statistics" },
   { to: "/business/menu", label: "Menu" },
   { to: "/business/establishment", label: "Establishment" },
-  { to: null, label: "Working hours" },
+  { to: "/business/establishment/hours", label: "Working hours" },
 ];
 
 export default function BusinessSidebar() {

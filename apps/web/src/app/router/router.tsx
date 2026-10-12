@@ -25,6 +25,8 @@ import OrderTablePage from "../../features/restaurateur/pages/OrderTablePage";
 import MenuManagementPage from "../../features/restaurateur/pages/MenuManagementPage";
 import EstablishmentPage from "../../features/restaurateur/pages/EstablishmentPage";
 import StatisticsPage from "../../features/restaurateur/pages/StatisticsPage";
+import WorkingHoursPage from "../../features/restaurateur/pages/WorkingHoursPage";
+import WorkingHoursDayPage from "../../features/restaurateur/pages/WorkingHoursDayPage";
 import AdminUsersPage from "../../features/admin/pages/AdminUsersPage";
 import AdminClientFormPage from "../../features/admin/pages/AdminClientFormPage";
 import AdminRestaurantsPage from "../../features/admin/pages/AdminRestaurantsPage";
@@ -144,6 +146,14 @@ export const router = createBrowserRouter([
   {
     path: "/business/statistics",
     element: <StatisticsPage />,
+  },
+  {
+    path: "/business/establishment/hours",
+    element: <WorkingHoursPage />,
+  },
+  {
+    path: "/business/establishment/hours/:day",
+    element: <WorkingHoursDayPage />,
   },
   {
     path: "/admin",

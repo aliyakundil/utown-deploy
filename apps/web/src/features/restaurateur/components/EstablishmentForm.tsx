@@ -3,12 +3,7 @@ import axios from "axios";
 
 import { createRestaurant, updateRestaurant } from "../api/restaurateur.api";
 import type { MyRestaurant } from "../types/restaurateur.types";
-import type { DayHours, WorkingHours } from "../../restaurants/types/restaurant.types";
-import {
-  CATEGORY_OPTIONS,
-  DAYS,
-  buildDefaultWorkingHours,
-} from "../../restaurants/constants/establishment";
+import { CATEGORY_OPTIONS } from "../../restaurants/constants/establishment";
 
 interface EstablishmentFormProps {
   restaurant: MyRestaurant | null;
@@ -22,21 +17,10 @@ export default function EstablishmentForm({ restaurant, onSaved }: Establishment
   const [phone, setPhone] = useState(restaurant?.phone ?? "");
   const [minimumOrder, setMinimumOrder] = useState(restaurant?.minimumOrder ?? "");
   const [category, setCategory] = useState(restaurant?.category ?? "");
-  const [workingHours, setWorkingHours] = useState<WorkingHours>(() => ({
-    ...buildDefaultWorkingHours(),
-    ...restaurant?.workingHours,
-  }));
   const [status, setStatus] = useState<"OPEN" | "CLOSED">(restaurant?.status ?? "OPEN");
 
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-
-  const updateDay = (day: keyof WorkingHours, patch: Partial<DayHours>) => {
-    setWorkingHours((prev) => ({
-      ...prev,
-      [day]: { ...prev[day], ...patch },
-    }));
-  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -56,7 +40,6 @@ export default function EstablishmentForm({ restaurant, onSaved }: Establishment
       phone: phone.trim() || undefined,
       minimumOrder: minimumOrder ? Number(minimumOrder) : undefined,
       category: category || undefined,
-      workingHours,
     };
 
     try {
@@ -154,48 +137,6 @@ export default function EstablishmentForm({ restaurant, onSaved }: Establishment
           </option>
         ))}
       </select>
-
-      <span className="establishment-form__label">Opening hours</span>
-      <div className="establishment-hours">
-        {DAYS.map(({ key, label }) => {
-          const day = workingHours[key];
-
-          return (
-            <div key={key} className="establishment-hours__day">
-              <span className="establishment-hours__day-label">{label}</span>
-
-              <label className="establishment-hours__dayoff">
-                <input
-                  type="checkbox"
-                  checked={day.isClosed}
-                  onChange={(e) =>
-                    updateDay(key, { isClosed: e.target.checked })
-                  }
-                />
-                Day off
-              </label>
-
-              <input
-                type="time"
-                className="establishment-hours__time"
-                value={day.open ?? "09:00"}
-                disabled={day.isClosed}
-                onChange={(e) => updateDay(key, { open: e.target.value })}
-              />
-
-              <span className="establishment-hours__dash">—</span>
-
-              <input
-                type="time"
-                className="establishment-hours__time"
-                value={day.close ?? "22:00"}
-                disabled={day.isClosed}
-                onChange={(e) => updateDay(key, { close: e.target.value })}
-              />
-            </div>
-          );
-        })}
-      </div>
 
       {restaurant && (
         <>
