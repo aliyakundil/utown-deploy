@@ -41,6 +41,13 @@ export interface Category {
   priority: number;
 }
 
+export interface MenuItemOption {
+  id: number;
+  menuItemId: number;
+  name: string;
+  extraPrice: string;
+}
+
 export interface MenuItem {
   id: number;
   restaurantId: number;
@@ -50,6 +57,9 @@ export interface MenuItem {
   price: string;
   imageUrl: string | null;
   isAvailable: boolean;
+  priority: number;
+  isDeleted: boolean;
+  options: MenuItemOption[];
 }
 
 export interface RestaurantDetail extends Restaurant {
@@ -117,11 +127,18 @@ export interface MenuItemDetailResponse {
   data: MenuItem;
 }
 
+export interface MenuItemOptionInput {
+  name: string;
+  extraPrice: number;
+}
+
 export interface CreateMenuItemRequest {
   name: string;
   description?: string;
   price: number;
   imageUrl?: string;
+  priority?: number;
+  options?: MenuItemOptionInput[];
 }
 
 export interface UpdateMenuItemRequest {
@@ -131,4 +148,6 @@ export interface UpdateMenuItemRequest {
   imageUrl?: string;
   isAvailable?: boolean;
   categoryId?: number;
+  priority?: number;
+  options?: MenuItemOptionInput[];
 }

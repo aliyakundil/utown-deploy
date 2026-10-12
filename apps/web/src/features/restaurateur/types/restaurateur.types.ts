@@ -59,10 +59,18 @@ export interface CategoryResponse {
   data: Category;
 }
 
+export interface MenuItemOptionInput {
+  name: string;
+  extraPrice: number;
+}
+
 export interface CreateMenuItemRequest {
   name: string;
   price: number;
   description?: string;
+  imageUrl?: string;
+  priority?: number;
+  options?: MenuItemOptionInput[];
 }
 
 export interface UpdateMenuItemRequest {
@@ -70,6 +78,10 @@ export interface UpdateMenuItemRequest {
   price?: number;
   description?: string;
   isAvailable?: boolean;
+  imageUrl?: string;
+  categoryId?: number;
+  priority?: number;
+  options?: MenuItemOptionInput[];
 }
 
 export interface MenuItemResponse {

@@ -1,7 +1,24 @@
 import type {
   CreateMenuItemDto,
   UpdateMenuItemDto,
+  MenuItemOptionDto,
 } from "./menu-item.types.js";
+
+function validateOptions(options: MenuItemOptionDto[]) {
+  return options.map((option) => {
+    const name = option.name?.trim();
+
+    if (!name) {
+      throw new Error("Option name is required");
+    }
+
+    if (option.extraPrice === undefined || Number(option.extraPrice) < 0) {
+      throw new Error("Option price must be 0 or greater");
+    }
+
+    return { name, extraPrice: Number(option.extraPrice) };
+  });
+}
 
 export function validateCreateMenuItem(
   data: CreateMenuItemDto
@@ -31,6 +48,8 @@ export function validateCreateMenuItem(
     description: data.description?.trim(),
     price: Number(data.price),
     imageUrl: data.imageUrl?.trim(),
+    priority: data.priority !== undefined ? Number(data.priority) : undefined,
+    options: data.options ? validateOptions(data.options) : undefined,
   };
 }
 
@@ -77,6 +96,14 @@ export function validateUpdateMenuItem(
 
   if (data.categoryId !== undefined) {
     result.categoryId = data.categoryId;
+  }
+
+  if (data.priority !== undefined) {
+    result.priority = Number(data.priority);
+  }
+
+  if (data.options !== undefined) {
+    result.options = validateOptions(data.options);
   }
 
   return result;

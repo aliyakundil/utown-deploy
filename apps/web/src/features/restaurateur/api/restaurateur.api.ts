@@ -82,3 +82,21 @@ export async function updateRestaurant(
   );
   return response.data;
 }
+
+export async function restoreMenuItem(menuItemId: number) {
+  const response = await api.patch<MenuItemResponse>(
+    `/menu-items/${menuItemId}/restore`
+  );
+  return response.data;
+}
+
+export async function updateCategory(
+  categoryId: number,
+  data: { name?: string; imageUrl?: string; priority?: number }
+) {
+  const response = await api.patch<CategoryResponse>(
+    `/categories/${categoryId}`,
+    data
+  );
+  return response.data;
+}

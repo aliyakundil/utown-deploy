@@ -87,7 +87,7 @@ export async function getRestaurants(
     return prisma.restaurant.findMany({
       where,
       orderBy: { createdAt: "desc" },
-      include: { categories: true, menuItems: true },
+      include: { categories: true, menuItems: { include: { options: true } } },
     });
   }
 
@@ -130,7 +130,10 @@ export async function getRestaurantById(id: number) {
         },
       },
       categories: true,
-      menuItems: true,
+      menuItems: {
+        where: { isDeleted: false },
+        include: { options: true },
+      },
     },
   });
 

@@ -175,4 +175,11 @@ router.delete(
   menuItemController.deleteMenuItem
 );
 
+router.patch(
+  "/:id/restore",
+  authenticateToken,
+  requireRoles("ADMIN", "RESTAURATEUR"),
+  menuItemController.restoreMenuItem
+);
+
 export default router;

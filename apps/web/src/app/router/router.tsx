@@ -22,7 +22,6 @@ import PasswordPage from "../../features/profile/pages/PasswordPage";
 import InformationPage from "../../features/profile/pages/InformationPage";
 import ContactSupportPage from "../../features/profile/pages/ContactSupportPage";
 import OrderTablePage from "../../features/restaurateur/pages/OrderTablePage";
-import MenuManagementPage from "../../features/restaurateur/pages/MenuManagementPage";
 import EstablishmentPage from "../../features/restaurateur/pages/EstablishmentPage";
 import StatisticsPage from "../../features/restaurateur/pages/StatisticsPage";
 import WorkingHoursPage from "../../features/restaurateur/pages/WorkingHoursPage";
@@ -38,6 +37,14 @@ import AdminMenuItemsPage from "../../features/admin/pages/AdminMenuItemsPage";
 import AdminMenuItemFormPage from "../../features/admin/pages/AdminMenuItemFormPage";
 import BusinessHomePage from "../../features/restaurateur/pages/BusinessHomePage";
 import BusinessNotificationsPage from "../../features/restaurateur/pages/BusinessNotificationsPage";
+import MenuManagementPage from "../../features/restaurateur/pages/MenuManagementPage";
+import MenuEditHubPage from "../../features/restaurateur/pages/MenuEditHubPage";
+import DishFormPage from "../../features/restaurateur/pages/DishFormPage";
+import DishesOnHoldPage from "../../features/restaurateur/pages/DishesOnHoldPage";
+import DeletedDishesPage from "../../features/restaurateur/pages/DeletedDishesPage";
+import CategoriesHubPage from "../../features/restaurateur/pages/CategoriesHubPage";
+import CategoriesListPage from "../../features/restaurateur/pages/CategoriesListPage";
+import CategoryFormPage from "../../features/restaurateur/pages/CategoryFormPage";
 
 export const router = createBrowserRouter([
   {
@@ -137,10 +144,6 @@ export const router = createBrowserRouter([
     element: <OrderTablePage />,
   },
   {
-    path: "/business/menu",
-    element: <MenuManagementPage />,
-  },
-  {
     path: "/business/establishment",
     element: <EstablishmentPage />,
   },
@@ -215,5 +218,45 @@ export const router = createBrowserRouter([
   {
     path: "/business/notifications",
     element: <BusinessNotificationsPage />,
+  },
+    {
+    path: "/business/menu",
+    element: <MenuManagementPage />,
+  },
+  {
+    path: "/business/menu/edit",
+    element: <MenuEditHubPage />,
+  },
+  {
+    path: "/business/menu/dishes/new",
+    element: <DishFormPage />,
+  },
+  {
+    path: "/business/menu/dishes/:id/edit",
+    element: <DishFormPage />,
+  },
+  {
+    path: "/business/menu/dishes/on-hold",
+    element: <DishesOnHoldPage />,
+  },
+  {
+    path: "/business/menu/dishes/deleted",
+    element: <DeletedDishesPage />,
+  },
+  {
+    path: "/business/menu/categories",
+    element: <CategoriesHubPage />,
+  },
+  {
+    path: "/business/menu/categories/list",
+    element: <CategoriesListPage />,
+  },
+  {
+    path: "/business/menu/categories/new",
+    element: <CategoryFormPage />,
+  },
+  {
+    path: "/business/menu/categories/:id/edit",
+    element: <CategoryFormPage />,
   },
 ]);
