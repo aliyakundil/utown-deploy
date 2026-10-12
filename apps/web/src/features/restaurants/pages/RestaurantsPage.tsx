@@ -6,6 +6,7 @@ import "./RestaurantsPage.css";
 import BackButton from "../../../components/ui/BackButton/BackButton.tsx";
 import NotificationBell from "../../../components/ui/NotificationBell/NotificationBell";
 import FavoriteButton from "../../../components/ui/FavoriteButton/FavoriteButton";
+import RestaurantCardSkeleton from "../components/RestaurantCardSkeleton";
 import Sidebar from "../../../components/layout/Sidebar/Sidebar";
 import { getRestaurants } from "../api/restaurants.api";
 import { useFavorites } from "../../favorites/context/FavoritesContext";
@@ -83,9 +84,10 @@ export default function RestaurantsPage() {
       <h1 className="restaurants-title">Establishments</h1>
 
       <section className="restaurants-list">
-        {isLoading && (
-          <p className="restaurants-list__empty">Loading...</p>
-        )}
+        {isLoading &&
+          Array.from({ length: 6 }).map((_, i) => (
+            <RestaurantCardSkeleton key={i} />
+          ))}
 
         {!isLoading && restaurants.length === 0 && (
           <p className="restaurants-list__empty">Nothing found</p>

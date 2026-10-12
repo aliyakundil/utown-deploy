@@ -7,6 +7,7 @@ import "./AdminPages.css";
 import AdminSidebar from "../components/AdminSidebar";
 import AdminTopBar from "../components/AdminTopBar";
 import ClientDetailModal from "../components/ClientDetailModal";
+import AdminTableSkeleton from "../../../components/ui/Skeleton/AdminTableSkeleton";
 import { getMyProfile } from "../../profile/api/profile.api";
 import { getAllUsers, updateUserRole, deleteUser } from "../api/admin.api";
 import type { AdminUser, UserRole } from "../types/admin.types";
@@ -145,7 +146,23 @@ export default function AdminUsersPage() {
           {error && <p className="admin-error">{error}</p>}
 
           {state === "loading" && (
-            <p className="admin-message">Loading...</p>
+            <div className="admin-table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>City</th>
+                    <th>Verified</th>
+                    <th>Role</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <AdminTableSkeleton columns={6} />
+                </tbody>
+              </table>
+            </div>
           )}
 
           {state === "ready" && (

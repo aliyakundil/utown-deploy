@@ -21,7 +21,6 @@ import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./swagger/swagger.js";
 
 const app = express();
-console.log("SERVER FILE:", import.meta.url);
 
 app.use(
   cors({
