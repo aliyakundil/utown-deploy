@@ -39,6 +39,7 @@ export async function getUsers(options: GetUsersOptions) {
       role: true,
       imageUrl: true,
       isVerified: true,
+      isBanned: true,
       createdAt: true,
     },
   });
@@ -161,6 +162,7 @@ export async function patchUserByAdmin(id: number, input: UpdateUserByAdminDto) 
       address: input.address ?? user.address,
       imageUrl: input.imageUrl ?? user.imageUrl,
       role: input.role ?? user.role,
+      isBanned: input.isBanned ?? user.isBanned,
     },
     select: {
       id: true,
@@ -172,6 +174,7 @@ export async function patchUserByAdmin(id: number, input: UpdateUserByAdminDto) 
       role: true,
       imageUrl: true,
       isVerified: true,
+      isBanned: true,
       createdAt: true,
     },
   });

@@ -118,6 +118,10 @@ export async function login(data: LoginDto): Promise<AuthResponse> {
     throw new Error("Phone number is not verified");
   }
 
+  if (user.isBanned) {
+    throw new Error("Your account has been suspended");
+  }
+
   const isPasswordValid = await bcrypt.compare(
     password,
     user.password

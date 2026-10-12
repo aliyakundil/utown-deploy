@@ -40,6 +40,11 @@ export async function deleteUser(userId: number) {
   return response.data;
 }
 
+export async function setUserBanned(userId: number, isBanned: boolean) {
+  const response = await api.patch(`/admin/users/${userId}`, { isBanned });
+  return response.data;
+}
+
 export async function getAllOrders(page = 1) {
   const response = await api.get<AdminOrdersResponse>("/admin/orders", {
     params: { page },
