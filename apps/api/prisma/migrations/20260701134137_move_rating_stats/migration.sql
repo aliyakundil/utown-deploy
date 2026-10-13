@@ -6,9 +6,9 @@
 
 */
 -- AlterTable
-ALTER TABLE `restaurant` ADD COLUMN `averageRating` DOUBLE NOT NULL DEFAULT 0,
+ALTER TABLE `Restaurant` ADD COLUMN `averageRating` DOUBLE NOT NULL DEFAULT 0,
     ADD COLUMN `ratingsCount` INTEGER NOT NULL DEFAULT 0;
 
 -- AlterTable
-ALTER TABLE `restaurantrating` DROP COLUMN `averageRating`,
+ALTER TABLE `RestaurantRating` DROP COLUMN `averageRating`,
     DROP COLUMN `ratingsCount`;
