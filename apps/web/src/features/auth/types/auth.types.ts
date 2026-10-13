@@ -47,11 +47,13 @@ export interface VerifyCodeRequest {
 }
 
 export interface ForgotPasswordRequest {
-  phone: string;
+  phone?: string;
+  email?: string;
 }
 
 export interface ResetPasswordRequest {
-  phone: string;
+  phone?: string;
+  email?: string;
   code: string;
   newPassword: string;
 }

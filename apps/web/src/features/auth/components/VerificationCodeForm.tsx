@@ -25,6 +25,8 @@ export default function VerificationCodeForm() {
   const { refresh: refreshFavorites } = useFavorites();
 
   const phone = location.state?.phone ?? "";
+  const identifier = location.state?.identifier ?? phone;
+  const isEmail = location.state?.isEmail ?? false;
   const mode = location.state?.mode ?? "register";
 
   useEffect(() => {
@@ -44,7 +46,7 @@ export default function VerificationCodeForm() {
 
     if (mode === "reset") {
       navigate("/new-password", {
-        state: { phone, code: code.join("") },
+        state: { identifier, isEmail, code: code.join("") },
       });
       return;
     }
@@ -101,7 +103,9 @@ export default function VerificationCodeForm() {
 
     try {
       if (mode === "reset") {
-        await forgotPassword({ phone });
+        await forgotPassword(
+          isEmail ? { email: identifier } : { phone: identifier }
+        );
       } else {
         await resendCode({ phone });
       }
@@ -130,7 +134,9 @@ export default function VerificationCodeForm() {
         </h1>
 
         <p className="verification-form__subtitle">
-          Enter the verification code sent via SMS
+          {isEmail
+            ? "Enter the verification code sent to your email"
+            : "Enter the verification code sent via SMS"}
         </p>
 
         <OTPInput

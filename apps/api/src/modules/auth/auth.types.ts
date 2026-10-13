@@ -48,11 +48,13 @@ export interface VerifyCodeDto {
 }
 
 export interface ForgotPasswordDto {
-  phone: string;
+  phone?: string;
+  email?: string;
 }
 
 export interface ResetPasswordDto {
-  phone: string;
+  phone?: string;
+  email?: string;
   code: string;
   newPassword: string;
 }

@@ -11,6 +11,7 @@ import Logo from "../../../assets/images/Vector.svg";
 export default function PersonalInformationPage() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -21,6 +22,7 @@ export default function PersonalInformationPage() {
       .then((res) => {
         setName(res.data.name);
         setPhone(res.data.phone);
+        setEmail(res.data.email ?? "");
         setAddress(res.data.address ?? "");
       })
       .catch(() => {});
@@ -36,6 +38,7 @@ export default function PersonalInformationPage() {
       await updateProfile({
         name: name.trim(),
         phone: phone.trim(),
+        email: email.trim(),
         address: address.trim(),
       });
       setSuccess("Saved");
@@ -81,6 +84,18 @@ export default function PersonalInformationPage() {
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           placeholder="Phone Number"
+        />
+
+        <label className="profile-form__label" htmlFor="email">
+          Your Email (used for password recovery)
+        </label>
+        <input
+          id="email"
+          type="email"
+          className="profile-form__input"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
         />
 
         <label className="profile-form__label" htmlFor="address">

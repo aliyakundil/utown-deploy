@@ -254,7 +254,8 @@ model Upload {
 model VerificationCode {
   id         Int      @id @default(autoincrement())
 
-  phone      String
+  phone      String?
+  email      String?
   code       String
 
   expiresAt  DateTime

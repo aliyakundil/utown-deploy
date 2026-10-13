@@ -5,6 +5,7 @@ import type { RegisterDto, LoginDto, JwtPayload, AuthResponse, RegisterResponse,
 import { validateRegister, validateLogin, validateVerificationCode, validateForgotPassword, validateResetPassword, validateChangePassword } from "./auth.validation.js";
 import { generateVerificationCode } from "../../utils/generateVerificationCode.js";
 import { sendVerificationCode } from "../../services/sms.service.js";
+import { sendPasswordResetEmail } from "../../services/email.service.js";
 import type { UserRole } from "@prisma/client";
 import crypto from "node:crypto";
 
@@ -276,6 +277,10 @@ export async function resendVerificationCode(
 ): Promise<{ message: string }> {
   const { phone } = validateForgotPassword(data);
 
+  if (!phone) {
+    throw new Error("Phone is required");
+  }
+
   const user = await prisma.user.findUnique({
     where: { phone },
   });
@@ -306,42 +311,56 @@ export async function resendVerificationCode(
 export async function requestPasswordReset(
   data: ForgotPasswordDto
 ): Promise<{ message: string }> {
-  const { phone } = validateForgotPassword(data);
+  const { phone, email } = validateForgotPassword(data);
 
-  const user = await prisma.user.findUnique({
-    where: { phone },
+  const identifierWhere = phone ? { phone } : { email: email as string };
+
+  const user = await prisma.user.findFirst({
+    where: identifierWhere,
   });
 
   if (user) {
     const code = generateVerificationCode();
 
     await prisma.verificationCode.deleteMany({
-      where: { phone },
+      where: identifierWhere,
     });
 
     await prisma.verificationCode.create({
       data: {
-        phone,
+        phone: phone ?? null,
+        email: email ?? null,
         code,
         expiresAt: new Date(Date.now() + 5 * 60 * 1000),
       },
     });
 
-    sendVerificationCode(phone, code);
+    if (phone) {
+      sendVerificationCode(phone, code);
+    } else if (email) {
+      try {
+        await sendPasswordResetEmail(email, code);
+      } catch (error) {
+        console.error("Failed to send password reset email:", error);
+      }
+    }
+
   }
 
   return {
-    message: "If this phone number is registered, a reset code has been sent",
+    message: "If this account exists, a reset code has been sent",
   };
 }
 
 export async function resetPassword(
   data: ResetPasswordDto
 ): Promise<{ message: string }> {
-  const { phone, code, newPassword } = validateResetPassword(data);
+  const { phone, email, code, newPassword } = validateResetPassword(data);
+
+  const identifierWhere = phone ? { phone } : { email: email as string };
 
   const verification = await prisma.verificationCode.findFirst({
-    where: { phone, code },
+    where: { ...identifierWhere, code },
   });
 
   if (!verification) {
@@ -352,8 +371,8 @@ export async function resetPassword(
     throw new Error("Verification code has expired");
   }
 
-  const user = await prisma.user.findUnique({
-    where: { phone },
+  const user = await prisma.user.findFirst({
+    where: identifierWhere,
   });
 
   if (!user) {

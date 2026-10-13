@@ -12,7 +12,7 @@ export default function RecoverPasswordPage() {
         <h1 className="recover__title">Recover password</h1>
 
         <p className="recover__subtitle">
-          Enter the phone number you registered earlier
+          Enter the phone number or email you registered earlier
         </p>
 
         <RecoverPasswordForm />
