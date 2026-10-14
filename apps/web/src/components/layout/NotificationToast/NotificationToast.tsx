@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import "./NotificationToast.css";
 
@@ -15,23 +15,29 @@ const STATUS_LABELS: Record<string, string> = {
 
 export default function NotificationToast() {
   const [message, setMessage] = useState<string | null>(null);
+  const timeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
+    function showMessage(text: string) {
+      if (timeoutRef.current !== null) {
+        window.clearTimeout(timeoutRef.current);
+      }
+
+      setMessage(text);
+      timeoutRef.current = window.setTimeout(() => setMessage(null), 5000);
+    }
+
     function handleOrderStatus(e: Event) {
       const { detail } = e as CustomEvent<OrderStatusEvent>;
       const label = STATUS_LABELS[detail.status] ?? detail.status;
 
-      setMessage(`Order #${detail.orderId}: ${label}`);
-
-      window.setTimeout(() => setMessage(null), 5000);
+      showMessage(`Order #${detail.orderId}: ${label}`);
     }
 
     function handleOrderNew(e: Event) {
       const { detail } = e as CustomEvent<OrderNewEvent>;
 
-      setMessage(`New order #${detail.orderId} received`);
-
-      window.setTimeout(() => setMessage(null), 5000);
+      showMessage(`New order #${detail.orderId} received`);
     }
 
     window.addEventListener("order:status", handleOrderStatus);
@@ -40,6 +46,10 @@ export default function NotificationToast() {
     return () => {
       window.removeEventListener("order:status", handleOrderStatus);
       window.removeEventListener("order:new", handleOrderNew);
+
+      if (timeoutRef.current !== null) {
+        window.clearTimeout(timeoutRef.current);
+      }
     };
   }, []);
 
