@@ -11,6 +11,7 @@ import {
 } from "../../notifications/api/notification.api";
 import type { AppNotification } from "../../notifications/types/notification.types";
 import type { OrderNewEvent } from "../../../lib/socket";
+import { useMyRestaurant } from "../context/RestaurantContext";
 
 function groupLabel(dateString: string): string {
   const date = new Date(dateString);
@@ -38,6 +39,7 @@ function formatTime(dateString: string): string {
 
 export default function BusinessNotificationsPage() {
   const { open } = useSidebar();
+  const { state: restaurantState, restaurant } = useMyRestaurant();
 
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -88,7 +90,32 @@ export default function BusinessNotificationsPage() {
     return acc;
   }, []);
 
+  if (restaurantState === "loading" || restaurantState === "idle") {
+    return (
+      <>
+        <BusinessSidebar />
+        <main className="business-notifications-page">
+          <p className="business-notifications-message">Loading...</p>
+        </main>
+      </>
+    );
+  }
+
+  if (restaurantState === "forbidden" || !restaurant) {
+    return (
+      <>
+        <BusinessSidebar />
+        <main className="business-notifications-page">
+          <p className="business-notifications-message">
+            This page is only available to restaurant owners.
+          </p>
+        </main>
+      </>
+    );
+  }
+
   return (
+
     <>
       <BusinessSidebar />
 
