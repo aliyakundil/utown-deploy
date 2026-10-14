@@ -48,70 +48,80 @@ export async function createOrder(
     0
   );
 
-  const order = await prisma.order.create({
-    data: {
-      userId,
-      restaurantId: cart.restaurantId,
-      totalPrice,
+  const restaurantId = cart.restaurantId;
 
-      deliveryAddress: validatedData.deliveryAddress,
+  const order = await prisma.$transaction(async (tx) => {
+    const createdOrder = await tx.order.create({
+      data: {
+        userId,
+        restaurantId,
+        totalPrice,
 
-      ...(validatedData.customerNote !== undefined && {
-        customerNote: validatedData.customerNote,
-      }),
+        deliveryAddress: validatedData.deliveryAddress,
 
-      ...(validatedData.customerPhone !== undefined && {
-        customerPhone: validatedData.customerPhone,
-      }),
+        ...(validatedData.customerNote !== undefined && {
+          customerNote: validatedData.customerNote,
+        }),
 
-      ...(validatedData.paymentMethod !== undefined && {
-        paymentMethod: validatedData.paymentMethod,
-      }),
+        ...(validatedData.customerPhone !== undefined && {
+          customerPhone: validatedData.customerPhone,
+        }),
 
-      items: {
-        create: cart.items.map((item) => ({
-          menuItemId: item.menuItemId,
-          quantity: item.quantity,
-          price: item.priceSnapshot,
-          itemName: item.menuItem.name,
-        })),
+        ...(validatedData.paymentMethod !== undefined && {
+          paymentMethod: validatedData.paymentMethod,
+        }),
+
+        items: {
+          create: cart.items.map((item) => ({
+            menuItemId: item.menuItemId,
+            quantity: item.quantity,
+            price: item.priceSnapshot,
+            itemName: item.menuItem.name,
+          })),
+        },
       },
-    },
-    include: {
-      items: true,
-    },
+      include: {
+        items: true,
+      },
+    });
+
+    await tx.cartItem.deleteMany({
+      where: {
+        cartId: cart.id,
+      },
+    });
+
+    await tx.cart.update({
+      where: {
+        id: cart.id,
+      },
+      data: {
+        restaurantId: null,
+      },
+    });
+
+    return createdOrder;
   });
 
   if (cart.restaurant) {
-    await createNotification({
-      userId: cart.restaurant.ownerId,
-      type: "ORDER_CREATED",
-      title: "New order",
-      message: `Order #${order.id} was just placed`,
-      orderId: order.id,
-      restaurantId: cart.restaurantId,
-    });
+    try {
+      await createNotification({
+        userId: cart.restaurant.ownerId,
+        type: "ORDER_CREATED",
+        title: "New order",
+        message: `Order #${order.id} was just placed`,
+        orderId: order.id,
+        restaurantId,
+      });
 
-    getIO().to(`user:${cart.restaurant.ownerId}`).emit("order:new", {
-      orderId: order.id,
-      restaurantId: cart.restaurantId,
-    });
+      getIO().to(`user:${cart.restaurant.ownerId}`).emit("order:new", {
+        orderId: order.id,
+        restaurantId,
+      });
+    } catch (error) {
+      console.error("Failed to notify restaurant about new order:", error);
+    }
   }
-
-  await prisma.cartItem.deleteMany({
-    where: {
-      cartId: cart.id,
-    },
-  });
-
-  await prisma.cart.update({
-    where: {
-      id: cart.id,
-    },
-    data: {
-      restaurantId: null,
-    },
-  });
 
   return order;
 }
