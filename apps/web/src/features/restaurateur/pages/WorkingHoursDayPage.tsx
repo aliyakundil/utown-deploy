@@ -58,7 +58,7 @@ export default function WorkingHoursDayPage() {
     );
   }
 
-  const current = hours[dayInfo.key];
+  const current = hours[dayInfo.key] ?? { isClosed: false, open: "09:00", close: "22:00" };
 
   return (
     <main className="working-hours-page">
