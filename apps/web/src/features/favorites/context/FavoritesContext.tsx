@@ -45,8 +45,11 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   };
 
   const toggleFavorite = async (restaurantId: number) => {
+    if (pendingAdds.has(restaurantId) || pendingRemoves.has(restaurantId)) return;
+
     const currentlyFavorite = isFavorite(restaurantId);
     const setPending = currentlyFavorite ? setPendingRemoves : setPendingAdds;
+
 
     setPending((s) => new Set(s).add(restaurantId));
 
