@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
 
 import "./OrderStatusPage.css";
 
@@ -81,6 +82,23 @@ export default function OrderStatusPage() {
 
     try {
       await api.post(`/ratings/restaurant/${order.restaurantId}`, {
+        rating: stars,
+      });
+      setRatingSubmitted(true);
+      return;
+    } catch (err) {
+      const alreadyRated =
+        axios.isAxiosError(err) &&
+        err.response?.data?.error === "You have already rated this restaurant";
+
+      if (!alreadyRated) {
+        setRatingError("Couldn't submit your rating");
+        return;
+      }
+    }
+
+    try {
+      await api.patch(`/ratings/restaurant/${order.restaurantId}`, {
         rating: stars,
       });
       setRatingSubmitted(true);
