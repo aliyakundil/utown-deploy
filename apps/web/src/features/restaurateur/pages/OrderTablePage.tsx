@@ -14,13 +14,6 @@ import type { RestaurantOrder } from "../types/restaurateur.types";
 const ACTIVE_STATUSES = ["PENDING", "ACCEPTED", "PREPARING", "READY"];
 const COMPLETED_STATUSES = ["COMPLETED", "CANCELLED"];
 
-const REJECT_REASONS = [
-  "Restaurant is closed",
-  "Missing ingredients",
-  "Too busy right now",
-  "Client unreachable",
-];
-
 type Tab = "active" | "completed";
 
 export default function OrderTablePage() {
@@ -34,11 +27,7 @@ export default function OrderTablePage() {
   const [error, setError] = useState("");
 
   const [rejectingOrderId, setRejectingOrderId] = useState<number | null>(null);
-  const [rejectReason, setRejectReason] = useState("");
-  const [rejectNote, setRejectNote] = useState("");
   const [confirmingAcceptId, setConfirmingAcceptId] = useState<number | null>(null);
-  const [openOrderId, setOpenOrderId] = useState<number | null>(null);
-  const [cookingMinutes, setCookingMinutes] = useState<Record<number, number>>({});
 
   useEffect(() => {
     if (!restaurant) return;
@@ -106,8 +95,6 @@ export default function OrderTablePage() {
     try {
       await updateOrderStatus(rejectingOrderId, "CANCELLED");
       setRejectingOrderId(null);
-      setRejectReason("");
-      setRejectNote("");
       await refresh();
     } catch {
       setError("Couldn't reject the order");
@@ -214,8 +201,6 @@ export default function OrderTablePage() {
 
         <div className="order-table-list">
           {visibleOrders.map((order) => {
-            const isOpen = openOrderId === order.id;
-            const minutes = cookingMinutes[order.id] ?? 50;
 
             return (
               <div key={order.id} className="order-row">
@@ -264,52 +249,14 @@ export default function OrderTablePage() {
                   </div>
                 )}
 
-                {order.status === "ACCEPTED" && !isOpen && (
+                {order.status === "ACCEPTED" && (
                   <button
                     type="button"
                     className="order-row__more"
-                    onClick={() => setOpenOrderId(order.id)}
+                    onClick={() => handleStartCooking(order.id)}
                   >
-                    Specify cooking time
+                    Start cooking
                   </button>
-                )}
-
-                {order.status === "ACCEPTED" && isOpen && (
-                  <div className="cooking-time">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setCookingMinutes((prev) => ({
-                          ...prev,
-                          [order.id]: Math.max(5, minutes - 5),
-                        }))
-                      }
-                    >
-                      −
-                    </button>
-                    <span>{minutes} min</span>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setCookingMinutes((prev) => ({
-                          ...prev,
-                          [order.id]: minutes + 5,
-                        }))
-                      }
-                    >
-                      +
-                    </button>
-                    <button
-                      type="button"
-                      className="cooking-time__start"
-                      onClick={() => {
-                        setOpenOrderId(null);
-                        handleStartCooking(order.id);
-                      }}
-                    >
-                      Start cooking
-                    </button>
-                  </div>
                 )}
 
                 {order.status === "PREPARING" && (
@@ -331,6 +278,17 @@ export default function OrderTablePage() {
                     Mark as completed
                   </button>
                 )}
+
+                {["ACCEPTED", "PREPARING", "READY"].includes(order.status) && (
+                  <button
+                    type="button"
+                    className="order-row__decline"
+                    onClick={() => setRejectingOrderId(order.id)}
+                  >
+                    Cancel order
+                  </button>
+                )}
+
               </div>
             );
           })}
@@ -351,44 +309,9 @@ export default function OrderTablePage() {
               <p className="reject-panel__total">{rejectingOrder.totalPrice} som</p>
             </div>
 
-            <p className="reject-panel__label">Select a reason</p>
-
-            {REJECT_REASONS.map((reason) => (
-              <label key={reason} className="reject-panel__option">
-                <input
-                  type="radio"
-                  name="reject-reason"
-                  checked={rejectReason === reason}
-                  onChange={() => setRejectReason(reason)}
-                />
-                {reason}
-              </label>
-            ))}
-
-            <label className="reject-panel__option">
-              <input
-                type="radio"
-                name="reject-reason"
-                checked={rejectReason === "Other"}
-                onChange={() => setRejectReason("Other")}
-              />
-              Another reason
-            </label>
-
-            {rejectReason === "Other" && (
-              <input
-                type="text"
-                className="reject-panel__note"
-                placeholder="Enter text"
-                value={rejectNote}
-                onChange={(e) => setRejectNote(e.target.value)}
-              />
-            )}
-
             <button
               type="button"
               className="reject-panel__submit"
-              disabled={!rejectReason}
               onClick={handleReject}
             >
               Reject

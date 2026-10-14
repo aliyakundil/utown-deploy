@@ -460,6 +460,15 @@
   .order-table-tabs {
     padding: 0 40px 16px;
   }
+
+  .reject-overlay {
+    align-items: center;
+  }
+
+  .reject-panel {
+    max-width: 340px;
+    border-radius: 16px;
+  }
 }
 
 .order-table-refresh {
