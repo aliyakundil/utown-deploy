@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -9,6 +9,7 @@ import NotificationBell from "../../../components/ui/NotificationBell/Notificati
 import Sidebar from "../../../components/layout/Sidebar/Sidebar";
 import { getCart } from "../../cart/api/cart.api";
 import { createOrder } from "../api/orders.api";
+import { getMyProfile } from "../../profile/api/profile.api";
 import type { Cart } from "../../cart/types/cart.types";
 
 import UTIcon from "../../../assets/images/Vector.svg";
@@ -23,11 +24,20 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState<"CASH" | "CARD">("CASH");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const addressTouchedRef = useRef(false);
 
   useEffect(() => {
     getCart()
       .then((res) => setCart(res.data))
       .catch(() => setCart(null));
+
+    getMyProfile()
+      .then((res) => {
+        if (res.data.address && !addressTouchedRef.current) {
+          setAddress(res.data.address);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const items = cart?.items ?? [];
@@ -99,7 +109,10 @@ export default function CheckoutPage() {
             type="text"
             placeholder="Enter your address"
             value={address}
-            onChange={(e) => setAddress(e.target.value)}
+            onChange={(e) => {
+              addressTouchedRef.current = true;
+              setAddress(e.target.value);
+            }}
             className="checkout-form__input"
           />
 
