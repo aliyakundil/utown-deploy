@@ -8,20 +8,7 @@ import BusinessTopBar from "../components/BusinessTopBar";
 import { useSidebar } from "../../../components/layout/Sidebar/SidebarContext";
 import { useMyRestaurant } from "../context/RestaurantContext";
 import { updateRestaurant } from "../api/restaurateur.api";
-import type { MyRestaurant } from "../types/restaurateur.types";
-
-const DAYS_PREVIEW: {
-  key: keyof NonNullable<MyRestaurant["workingHours"]>;
-  label: string;
-}[] = [
-  { key: "monday", label: "Mon" },
-  { key: "tuesday", label: "Tue" },
-  { key: "wednesday", label: "Wed" },
-  { key: "thursday", label: "Thu" },
-  { key: "friday", label: "Fri" },
-  { key: "saturday", label: "Sat" },
-  { key: "sunday", label: "Sun" },
-];
+import { DAYS } from "../../restaurants/constants/establishment";
 
 export default function BusinessHomePage() {
   const navigate = useNavigate();
@@ -150,13 +137,13 @@ export default function BusinessHomePage() {
 
             <h2 className="business-home-section-title">Working hours</h2>
             <div className="business-home-hours">
-              {DAYS_PREVIEW.map(({ key, label }) => {
+              {DAYS.map(({ key, label }) => {
                 const day = restaurant.workingHours?.[key];
 
                 return (
                   <div key={key} className="business-home-hours__day">
                     <span className="business-home-hours__label">
-                      {label}
+                      {label.slice(0, 3)}
                     </span>
                     <span className="business-home-hours__value">
                       {!day || day.isClosed
