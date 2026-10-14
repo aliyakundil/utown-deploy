@@ -10,7 +10,7 @@ export default function SplashPage() {
   useEffect(() => {
     const timer = setTimeout(() => {
       const hasToken = localStorage.getItem("accessToken");
-      navigate(hasToken ? "/home" : "/login", { replace: true });
+      navigate(hasToken ? "/home" : "/auth", { replace: true });
     }, 2000);
 
     return () => clearTimeout(timer);

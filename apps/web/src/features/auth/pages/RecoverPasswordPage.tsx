@@ -1,4 +1,5 @@
-import Logo from "../../../components/ui/Logo/Logo";
+import "./RecoverPasswordPage.css";
+
 import RecoverPasswordForm from "../components/RecoverPasswordForm";
 import BackButton from "../../../components/ui/BackButton/BackButton.tsx";
 
@@ -8,9 +9,11 @@ export default function RecoverPasswordPage() {
       <section className="recover">
         <BackButton to="/login" />
 
-        <div className="recover__logo">
-          <Logo />
-        </div>
+        <h1 className="recover__title">Recover password</h1>
+
+        <p className="recover__subtitle">
+          Enter the phone number you registered earlier
+        </p>
 
         <RecoverPasswordForm />
       </section>
