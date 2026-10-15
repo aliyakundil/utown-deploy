@@ -1,22 +1,7 @@
-/*
-  Warnings:
-
-  - You are about to drop the column `category` on the `restaurant` table. All the data in the column will be lost.
-  - You are about to drop the column `city` on the `restaurant` table. All the data in the column will be lost.
-  - You are about to drop the column `deliveryArea` on the `restaurant` table. All the data in the column will be lost.
-  - You are about to drop the column `workingHours` on the `restaurant` table. All the data in the column will be lost.
-
-*/
 -- AlterTable
-ALTER TABLE `menuitem` ADD COLUMN `deletedAt` DATETIME(3) NULL,
+ALTER TABLE `MenuItem` ADD COLUMN `deletedAt` DATETIME(3) NULL,
     ADD COLUMN `isDeleted` BOOLEAN NOT NULL DEFAULT false,
     ADD COLUMN `priority` INTEGER NOT NULL DEFAULT 0;
-
--- AlterTable
-ALTER TABLE `restaurant` DROP COLUMN `category`,
-    DROP COLUMN `city`,
-    DROP COLUMN `deliveryArea`,
-    DROP COLUMN `workingHours`;
 
 -- CreateTable
 CREATE TABLE `MenuItemOption` (
