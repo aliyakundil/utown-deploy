@@ -25,6 +25,8 @@ import OrderTablePage from "../../features/restaurateur/pages/OrderTablePage";
 import MenuManagementPage from "../../features/restaurateur/pages/MenuManagementPage";
 import EstablishmentPage from "../../features/restaurateur/pages/EstablishmentPage";
 import StatisticsPage from "../../features/restaurateur/pages/StatisticsPage";
+import WorkingHoursPage from "../../features/restaurateur/pages/WorkingHoursPage";
+import WorkingHoursDayPage from "../../features/restaurateur/pages/WorkingHoursDayPage";
 import AdminUsersPage from "../../features/admin/pages/AdminUsersPage";
 import AdminClientFormPage from "../../features/admin/pages/AdminClientFormPage";
 import AdminRestaurantsPage from "../../features/admin/pages/AdminRestaurantsPage";
@@ -34,6 +36,8 @@ import AdminCategoriesPage from "../../features/admin/pages/AdminCategoriesPage"
 import AdminCategoryFormPage from "../../features/admin/pages/AdminCategoryFormPage";
 import AdminMenuItemsPage from "../../features/admin/pages/AdminMenuItemsPage";
 import AdminMenuItemFormPage from "../../features/admin/pages/AdminMenuItemFormPage";
+import BusinessHomePage from "../../features/restaurateur/pages/BusinessHomePage";
+import BusinessNotificationsPage from "../../features/restaurateur/pages/BusinessNotificationsPage";
 
 export const router = createBrowserRouter([
   {
@@ -125,6 +129,10 @@ export const router = createBrowserRouter([
     element: <ContactSupportPage />,
   },
   {
+    path: "/business",
+    element: <BusinessHomePage />,
+  },
+  {
     path: "/business/orders",
     element: <OrderTablePage />,
   },
@@ -139,6 +147,14 @@ export const router = createBrowserRouter([
   {
     path: "/business/statistics",
     element: <StatisticsPage />,
+  },
+  {
+    path: "/business/establishment/hours",
+    element: <WorkingHoursPage />,
+  },
+  {
+    path: "/business/establishment/hours/:day",
+    element: <WorkingHoursDayPage />,
   },
   {
     path: "/admin",
@@ -195,5 +211,9 @@ export const router = createBrowserRouter([
   {
     path: "/admin/restaurants/:restaurantId/menu-items/:menuItemId/edit",
     element: <AdminMenuItemFormPage />,
+  },
+  {
+    path: "/business/notifications",
+    element: <BusinessNotificationsPage />,
   },
 ]);

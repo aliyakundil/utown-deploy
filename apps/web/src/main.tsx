@@ -1,4 +1,3 @@
-
 import React from "react";
 import ReactDOM from "react-dom/client";
 
@@ -7,6 +6,7 @@ import { RouterProvider } from "react-router-dom";
 import { router } from "./app/router/router";
 import { SidebarProvider } from "./components/layout/Sidebar/SidebarContext";
 import { RestaurantProvider } from "./features/restaurateur/context/RestaurantContext";
+import { FavoritesProvider } from "./features/favorites/context/FavoritesContext";
 import NotificationToast from "./components/layout/NotificationToast/NotificationToast";
 import { connectSocket } from "./lib/socket";
 
@@ -23,8 +23,10 @@ ReactDOM.createRoot(
   <React.StrictMode>
     <SidebarProvider>
       <RestaurantProvider>
-        <NotificationToast />
-        <RouterProvider router={router} />
+        <FavoritesProvider>
+          <NotificationToast />
+          <RouterProvider router={router} />
+        </FavoritesProvider>
       </RestaurantProvider>
     </SidebarProvider>
   </React.StrictMode>

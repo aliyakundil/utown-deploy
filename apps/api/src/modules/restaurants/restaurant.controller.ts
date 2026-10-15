@@ -59,7 +59,7 @@ export async function getMyRestaurants(req: Request, res: Response) {
       });
     }
 
-    const result = await restaurantService.getMyRestaurants(userId);
+    const result = await restaurantService.getRestaurants({}, userId);
 
     return res.status(200).json({
       success: true,

@@ -11,8 +11,11 @@ import Button from "../../../components/ui/Button/Button";
 
 import "./LoginForm.css";
 
+import { useFavorites } from "../../favorites/context/FavoritesContext";
+
 export default function LoginForm() {
   const navigate = useNavigate();
+  const { refresh: refreshFavorites } = useFavorites();
 
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
@@ -46,8 +49,15 @@ export default function LoginForm() {
       );
       
       connectSocket();
+      refreshFavorites();
 
-      navigate("/home");
+      if (response.data.user.role === "RESTAURATEUR") {
+        navigate("/business/orders");
+      } else if (response.data.user.role === "ADMIN") {
+        navigate("/admin");
+      } else {
+        navigate("/home");
+      }
     } catch (error) {
       if (axios.isAxiosError<ApiErrorResponse>(error)) {
         const message =

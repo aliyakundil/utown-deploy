@@ -33,19 +33,7 @@ export interface CreateRestaurantDto {
   workingHours?: WorkingHours;
 }
 
-export interface UpdateRestaurantDto {
-  name?: string;
-  description?: string;
-  address?: string;
-  city?: string;
-  phone?: string;
-  status?: StatusRestaurants;
-  imageUrl?: string;
-  minimumOrder?: number;
-  category?: string;
-  deliveryArea?: string;
-  workingHours?: WorkingHours;
-}
+export type UpdateRestaurantDto = Partial<Omit<CreateRestaurantDto, "ownerId">>;
 
 export interface RestaurantQueryDto {
   search?: string;

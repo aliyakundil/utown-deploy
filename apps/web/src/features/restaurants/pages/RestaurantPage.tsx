@@ -12,11 +12,7 @@ import {
   updateCartItem,
   removeCartItem,
 } from "../../cart/api/cart.api";
-import {
-  getFavorites,
-  addFavorite,
-  removeFavorite,
-} from "../../favorites/api/favorites.api";
+import { useFavorites } from "../../favorites/context/FavoritesContext";
 import type { RestaurantDetail } from "../types/restaurant.types";
 import type { CartItem } from "../../cart/types/cart.types";
 import axios from "axios";
@@ -26,11 +22,11 @@ type CartLine = { cartItemId: number; quantity: number; price: number };
 export default function RestaurantPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   const [restaurant, setRestaurant] = useState<RestaurantDetail | null>(null);
   const [cartLines, setCartLines] = useState<Record<number, CartLine>>({});
   const [error, setError] = useState("");
-  const [isFavorite, setIsFavorite] = useState(false);
 
   function refreshCart() {
     getCart()
@@ -60,26 +56,11 @@ export default function RestaurantPage() {
       .catch(() => setRestaurant(null));
 
     refreshCart();
-
-    getFavorites()
-      .then((res) =>
-        setIsFavorite(res.data.some((f) => f.restaurantId === Number(id)))
-      )
-      .catch(() => {});
   }, [id]);
 
-  const handleToggleFavorite = async () => {
+  const handleToggleFavorite = () => {
     if (!id) return;
-
-    const restaurantId = Number(id);
-
-    if (isFavorite) {
-      setIsFavorite(false);
-      await removeFavorite(restaurantId).catch(() => {});
-    } else {
-      setIsFavorite(true);
-      await addFavorite(restaurantId).catch(() => {});
-    }
+    toggleFavorite(Number(id));
   };
 
   const cartCount = Object.values(cartLines).reduce(
@@ -175,7 +156,7 @@ export default function RestaurantPage() {
 
         <div className="restaurant-page__image-top">
           <FavoriteButton
-            isFavorite={isFavorite}
+            isFavorite={id ? isFavorite(Number(id)) : false}
             onToggle={handleToggleFavorite}
           />
         </div>

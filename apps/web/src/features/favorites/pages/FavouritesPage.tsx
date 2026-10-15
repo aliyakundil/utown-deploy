@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import "./FavouritesPage.css";
@@ -10,34 +9,11 @@ import NotificationBell from "../../../components/ui/NotificationBell/Notificati
 import FavoriteButton from "../../../components/ui/FavoriteButton/FavoriteButton";
 import HeartIcon from "../../../assets/images/heart.svg";
 import Logo from "../../../assets/images/Logo.svg";
-import { getFavorites, removeFavorite } from "../api/favorites.api";
-import type { Favorite } from "../types/favorite.types";
+import { useFavorites } from "../context/FavoritesContext";
 
 export default function FavouritesPage() {
-  const [favorites, setFavorites] = useState<Favorite[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const { open } = useSidebar();
-
-  useEffect(() => {
-    loadFavorites();
-  }, []);
-
-  function loadFavorites() {
-    getFavorites()
-      .then((res) => setFavorites(res.data))
-      .catch(() => setFavorites([]))
-      .finally(() => setIsLoading(false));
-  }
-
-  const handleRemove = async (restaurantId: number) => {
-    setFavorites((list) =>
-      list.filter((f) => f.restaurantId !== restaurantId)
-    );
-
-    await removeFavorite(restaurantId).catch(() => {
-      loadFavorites();
-    });
-  };
+  const { favorites, isLoading, toggleFavorite } = useFavorites();
 
   return (
     <>
@@ -116,7 +92,7 @@ export default function FavouritesPage() {
                 <div className="restaurant-card__favorite">
                   <FavoriteButton
                     isFavorite
-                    onToggle={() => handleRemove(f.restaurantId)}
+                    onToggle={() => toggleFavorite(f.restaurantId)}
                   />
                 </div>
               </Link>

@@ -1,0 +1,256 @@
+.working-hours-page {
+  display: flex;
+  flex-direction: column;
+
+  min-height: 100vh;
+
+  background: var(--color-white);
+}
+
+.working-hours-topbar,
+.working-hours-header {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px 16px 12px;
+}
+
+.working-hours-hamburger {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  display: flex;
+
+  border: none;
+  background: transparent;
+  color: var(--color-black);
+
+  cursor: pointer;
+}
+
+.working-hours-back {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  display: flex;
+
+  border: none;
+  background: transparent;
+  color: var(--color-black);
+
+  cursor: pointer;
+}
+
+.working-hours-logo {
+  height: 14px;
+  width: auto;
+}
+
+.working-hours-message {
+  margin: 40px 16px;
+
+  color: var(--color-gray);
+  font-size: 14px;
+  text-align: center;
+}
+
+.working-hours-title {
+  margin: 0 16px 12px;
+  padding-bottom: 12px;
+
+  border-bottom: 1px solid var(--color-border);
+
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.working-hours-list {
+  display: flex;
+  flex-direction: column;
+
+  margin: 0 16px;
+}
+
+.working-hours-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 14px 0;
+
+  border-bottom: 1px solid var(--color-border);
+}
+
+.working-hours-row__day {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.working-hours-row__edit {
+  color: var(--color-gray);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.working-hours-day {
+  display: flex;
+  flex-direction: column;
+
+  padding: 20px 16px;
+  max-width: 420px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.working-hours-day__title {
+  margin-bottom: 24px;
+
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.working-hours-day__label {
+  margin-bottom: 8px;
+
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-gray);
+}
+
+.working-hours-day__input {
+  margin-bottom: 20px;
+  padding: 14px 16px;
+
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.working-hours-day__input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.working-hours-day__input:disabled {
+  opacity: 0.5;
+}
+
+.working-hours-day__toggle {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 40px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.working-hours-day__toggle input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.working-hours-day__switch {
+  position: relative;
+
+  width: 44px;
+  height: 26px;
+
+  border-radius: 999px;
+  background: var(--color-border);
+
+  transition: background 0.2s;
+}
+
+.working-hours-day__switch::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+
+  width: 20px;
+  height: 20px;
+
+  border-radius: 50%;
+  background: var(--color-white);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+
+  transition: transform 0.2s;
+}
+
+.working-hours-day__toggle input:checked + .working-hours-day__switch {
+  background: var(--color-primary);
+}
+
+.working-hours-day__toggle input:checked + .working-hours-day__switch::after {
+  transform: translateX(18px);
+}
+
+.working-hours-day__save {
+  margin-top: auto;
+  padding: 16px 0;
+
+  border: none;
+  border-radius: 12px;
+  background: var(--color-primary);
+  color: var(--color-white);
+
+  font-size: 15px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.working-hours-day__save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (min-width: 1025px) {
+  .working-hours-page {
+    margin-left: 260px;
+  }
+
+  .working-hours-hamburger {
+    display: none;
+  }
+
+  .working-hours-topbar,
+  .working-hours-header {
+    padding: 24px 40px 16px;
+  }
+
+  .working-hours-title,
+  .working-hours-list {
+    width: 100%;
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .working-hours-title {
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 40px 16px;
+  }
+
+  .working-hours-list {
+    padding: 0 40px;
+  }
+}

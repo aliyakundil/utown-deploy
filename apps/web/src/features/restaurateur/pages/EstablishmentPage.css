@@ -30,6 +30,8 @@
 }
 
 .establishment-title {
+  margin: 20px 16px 16px;
+
   font-size: 18px;
   font-weight: 700;
 }
@@ -159,15 +161,69 @@
     margin-left: 260px;
   }
 
-  .establishment-hamburger {
-    display: none;
+  .establishment-title,
+  .establishment-form {
+    width: 100%;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
-  .establishment-header {
-    padding: 24px 40px;
+  .establishment-title {
+    padding: 0 40px;
   }
 
   .establishment-form {
     padding: 24px 40px;
   }
+}
+
+.establishment-hours {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  margin-bottom: 16px;
+  padding: 12px;
+
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+}
+
+.establishment-hours__day {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  flex-wrap: wrap;
+}
+
+.establishment-hours__day-label {
+  width: 90px;
+  flex-shrink: 0;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.establishment-hours__dayoff {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  font-size: 12px;
+  color: var(--color-gray);
+}
+
+.establishment-hours__time {
+  padding: 6px 8px;
+
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+
+  font-size: 13px;
+}
+
+.establishment-hours__dash {
+  color: var(--color-gray);
 }

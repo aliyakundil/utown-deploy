@@ -1,4 +1,4 @@
-import type { Category, MenuItem } from "../../restaurants/types/restaurant.types";
+import type { Category, MenuItem, WorkingHours } from "../../restaurants/types/restaurant.types";
 import type { OrderItem, OrderStatus } from "../../orders/types/order.types";
 
 export interface MyRestaurant {
@@ -11,6 +11,8 @@ export interface MyRestaurant {
   status: "OPEN" | "CLOSED";
   imageUrl: string | null;
   minimumOrder: string | null;
+  category: string | null;
+  workingHours: WorkingHours | null;
   categories: Category[];
   menuItems: MenuItem[];
 }
@@ -82,6 +84,8 @@ export interface CreateRestaurantRequest {
   phone?: string;
   imageUrl?: string;
   minimumOrder?: number;
+  category?: string;
+  workingHours?: WorkingHours;
 }
 
 export interface UpdateRestaurantRequest {
@@ -92,6 +96,8 @@ export interface UpdateRestaurantRequest {
   status?: "OPEN" | "CLOSED";
   imageUrl?: string;
   minimumOrder?: number;
+  category?: string;
+  workingHours?: WorkingHours;
 }
 
 

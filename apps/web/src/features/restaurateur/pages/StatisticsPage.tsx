@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import "./StatisticsPage.css";
 
 import BusinessSidebar from "../components/BusinessSidebar";
+import BusinessTopBar from "../components/BusinessTopBar";
 import { useSidebar } from "../../../components/layout/Sidebar/SidebarContext";
 import { useMyRestaurant } from "../context/RestaurantContext";
 import { getRestaurantOrders } from "../api/restaurateur.api";
@@ -107,25 +108,9 @@ export default function StatisticsPage() {
       <BusinessSidebar />
 
       <main className="stats-page">
-        <header className="stats-header">
-          <button
-            type="button"
-            className="stats-hamburger"
-            aria-label="Open menu"
-            onClick={open}
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M3 6h18M3 12h18M3 18h18"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            </svg>
-          </button>
+        <BusinessTopBar onOpenMenu={open} />
 
-          <h1 className="stats-title">{restaurant.name}</h1>
-        </header>
+        <h1 className="stats-title">{restaurant.name}</h1>
 
         {!ordersLoaded && <p className="stats-message">Loading...</p>}
 

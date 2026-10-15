@@ -3,6 +3,7 @@ import axios from "axios";
 
 import { createRestaurant, updateRestaurant } from "../api/restaurateur.api";
 import type { MyRestaurant } from "../types/restaurateur.types";
+import { CATEGORY_OPTIONS } from "../../restaurants/constants/establishment";
 
 interface EstablishmentFormProps {
   restaurant: MyRestaurant | null;
@@ -15,6 +16,7 @@ export default function EstablishmentForm({ restaurant, onSaved }: Establishment
   const [address, setAddress] = useState(restaurant?.address ?? "");
   const [phone, setPhone] = useState(restaurant?.phone ?? "");
   const [minimumOrder, setMinimumOrder] = useState(restaurant?.minimumOrder ?? "");
+  const [category, setCategory] = useState(restaurant?.category ?? "");
   const [status, setStatus] = useState<"OPEN" | "CLOSED">(restaurant?.status ?? "OPEN");
 
   const [error, setError] = useState("");
@@ -37,6 +39,7 @@ export default function EstablishmentForm({ restaurant, onSaved }: Establishment
       address: address.trim() || undefined,
       phone: phone.trim() || undefined,
       minimumOrder: minimumOrder ? Number(minimumOrder) : undefined,
+      category: category || undefined,
     };
 
     try {
@@ -117,6 +120,23 @@ export default function EstablishmentForm({ restaurant, onSaved }: Establishment
         onChange={(e) => setMinimumOrder(e.target.value)}
         placeholder="500"
       />
+
+      <label className="establishment-form__label" htmlFor="category">
+        Category
+      </label>
+      <select
+        id="category"
+        className="establishment-form__input"
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+      >
+        <option value="">Select category</option>
+        {CATEGORY_OPTIONS.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
 
       {restaurant && (
         <>

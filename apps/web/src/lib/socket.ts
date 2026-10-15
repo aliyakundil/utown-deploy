@@ -5,6 +5,11 @@ export interface OrderStatusEvent {
   status: string;
 }
 
+export interface OrderNewEvent {
+  orderId: number;
+  restaurantId: number;
+}
+
 let socket: Socket | null = null;
 
 export function connectSocket() {
@@ -21,6 +26,12 @@ export function connectSocket() {
   socket.on("order:status", (data: OrderStatusEvent) => {
     window.dispatchEvent(
       new CustomEvent<OrderStatusEvent>("order:status", { detail: data })
+    );
+  });
+
+  socket.on("order:new", (data: OrderNewEvent) => {
+    window.dispatchEvent(
+      new CustomEvent<OrderNewEvent>("order:new", { detail: data })
     );
   });
 

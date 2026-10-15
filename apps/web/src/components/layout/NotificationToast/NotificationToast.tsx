@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import "./NotificationToast.css";
 
-import type { OrderStatusEvent } from "../../../lib/socket";
+import type { OrderStatusEvent, OrderNewEvent } from "../../../lib/socket";
 
 const STATUS_LABELS: Record<string, string> = {
   PENDING: "Order received",
@@ -15,21 +15,42 @@ const STATUS_LABELS: Record<string, string> = {
 
 export default function NotificationToast() {
   const [message, setMessage] = useState<string | null>(null);
+  const timeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
+    function showMessage(text: string) {
+      if (timeoutRef.current !== null) {
+        window.clearTimeout(timeoutRef.current);
+      }
+
+      setMessage(text);
+      timeoutRef.current = window.setTimeout(() => setMessage(null), 5000);
+    }
+
     function handleOrderStatus(e: Event) {
       const { detail } = e as CustomEvent<OrderStatusEvent>;
       const label = STATUS_LABELS[detail.status] ?? detail.status;
 
-      setMessage(`Order #${detail.orderId}: ${label}`);
+      showMessage(`Order #${detail.orderId}: ${label}`);
+    }
 
-      window.setTimeout(() => setMessage(null), 5000);
+    function handleOrderNew(e: Event) {
+      const { detail } = e as CustomEvent<OrderNewEvent>;
+
+      showMessage(`New order #${detail.orderId} received`);
     }
 
     window.addEventListener("order:status", handleOrderStatus);
+    window.addEventListener("order:new", handleOrderNew);
 
-    return () =>
+    return () => {
       window.removeEventListener("order:status", handleOrderStatus);
+      window.removeEventListener("order:new", handleOrderNew);
+
+      if (timeoutRef.current !== null) {
+        window.clearTimeout(timeoutRef.current);
+      }
+    };
   }, []);
 
   if (!message) return null;

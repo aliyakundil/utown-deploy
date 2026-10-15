@@ -4,8 +4,6 @@ import "./Sidebar.css";
 
 import { useSidebar } from "./SidebarContext";
 
-import Logo from "../../../assets/images/Logo.svg";
-
 const chevron = (
   <svg
     className="sidebar__chevron"
@@ -32,10 +30,11 @@ export interface SidebarItem {
 interface SidebarBaseProps {
   logoTo: string;
   logoAlt: string;
+  logoSrc: string;
   items: SidebarItem[];
 }
 
-export default function SidebarBase({ logoTo, logoAlt, items }: SidebarBaseProps) {
+export default function SidebarBase({ logoTo, logoAlt, logoSrc, items }: SidebarBaseProps) {
   const { isOpen, close } = useSidebar();
 
   return (
@@ -44,7 +43,7 @@ export default function SidebarBase({ logoTo, logoAlt, items }: SidebarBaseProps
 
       <aside className={`sidebar ${isOpen ? "sidebar--open" : ""}`}>
         <Link to={logoTo} className="sidebar__logo" onClick={close}>
-          <img src={Logo} alt={logoAlt} />
+          <img src={logoSrc} alt={logoAlt} />
         </Link>
 
         <nav className="sidebar__nav">
