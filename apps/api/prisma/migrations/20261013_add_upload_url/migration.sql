@@ -1,2 +1,2 @@
 -- AlterTable
-ALTER TABLE `upload` ADD COLUMN `url` VARCHAR(191) NULL;
+ALTER TABLE `Upload` ADD COLUMN `url` VARCHAR(191) NULL;
