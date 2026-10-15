@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
 
 import "./MenuManagementPage.css";
 
@@ -8,13 +7,7 @@ import BusinessSidebar from "../components/BusinessSidebar";
 import BusinessTopBar from "../components/BusinessTopBar";
 import { useSidebar } from "../../../components/layout/Sidebar/SidebarContext";
 import { useMyRestaurant } from "../context/RestaurantContext";
-import {
-  createCategory,
-  deleteCategory,
-  createMenuItem,
-  updateMenuItem,
-  deleteMenuItem,
-} from "../api/restaurateur.api";
+import { updateMenuItem } from "../api/restaurateur.api";
 
 export default function MenuManagementPage() {
   const navigate = useNavigate();
@@ -22,84 +15,9 @@ export default function MenuManagementPage() {
   const { state: restaurantState, restaurant, refresh: refreshRestaurant } = useMyRestaurant();
 
   const [error, setError] = useState("");
+  const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null);
 
-  const [newCategoryName, setNewCategoryName] = useState("");
-  const [openItemForm, setOpenItemForm] = useState<number | null>(null);
-  const [itemName, setItemName] = useState("");
-  const [itemPrice, setItemPrice] = useState("");
-  const [itemDescription, setItemDescription] = useState("");
-
-  const openItemFormFor = (categoryId: number) => {
-    setItemName("");
-    setItemPrice("");
-    setItemDescription("");
-    setOpenItemForm(categoryId);
-  };
-
-  const closeItemForm = () => {
-    setItemName("");
-    setItemPrice("");
-    setItemDescription("");
-    setOpenItemForm(null);
-  };
-
-  const handleAddCategory = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-
-    if (!restaurant || !newCategoryName.trim()) return;
-
-    try {
-      await createCategory(restaurant.id, { name: newCategoryName.trim() });
-      setNewCategoryName("");
-      await refreshRestaurant();
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        setError(err.response?.data?.error ?? "Couldn't add category");
-      }
-    }
-  };
-
-  const handleDeleteCategory = async (categoryId: number) => {
-    setError("");
-
-    try {
-      await deleteCategory(categoryId);
-      await refreshRestaurant();
-    } catch {
-      setError("Couldn't delete category — remove its items first");
-    }
-  };
-
-  const handleAddItem = async (e: React.FormEvent, categoryId: number) => {
-    e.preventDefault();
-    setError("");
-
-    if (!itemName.trim() || !itemPrice) return;
-
-    try {
-      await createMenuItem(categoryId, {
-        name: itemName.trim(),
-        price: Number(itemPrice),
-        description: itemDescription.trim() || undefined,
-      });
-
-      setItemName("");
-      setItemPrice("");
-      setItemDescription("");
-      setOpenItemForm(null);
-      await refreshRestaurant();
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        setError(err.response?.data?.error ?? "Couldn't add item");
-      }
-    }
-  };
-
-  const handleToggleAvailable = async (
-    menuItemId: number,
-    isAvailable: boolean
-  ) => {
+  const handleToggleHold = async (menuItemId: number, isAvailable: boolean) => {
     setError("");
 
     try {
@@ -107,17 +25,6 @@ export default function MenuManagementPage() {
       await refreshRestaurant();
     } catch {
       setError("Couldn't update item");
-    }
-  };
-
-  const handleDeleteItem = async (menuItemId: number) => {
-    setError("");
-
-    try {
-      await deleteMenuItem(menuItemId);
-      await refreshRestaurant();
-    } catch {
-      setError("Couldn't delete item");
     }
   };
 
@@ -164,6 +71,12 @@ export default function MenuManagementPage() {
   }
 
   const categories = restaurant.categories.slice().sort((a, b) => a.priority - b.priority);
+  const currentCategoryId = activeCategoryId ?? categories[0]?.id ?? null;
+
+  const items = restaurant.menuItems
+    .filter((item) => item.categoryId === currentCategoryId && !item.isDeleted)
+    .slice()
+    .sort((a, b) => a.priority - b.priority);
 
   return (
     <>
@@ -172,141 +85,87 @@ export default function MenuManagementPage() {
       <main className="menu-mgmt-page">
         <BusinessTopBar onOpenMenu={open} />
 
-        <h1 className="menu-mgmt-title">{restaurant.name}</h1>
+        <h1 className="menu-mgmt-title">Menu</h1>
 
         {error && <p className="menu-mgmt-error">{error}</p>}
 
-        <div className="menu-mgmt-body">
-          {categories.map((category) => {
-            const items = restaurant.menuItems.filter(
-              (item) => item.categoryId === category.id
-            );
+        {categories.length === 0 && (
+          <p className="menu-mgmt-message">
+            No categories yet. <Link to="/business/menu/categories/new">Add one</Link>
+          </p>
+        )}
 
-            return (
-              <section key={category.id} className="menu-mgmt-category">
-                <div className="menu-mgmt-category__header">
-                  <h2>{category.name}</h2>
+        {categories.length > 0 && (
+          <>
+            <div className="menu-mgmt-tabs">
+              {categories.map((category) => (
+                <button
+                  key={category.id}
+                  type="button"
+                  className={`menu-mgmt-tab ${
+                    category.id === currentCategoryId ? "menu-mgmt-tab--active" : ""
+                  }`}
+                  onClick={() => setActiveCategoryId(category.id)}
+                >
+                  {category.name}
+                </button>
+              ))}
+            </div>
 
-                  <button
-                    type="button"
-                    className="menu-mgmt-link-button"
-                    disabled={items.length > 0}
-                    onClick={() => handleDeleteCategory(category.id)}
-                    title={
-                      items.length > 0
-                        ? "Remove all items first"
-                        : "Delete category"
-                    }
-                  >
-                    Delete
-                  </button>
-                </div>
+            <div className="menu-mgmt-body">
+              {items.length === 0 && (
+                <p className="menu-mgmt-message">No dishes in this category yet.</p>
+              )}
 
-                <div className="menu-mgmt-items">
-                  {items.map((item) => (
-                    <div key={item.id} className="menu-mgmt-item">
-                      <div className="menu-mgmt-item__body">
-                        <p className="menu-mgmt-item__name">{item.name}</p>
-                        {item.description && (
-                          <p className="menu-mgmt-item__desc">
-                            {item.description}
-                          </p>
-                        )}
-                        <p className="menu-mgmt-item__price">
-                          {item.price} som
-                        </p>
-                      </div>
-
-                      <div className="menu-mgmt-item__actions">
-                        <button
-                          type="button"
-                          className={`menu-mgmt-toggle ${
-                            item.isAvailable ? "menu-mgmt-toggle--on" : ""
-                          }`}
-                          onClick={() =>
-                            handleToggleAvailable(item.id, item.isAvailable)
-                          }
-                        >
-                          {item.isAvailable ? "Available" : "Unavailable"}
-                        </button>
-
-                        <button
-                          type="button"
-                          className="menu-mgmt-link-button"
-                          onClick={() => handleDeleteItem(item.id)}
-                        >
-                          Delete
-                        </button>
-                      </div>
+              <div className="menu-mgmt-items">
+                {items.map((item) => (
+                  <div key={item.id} className="menu-mgmt-item">
+                    <div className="menu-mgmt-item__thumb">
+                      {item.imageUrl ? (
+                        <img src={item.imageUrl} alt={item.name} />
+                      ) : (
+                        <div className="menu-mgmt-item__thumb--empty" />
+                      )}
                     </div>
-                  ))}
-                </div>
 
-                {openItemForm === category.id ? (
-                  <form
-                    className="menu-mgmt-item-form"
-                    onSubmit={(e) => handleAddItem(e, category.id)}
-                  >
-                    <input
-                      type="text"
-                      placeholder="Item name"
-                      value={itemName}
-                      onChange={(e) => setItemName(e.target.value)}
-                    />
+                    <div className="menu-mgmt-item__body">
+                      <p className="menu-mgmt-item__name">{item.name}</p>
+                      {item.description && (
+                        <p className="menu-mgmt-item__desc">{item.description}</p>
+                      )}
+                      <p className="menu-mgmt-item__price">{item.price} won</p>
+                    </div>
 
-                    <input
-                      type="number"
-                      min="1"
-                      placeholder="Price"
-                      value={itemPrice}
-                      onChange={(e) => setItemPrice(e.target.value)}
-                    />
-
-                    <input
-                      type="text"
-                      placeholder="Description (optional)"
-                      value={itemDescription}
-                      onChange={(e) => setItemDescription(e.target.value)}
-                    />
-
-                    <div className="menu-mgmt-item-form__actions">
-                      <button type="submit" className="menu-mgmt-primary-button">
-                        Add item
-                      </button>
-                      <button
-                        type="button"
-                        className="menu-mgmt-link-button"
-                        onClick={closeItemForm}
+                    <div className="menu-mgmt-item__actions">
+                      <Link
+                        to={`/business/menu/dishes/${item.id}/edit`}
+                        className="menu-mgmt-edit-button"
                       >
-                        Cancel
-                      </button>
-                    </div>
-                  </form>
-                ) : (
-                  <button
-                    type="button"
-                    className="menu-mgmt-add-item-button"
-                    onClick={() => openItemFormFor(category.id)}
-                  >
-                    + Add item
-                  </button>
-                )}
-              </section>
-            );
-          })}
+                        Edit
+                      </Link>
 
-          <form className="menu-mgmt-category-form" onSubmit={handleAddCategory}>
-            <input
-              type="text"
-              placeholder="New category name"
-              value={newCategoryName}
-              onChange={(e) => setNewCategoryName(e.target.value)}
-            />
-            <button type="submit" className="menu-mgmt-primary-button">
-              + Add category
-            </button>
-          </form>
-        </div>
+                      <label className="menu-mgmt-hold-toggle">
+                        <input
+                          type="checkbox"
+                          checked={!item.isAvailable}
+                          onChange={() => handleToggleHold(item.id, item.isAvailable)}
+                        />
+                        <span className="menu-mgmt-hold-toggle__switch" />
+                        <span className="menu-mgmt-hold-toggle__label">
+                          {item.isAvailable ? "Put on hold" : "Remove from hold"}
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+
+        <Link to="/business/menu/edit" className="menu-mgmt-edit-menu-button">
+          Edit Menu
+        </Link>
       </main>
     </>
   );

@@ -94,12 +94,27 @@ model MenuItem {
 
   imageUrl     String?
   isAvailable  Boolean @default(true)
+  priority     Int @default(0)
+
+  isDeleted    Boolean @default(false)
+  deletedAt    DateTime?
 
   restaurant Restaurant @relation(fields: [restaurantId], references: [id])
   category   Category @relation(fields: [categoryId], references: [id])
 
   orderItems OrderItem[]
   cartItems CartItem[]
+  options    MenuItemOption[]
+}
+
+model MenuItemOption {
+  id         Int @id @default(autoincrement())
+  menuItemId Int
+
+  name       String
+  extraPrice Decimal @db.Decimal(10, 2) @default(0)
+
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
 }
 
 model Order {

@@ -175,3 +175,40 @@ export async function deleteMenuItem(
     });
   }
 }
+
+export async function restoreMenuItem(
+  req: Request,
+  res: Response
+) {
+  try {
+    const currentUserId = req.user?.id;
+    const currentUserRole = req.user?.role;
+
+    if (!currentUserId || !currentUserRole) {
+      return res.status(401).json({
+        success: false,
+        error: "Unauthorized",
+      });
+    }
+
+    const result =
+      await menuItemService.restoreMenuItem(
+        Number(req.params.id),
+        currentUserId,
+        currentUserRole
+      );
+
+    return res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Unknown error",
+    });
+  }
+}
