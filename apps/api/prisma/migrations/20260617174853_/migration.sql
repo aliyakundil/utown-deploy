@@ -8,15 +8,15 @@
 
 */
 -- AlterTable
-ALTER TABLE `order` ADD COLUMN `customerPhone` VARCHAR(191) NULL,
+ALTER TABLE `Order` ADD COLUMN `customerPhone` VARCHAR(191) NULL,
     ADD COLUMN `paymentMethod` ENUM('CASH', 'CARD') NOT NULL DEFAULT 'CASH',
     ADD COLUMN `paymentStatus` ENUM('PENDING', 'PAID', 'FAILED') NOT NULL DEFAULT 'PENDING';
 
 -- AlterTable
-ALTER TABLE `orderitem` ADD COLUMN `itemName` VARCHAR(191) NOT NULL;
+ALTER TABLE `OrderItem` ADD COLUMN `itemName` VARCHAR(191) NOT NULL;
 
 -- AlterTable
-ALTER TABLE `restaurant` MODIFY `status` ENUM('OPEN', 'CLOSED') NOT NULL DEFAULT 'OPEN';
+ALTER TABLE `Restaurant` MODIFY `status` ENUM('OPEN', 'CLOSED') NOT NULL DEFAULT 'OPEN';
 
 -- CreateIndex
 CREATE UNIQUE INDEX `CartItem_cartId_menuItemId_key` ON `CartItem`(`cartId`, `menuItemId`);

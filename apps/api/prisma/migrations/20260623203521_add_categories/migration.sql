@@ -1,3 +1,3 @@
 -- AlterTable
-ALTER TABLE `category` ADD COLUMN `imageUrl` VARCHAR(191) NULL,
+ALTER TABLE `Category` ADD COLUMN `imageUrl` VARCHAR(191) NULL,
     ADD COLUMN `priority` INTEGER NOT NULL DEFAULT 0;
