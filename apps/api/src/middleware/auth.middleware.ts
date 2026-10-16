@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import { UserRole } from "@prisma/client";
 import type { Request, Response, NextFunction } from "express";
 import type { JwtPayload } from "../modules/auth/auth.types.js";
+import { prisma } from "../db/prisma.js";
 
 function getEnv(name: string): string {
   const value = process.env[name];
@@ -23,7 +24,8 @@ export function isJwtPayload(payload: unknown): payload is JwtPayload {
   return typeof data.id === "number" && typeof data.role === "string";
 }
 
-export function authenticateToken(
+
+export async function authenticateToken(
   req: Request,
   res: Response,
   next: NextFunction
@@ -56,13 +58,38 @@ export function authenticateToken(
       });
     }
 
-    req.user = decoded;
-    next();
-  } catch {
-    return res.status(401).json({
-      success: false,
-      error: "Invalid token",
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.id },
+      select: {
+        id: true,
+        role: true,
+        isBanned: true,
+        deletedAt: true,
+      },
     });
+
+    if (!user || user.isBanned || user.deletedAt) {
+      return res.status(403).json({
+        success: false,
+        error: "Account is banned or unavailable",
+      });
+    }
+
+    req.user = {
+      id: user.id,
+      role: user.role,
+    };
+
+    next();
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({
+        success: false,
+        error: "Invalid token",
+      });
+    }
+
+    next(error);
   }
 }
 

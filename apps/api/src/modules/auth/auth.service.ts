@@ -170,13 +170,20 @@ export async function refresh(token: string): Promise<RefreshTokenResponse> {
   } catch {
     throw new Error("Invalid refresh token");
   }
+
   const user = await prisma.user.findUnique({
     where: { id: decoded.id },
   });
-  const hashedToken = hashRefreshToken(token);
-  if (!user || user.refreshToken !== hashedToken) {
+
+  if (
+    !user ||
+    user.isBanned ||
+    user.deletedAt ||
+    user.refreshToken !== hashRefreshToken(token)
+  ) {
     throw new Error("Invalid refresh token");
   }
+
   const tokens = issueTokens(user.id, user.role);
   await prisma.user.update({
     where: { id: user.id },

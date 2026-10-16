@@ -105,7 +105,20 @@ export async function patchUserByAdmin(req: Request, res: Response, next: NextFu
       });
     }
 
-    const result = await adminService.patchUserByAdmin(id, body);
+    const adminId = req.user?.id;
+
+    if (!adminId) {
+      return res.status(401).json({
+        success: false,
+        error: "Unauthorized",
+      });
+    }
+
+    const result = await adminService.patchUserByAdmin(
+      id,
+      body,
+      adminId
+    );
 
     if (!result) {
       return res.status(404).json({
@@ -119,6 +132,19 @@ export async function patchUserByAdmin(req: Request, res: Response, next: NextFu
       data: result,
     });
   } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+
+    if (
+      message === "You cannot ban yourself" ||
+      message === "You cannot remove your own admin role" ||
+      message === "Cannot ban or demote the last active administrator"
+    ) {
+      return res.status(400).json({
+        success: false,
+        error: message,
+      });
+    }
+
     next(error);
   }
 }
