@@ -30,7 +30,11 @@ export default function AccountSettingsPage() {
       .catch(() => setName(""));
   }, []);
 
-  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  
+  
+  const handleAvatarChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = e.target.files?.[0];
     e.target.value = "";
 
@@ -51,11 +55,16 @@ export default function AccountSettingsPage() {
 
     try {
       const uploaded = await uploadImage(file);
-      const url = uploaded.data.url ?? resolveUploadUrl(uploaded.data.fileName);
+      const url = uploaded.data.url;
+
+      if (!url) {
+        throw new Error("Uploaded image URL is missing");
+      }
 
       await updateProfile({ imageUrl: url });
       setImageUrl(url);
-    } catch {
+    } catch (error) {
+      console.error("Avatar upload failed:", error);
       setError("Couldn't upload the photo");
     } finally {
       setIsUploadingAvatar(false);
@@ -102,7 +111,11 @@ export default function AccountSettingsPage() {
           <div className="profile-sub-avatar-wrap">
             <label htmlFor="avatar-upload" className="profile-sub-avatar">
               {imageUrl ? (
-                <img src={imageUrl} alt="" className="profile-sub-avatar__photo" />
+                <img
+                  src={resolveUploadUrl(imageUrl)}
+                  alt=""
+                  className="profile-sub-avatar__photo"
+                />
               ) : (
                 <img src={UserIcon} alt="" />
               )}
