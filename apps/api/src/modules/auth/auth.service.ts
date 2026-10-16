@@ -17,6 +17,7 @@ function getEnv(name: string): string {
 
 const ACCESS_SECRET = getEnv("ACCESS_TOKEN_SECRET");
 const REFRESH_SECRET = getEnv("REFRESH_TOKEN_SECRET");
+const MAX_VERIFICATION_ATTEMPTS = 5;
 
 export function generateAccessToken(payload: JwtPayload) {
   return jwt.sign(payload, ACCESS_SECRET, {
@@ -344,13 +345,13 @@ export async function requestPasswordReset(
         console.error("Failed to send password reset email:", error);
       }
     }
-
   }
 
   return {
     message: "If this account exists, a reset code has been sent",
   };
 }
+
 
 export async function resetPassword(
   data: ResetPasswordDto
@@ -360,15 +361,39 @@ export async function resetPassword(
   const identifierWhere = phone ? { phone } : { email: email as string };
 
   const verification = await prisma.verificationCode.findFirst({
-    where: { ...identifierWhere, code },
+    where: {
+      ...identifierWhere,
+      expiresAt: { gt: new Date() },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
   });
 
   if (!verification) {
-    throw new Error("Invalid verification code");
+    throw new Error("Invalid or expired verification code");
   }
 
-  if (verification.expiresAt < new Date()) {
-    throw new Error("Verification code has expired");
+  if (verification.attempts >= MAX_VERIFICATION_ATTEMPTS) {
+    throw new Error("Too many incorrect attempts. Request a new code");
+  }
+
+  if (verification.code !== code) {
+    const updated = await prisma.verificationCode.updateMany({
+      where: {
+        id: verification.id,
+        attempts: { lt: MAX_VERIFICATION_ATTEMPTS },
+      },
+      data: {
+        attempts: { increment: 1 },
+      },
+    });
+
+    if (updated.count === 0) {
+      throw new Error("Too many incorrect attempts. Request a new code");
+    }
+
+    throw new Error("Invalid verification code");
   }
 
   const user = await prisma.user.findFirst({
@@ -381,22 +406,19 @@ export async function resetPassword(
 
   const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-  await prisma.user.update({
-    where: { id: user.id },
-    data: {
-      password: hashedPassword,
-      refreshToken: null,
-    },
-  });
+  await prisma.$transaction([
+    prisma.user.update({
+      where: { id: user.id },
+      data: { password: hashedPassword, refreshToken: null },
+    }),
+    prisma.verificationCode.delete({
+      where: { id: verification.id },
+    }),
+  ]);
 
-  await prisma.verificationCode.delete({
-    where: { id: verification.id },
-  });
-
-  return {
-    message: "Password reset successfully",
-  };
+  return { message: "Password reset successfully" };
 }
+
 
 export async function changePassword(
   userId: number,

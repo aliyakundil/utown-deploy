@@ -22,7 +22,7 @@ export default function RegisterForm() {
   const [repeatPassword, setRepeatPassword] = useState("");
 
   const [showPassword, setShowPassword] = useState(false);
-const [showRepeatPassword, setShowRepeatPassword] = useState(false);
+  const [showRepeatPassword, setShowRepeatPassword] = useState(false);
 
   const [errors, setErrors] = useState({
     phone: "",

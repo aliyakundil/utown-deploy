@@ -1,6 +1,7 @@
 import { Router } from "express";
 import * as authController from "./auth.controller.js";
 import { authenticateToken } from "../../middleware/auth.middleware.js";
+import rateLimit from "express-rate-limit";
 
 const router = Router();
 
@@ -136,8 +137,37 @@ router.post("/login", authController.login);
  */
 router.post("/logout", authenticateToken, authController.logout);
 
-router.post("/forgot-password", authController.forgotPassword);
-router.post("/reset-password", authController.resetPassword);
+const forgotPasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 5,
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  message: {
+    message: "Too many password reset requests. Please try again later.",
+  },
+});
+
+const resetPasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  message: {
+    message: "Too many password reset attempts. Please try again later.",
+  },
+});
+
+router.post(
+  "/forgot-password",
+  forgotPasswordLimiter,
+  authController.forgotPassword,
+);
+
+router.post(
+  "/reset-password",
+  resetPasswordLimiter,
+  authController.resetPassword,
+);
 router.patch("/change-password", authenticateToken, authController.changePassword);
 
 

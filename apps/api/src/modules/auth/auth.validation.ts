@@ -67,7 +67,7 @@ export function validateVerificationCode(
     throw new Error("Verification code is required");
   }
 
-  if (!/^\d{4}$/.test(code)) {
+  if (!/^\d{6}$/.test(code)) {
     throw new Error("Invalid verification code");
   }
 
@@ -118,7 +118,7 @@ export function validateResetPassword(data: ResetPasswordDto) {
     throw new Error("Verification code is required");
   }
 
-  if (!/^\d{4}$/.test(code)) {
+  if (!/^\d{6}$/.test(code)) {
     throw new Error("Invalid verification code");
   }
 

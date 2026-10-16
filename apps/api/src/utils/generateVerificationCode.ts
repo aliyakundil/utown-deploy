@@ -1,5 +1,6 @@
-export function generateVerificationCode() {
-  return Math.floor(
-    1000 + Math.random() * 9000
-  ).toString();
+
+import { randomInt } from "node:crypto";
+
+export function generateVerificationCode(): string {
+  return randomInt(0, 1_000_000).toString().padStart(6, "0");
 }

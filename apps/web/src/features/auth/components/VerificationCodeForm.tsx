@@ -14,7 +14,6 @@ import axios from "axios";
 const CODE_TTL_SECONDS = 159;
 
 export default function VerificationCodeForm() {
-  const [code, setCode] = useState(["", "", "", ""]);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(CODE_TTL_SECONDS);
@@ -28,6 +27,11 @@ export default function VerificationCodeForm() {
   const identifier = location.state?.identifier ?? phone;
   const isEmail = location.state?.isEmail ?? false;
   const mode = location.state?.mode ?? "register";
+
+  const codeLength = 6;
+  const [code, setCode] = useState<string[]>(
+    () => Array(codeLength).fill("")
+  );
 
   useEffect(() => {
     if (isRegisterSuccess) return;
@@ -75,7 +79,7 @@ export default function VerificationCodeForm() {
         );
       }
 
-      setCode(["", "", "", ""]);
+      setCode(Array(codeLength).fill(""));
     } finally {
       setIsSubmitting(false);
     }
@@ -99,7 +103,7 @@ export default function VerificationCodeForm() {
     if (secondsLeft > 0) return;
 
     setError("");
-    setCode(["", "", "", ""]);
+    setCode(Array(codeLength).fill(""));
 
     try {
       if (mode === "reset") {
