@@ -39,6 +39,7 @@ export async function getUsers(options: GetUsersOptions) {
       role: true,
       imageUrl: true,
       isVerified: true,
+      isBanned: true,
       createdAt: true,
     },
   });
@@ -144,24 +145,72 @@ export async function updateUserByAdmin(id: number, input: any) {
   return updatedUser;
 }
 
-export async function patchUserByAdmin(id: number, input: UpdateUserByAdminDto) {
+export async function patchUserByAdmin(
+  id: number,
+  input: UpdateUserByAdminDto,
+  adminId: number
+) {
   const user = await prisma.user.findUnique({
     where: { id },
   });
 
-  if (!user) return null;
+  if (!user) {
+    return null;
+  }
+
+  if (adminId === id && input.isBanned === true) {
+    throw new Error("You cannot ban yourself");
+  }
+
+  if (
+    adminId === id &&
+    input.role !== undefined &&
+    input.role !== "ADMIN"
+  ) {
+    throw new Error("You cannot remove your own admin role");
+  }
+
+  const removingAdminAccess =
+    user.role === "ADMIN" &&
+    !user.isBanned &&
+    (
+      input.isBanned === true ||
+      (input.role !== undefined && input.role !== "ADMIN")
+    );
+
+  if (removingAdminAccess) {
+    const activeAdminsCount = await prisma.user.count({
+      where: {
+        role: "ADMIN",
+        isBanned: false,
+        deletedAt: null,
+      },
+    });
+
+    if (activeAdminsCount <= 1) {
+      throw new Error(
+        "Cannot ban or demote the last active administrator"
+      );
+    }
+  }
 
   const updatedUser = await prisma.user.update({
     where: { id },
-    data: {
-      name: input.username?.trimEnd() ?? user.name,
-      email: input.email ?? user.email,
-      phone: input.phone ?? user.phone,
-      city: input.city ?? user.city,
-      address: input.address ?? user.address,
-      imageUrl: input.imageUrl ?? user.imageUrl,
-      role: input.role ?? user.role,
-    },
+      data: {
+        name: input.username?.trimEnd() ?? user.name,
+        email: input.email ?? user.email,
+        phone: input.phone ?? user.phone,
+        city: input.city ?? user.city,
+        address: input.address ?? user.address,
+        imageUrl: input.imageUrl ?? user.imageUrl,
+        role: input.role ?? user.role,
+        isBanned: input.isBanned ?? user.isBanned,
+
+        ...(input.isBanned === true && {
+          refreshToken: null,
+        }),
+      },
+        
     select: {
       id: true,
       name: true,
@@ -172,12 +221,13 @@ export async function patchUserByAdmin(id: number, input: UpdateUserByAdminDto) 
       role: true,
       imageUrl: true,
       isVerified: true,
+      isBanned: true,
       createdAt: true,
     },
   });
 
   return updatedUser;
-}
+};
 
 export async function getAllOrders(options: GetUsersOptions) {
   const page = options.page ? parseInt(options.page) : 1;

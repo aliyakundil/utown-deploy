@@ -10,6 +10,7 @@ export interface AdminUser {
   role: UserRole;
   imageUrl: string | null;
   isVerified: boolean;
+  isBanned: boolean;
   createdAt: string;
 }
 

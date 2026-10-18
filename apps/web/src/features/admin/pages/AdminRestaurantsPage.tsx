@@ -5,6 +5,7 @@ import "./AdminPages.css";
 
 import AdminSidebar from "../components/AdminSidebar";
 import AdminTopBar from "../components/AdminTopBar";
+import AdminTableSkeleton from "../../../components/ui/Skeleton/AdminTableSkeleton";
 import { getMyProfile } from "../../profile/api/profile.api";
 import {
   getAllRestaurants,
@@ -146,7 +147,23 @@ export default function AdminRestaurantsPage() {
           {error && <p className="admin-error">{error}</p>}
 
           {state === "loading" && (
-            <p className="admin-message">Loading...</p>
+            <div className="admin-table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Address</th>
+                    <th>Rating</th>
+                    <th>Min. order</th>
+                    <th>Status</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <AdminTableSkeleton columns={6} />
+                </tbody>
+              </table>
+            </div>
           )}
 
           {state === "ready" && (

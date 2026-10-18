@@ -7,8 +7,9 @@ import "./AdminPages.css";
 import AdminSidebar from "../components/AdminSidebar";
 import AdminTopBar from "../components/AdminTopBar";
 import ClientDetailModal from "../components/ClientDetailModal";
+import AdminTableSkeleton from "../../../components/ui/Skeleton/AdminTableSkeleton";
 import { getMyProfile } from "../../profile/api/profile.api";
-import { getAllUsers, updateUserRole, deleteUser } from "../api/admin.api";
+import { getAllUsers, updateUserRole, deleteUser, setUserBanned } from "../api/admin.api";
 import type { AdminUser, UserRole } from "../types/admin.types";
 
 const ROLE_OPTIONS: UserRole[] = ["CLIENT", "RESTAURATEUR", "ADMIN"];
@@ -63,6 +64,17 @@ export default function AdminUsersPage() {
       await loadUsers(page, search);
     } catch {
       setError("Couldn't update the user's role");
+    }
+  };
+
+  const handleToggleBan = async (userId: number, isBanned: boolean) => {
+    setError("");
+
+    try {
+      await setUserBanned(userId, !isBanned);
+      await loadUsers(page, search);
+    } catch {
+      setError("Couldn't update the user's ban status");
     }
   };
 
@@ -145,7 +157,24 @@ export default function AdminUsersPage() {
           {error && <p className="admin-error">{error}</p>}
 
           {state === "loading" && (
-            <p className="admin-message">Loading...</p>
+            <div className="admin-table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>City</th>
+                    <th>Verified</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <AdminTableSkeleton columns={7} />
+                </tbody>
+              </table>
+            </div>
           )}
 
           {state === "ready" && (
@@ -159,6 +188,7 @@ export default function AdminUsersPage() {
                       <th>City</th>
                       <th>Verified</th>
                       <th>Role</th>
+                      <th>Status</th>
                       <th></th>
                     </tr>
                   </thead>
@@ -196,6 +226,15 @@ export default function AdminUsersPage() {
                               </option>
                             ))}
                           </select>
+                        </td>
+                        <td onClick={(e) => e.stopPropagation()}>
+                          <button
+                            type="button"
+                            className="admin-table__link"
+                            onClick={() => handleToggleBan(user.id, user.isBanned)}
+                          >
+                            {user.isBanned ? "Unban" : "Ban"}
+                          </button>
                         </td>
                         <td onClick={(e) => e.stopPropagation()}>
                           <button

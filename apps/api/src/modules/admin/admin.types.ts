@@ -17,6 +17,7 @@ export interface UpdateUserByAdminDto {
   address?: string;
   imageUrl?: string;
   role?: UserRole;
+  isBanned?: boolean;
 }
 
 export interface GetUsersOptions {
