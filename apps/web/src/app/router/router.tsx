@@ -1,5 +1,7 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 
+import RequireAuth from "../../components/auth/RequireAuth";
+
 import SplashPage from "../../features/auth/pages/SplashPage";
 import AuthPage from "../../features/auth/pages/AuthPage";
 import LoginPage from "../../features/auth/pages/LoginPage";
@@ -45,6 +47,7 @@ import DeletedDishesPage from "../../features/restaurateur/pages/DeletedDishesPa
 import CategoriesHubPage from "../../features/restaurateur/pages/CategoriesHubPage";
 import CategoriesListPage from "../../features/restaurateur/pages/CategoriesListPage";
 import CategoryFormPage from "../../features/restaurateur/pages/CategoryFormPage";
+import AdminNotificationsPage from "../../features/admin/pages/AdminNotificationsPage";
 
 export const router = createBrowserRouter([
   {
@@ -136,127 +139,259 @@ export const router = createBrowserRouter([
     element: <ContactSupportPage />,
   },
   {
-    path: "/business",
-    element: <BusinessHomePage />,
+  path: "/business",
+    element: (
+      <RequireAuth>
+        <BusinessHomePage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/business/orders",
-    element: <OrderTablePage />,
+    element: (
+      <RequireAuth>
+        <OrderTablePage />
+      </RequireAuth>
+    ),
+  },
+  {
+    path: "/business/menu",
+    element: (
+      <RequireAuth>
+        <MenuManagementPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/business/establishment",
-    element: <EstablishmentPage />,
+    element: (
+      <RequireAuth>
+        <EstablishmentPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/business/statistics",
-    element: <StatisticsPage />,
+    element: (
+      <RequireAuth>
+        <StatisticsPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/business/establishment/hours",
-    element: <WorkingHoursPage />,
+    element: (
+      <RequireAuth>
+        <WorkingHoursPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/business/establishment/hours/:day",
-    element: <WorkingHoursDayPage />,
+    element: (
+      <RequireAuth>
+        <WorkingHoursDayPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/admin",
-    element: <Navigate to="/admin/users" replace />,
+    element: (
+      <RequireAuth>
+        <Navigate to="/admin/users" replace />
+      </RequireAuth>
+    ),
   },
   {
     path: "/admin/users",
-    element: <AdminUsersPage />,
+    element: (
+      <RequireAuth>
+        <AdminUsersPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/admin/users/new",
-    element: <AdminClientFormPage />,
+    element: (
+      <RequireAuth>
+        <AdminClientFormPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/admin/users/:id/edit",
-    element: <AdminClientFormPage />,
+    element: (
+      <RequireAuth>
+        <AdminClientFormPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/admin/restaurants",
-    element: <AdminRestaurantsPage />,
+    element: (
+      <RequireAuth>
+        <AdminRestaurantsPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/admin/restaurants/new",
-    element: <AdminEstablishmentFormPage />,
+    element: (
+      <RequireAuth>
+        <AdminEstablishmentFormPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/admin/restaurants/:id/edit",
-    element: <AdminEstablishmentFormPage />,
+    element: (
+      <RequireAuth>
+        <AdminEstablishmentFormPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/admin/orders",
-    element: <AdminOrdersPage />,
+    element: (
+      <RequireAuth>
+        <AdminOrdersPage />
+      </RequireAuth>
+    ),
+  },
+  {
+    path: "/admin/notifications",
+    element: (
+      <RequireAuth>
+        <AdminNotificationsPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/admin/restaurants/:restaurantId/categories",
-    element: <AdminCategoriesPage />,
+    element: (
+      <RequireAuth>
+        <AdminCategoriesPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/admin/restaurants/:restaurantId/categories/new",
-    element: <AdminCategoryFormPage />,
+    element: (
+      <RequireAuth>
+        <AdminCategoryFormPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/admin/restaurants/:restaurantId/categories/:categoryId/edit",
-    element: <AdminCategoryFormPage />,
+    element: (
+      <RequireAuth>
+        <AdminCategoryFormPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/admin/restaurants/:restaurantId/menu-items",
-    element: <AdminMenuItemsPage />,
+    element: (
+      <RequireAuth>
+        <AdminMenuItemsPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/admin/restaurants/:restaurantId/menu-items/new",
-    element: <AdminMenuItemFormPage />,
+    element: (
+      <RequireAuth>
+        <AdminMenuItemFormPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/admin/restaurants/:restaurantId/menu-items/:menuItemId/edit",
-    element: <AdminMenuItemFormPage />,
+    element: (
+      <RequireAuth>
+        <AdminMenuItemFormPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/business/notifications",
-    element: <BusinessNotificationsPage />,
-  },
-    {
-    path: "/business/menu",
-    element: <MenuManagementPage />,
+    element: (
+      <RequireAuth>
+        <BusinessNotificationsPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/business/menu/edit",
-    element: <MenuEditHubPage />,
+    element: (
+      <RequireAuth>
+        <MenuEditHubPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/business/menu/dishes/new",
-    element: <DishFormPage />,
+    element: (
+      <RequireAuth>
+        <DishFormPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/business/menu/dishes/:id/edit",
-    element: <DishFormPage />,
+    element: (
+      <RequireAuth>
+        <DishFormPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/business/menu/dishes/on-hold",
-    element: <DishesOnHoldPage />,
+    element: (
+      <RequireAuth>
+        <DishesOnHoldPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/business/menu/dishes/deleted",
-    element: <DeletedDishesPage />,
+    element: (
+      <RequireAuth>
+        <DeletedDishesPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/business/menu/categories",
-    element: <CategoriesHubPage />,
+    element: (
+      <RequireAuth>
+        <CategoriesHubPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/business/menu/categories/list",
-    element: <CategoriesListPage />,
+    element: (
+      <RequireAuth>
+        <CategoriesListPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/business/menu/categories/new",
-    element: <CategoryFormPage />,
+    element: (
+      <RequireAuth>
+        <CategoryFormPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/business/menu/categories/:id/edit",
-    element: <CategoryFormPage />,
+    element: (
+      <RequireAuth>
+        <CategoryFormPage />
+      </RequireAuth>
+    ),
   },
 ]);

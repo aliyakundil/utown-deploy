@@ -10,6 +10,11 @@ export interface OrderNewEvent {
   restaurantId: number;
 }
 
+export interface SystemNotificationEvent {
+  title: string;
+  message: string;
+}
+
 let socket: Socket | null = null;
 
 export function connectSocket() {
@@ -32,6 +37,12 @@ export function connectSocket() {
   socket.on("order:new", (data: OrderNewEvent) => {
     window.dispatchEvent(
       new CustomEvent<OrderNewEvent>("order:new", { detail: data })
+    );
+  });
+
+  socket.on("notification:system", (data: SystemNotificationEvent) => {
+    window.dispatchEvent(
+      new CustomEvent<SystemNotificationEvent>("notification:system", { detail: data })
     );
   });
 

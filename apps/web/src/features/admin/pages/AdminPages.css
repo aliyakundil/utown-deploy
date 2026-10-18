@@ -255,3 +255,10 @@
   border-color: var(--color-black);
   color: var(--color-white);
 }
+
+.admin-success {
+  margin-bottom: 16px;
+
+  color: #1D9A6C;
+  font-size: 13px;
+}

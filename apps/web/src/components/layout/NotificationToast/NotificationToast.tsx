@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 import "./NotificationToast.css";
 
-import type { OrderStatusEvent, OrderNewEvent } from "../../../lib/socket";
+import type { OrderStatusEvent, OrderNewEvent, SystemNotificationEvent } from "../../../lib/socket";
 
 const STATUS_LABELS: Record<string, string> = {
   PENDING: "Order received",
@@ -24,7 +24,10 @@ export default function NotificationToast() {
       }
 
       setMessage(text);
-      timeoutRef.current = window.setTimeout(() => setMessage(null), 5000);
+      timeoutRef.current = window.setTimeout(() => {
+        setMessage(null);
+        timeoutRef.current = null;
+      }, 5000);
     }
 
     function handleOrderStatus(e: Event) {
@@ -40,12 +43,20 @@ export default function NotificationToast() {
       showMessage(`New order #${detail.orderId} received`);
     }
 
+    function handleSystemNotification(e: Event) {
+      const { detail } = e as CustomEvent<SystemNotificationEvent>;
+
+      showMessage(`${detail.title}: ${detail.message}`);
+    }
+
     window.addEventListener("order:status", handleOrderStatus);
     window.addEventListener("order:new", handleOrderNew);
+    window.addEventListener("notification:system", handleSystemNotification);
 
     return () => {
       window.removeEventListener("order:status", handleOrderStatus);
       window.removeEventListener("order:new", handleOrderNew);
+      window.removeEventListener("notification:system", handleSystemNotification);
 
       if (timeoutRef.current !== null) {
         window.clearTimeout(timeoutRef.current);

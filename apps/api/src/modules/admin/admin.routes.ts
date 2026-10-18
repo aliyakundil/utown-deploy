@@ -166,4 +166,40 @@ router.delete("/users/:id", adminController.deleteUserByAdmin);
  */
 router.get("/orders", adminController.getAllOrders);
 
+/**
+ * @swagger
+ * /admin/notifications/system:
+ *   post:
+ *     summary: Send a system notification to one user or broadcast to everyone
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *               - message
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 example: Maintenance notice
+ *               message:
+ *                 type: string
+ *                 example: The platform will be down for maintenance tonight at 2 AM.
+ *               userId:
+ *                 type: integer
+ *                 description: Optional - if omitted, the message is sent to all users
+ *                 example: 12
+ *     responses:
+ *       201:
+ *         description: Notification(s) sent successfully
+ *       400:
+ *         description: Validation error
+ */
+router.post("/notifications/system", adminController.sendSystemNotification);
+
 export default router;
