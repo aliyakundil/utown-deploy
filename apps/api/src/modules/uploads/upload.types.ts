@@ -4,4 +4,5 @@ export interface CreateUploadDto {
   mimeType: string;
   fileSize: number;
   filePath: string;
+  url: string;
 }
