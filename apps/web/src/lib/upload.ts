@@ -9,6 +9,7 @@ export interface UploadResponse {
     mimeType: string;
     fileSize: number;
     filePath: string;
+    url?: string;
     createdAt: string;
   };
 }
@@ -24,7 +25,17 @@ export async function uploadImage(file: File) {
   return response.data;
 }
 
-export function resolveUploadUrl(fileName: string) {
-  const origin = import.meta.env.VITE_API_URL.replace("/api", "");
-  return `${origin}/uploads/${fileName}`;
+
+export function resolveUploadUrl(filePath: string) {
+  const origin = import.meta.env.VITE_API_URL.replace(/\/api\/?$/, "");
+
+  if (/^https?:\/\//.test(filePath)) {
+    return filePath;
+  }
+
+  if (filePath.startsWith("/uploads/")) {
+    return `${origin}${filePath}`;
+  }
+
+  return `${origin}/uploads/${filePath}`;
 }

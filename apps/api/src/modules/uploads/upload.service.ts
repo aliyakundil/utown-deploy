@@ -1,11 +1,10 @@
+
 import { prisma } from "../../db/prisma.js";
 import crypto from "node:crypto";
 import path from "node:path";
-
 import { uploadToS3, deleteFromS3 } from "../../lib/s3.js";
 
 import type { CreateUploadDto } from "./upload.types.js";
-
 import { validateCreateUpload } from "./upload.validation.js";
 
 export async function createUpload(
@@ -16,7 +15,11 @@ export async function createUpload(
     file.originalname
   )}`;
 
-  const url = await uploadToS3(key, file.buffer, file.mimetype);
+  const url = await uploadToS3(
+    key,
+    file.buffer,
+    file.mimetype
+  );
 
   const uploadData: CreateUploadDto = {
     fileName: path.basename(key),
@@ -27,27 +30,30 @@ export async function createUpload(
     url,
   };
 
-  const validatedData =
-    validateCreateUpload(uploadData);
+  const validatedData = validateCreateUpload(uploadData);
 
-  return prisma.upload.create({
-    data: {
-      userId,
-      ...validatedData,
-    },
-  });
+  try {
+    return await prisma.upload.create({
+      data: {
+        userId,
+        ...validatedData,
+      },
+    });
+  } catch (error) {
+    try {
+      await deleteFromS3(key);
+    } catch {
+      // 
+    }
+
+    throw error;
+  }
 }
 
-export async function getUploads(
-  userId: number
-) {
+export async function getUploads(userId: number) {
   return prisma.upload.findMany({
-    where: {
-      userId,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
+    where: { userId },
+    orderBy: { createdAt: "desc" },
   });
 }
 
@@ -84,11 +90,7 @@ export async function deleteUpload(
     throw new Error("File not found");
   }
 
-  try {
-    await deleteFromS3(upload.filePath);
-  } catch {
-    // Файл уже отсутствует в S3
-  }
+  await deleteFromS3(upload.filePath);
 
   await prisma.upload.delete({
     where: {
