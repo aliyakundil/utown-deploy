@@ -396,3 +396,8 @@ Expires in 5 minutes
 | GET   | `/api/payments/order/:orderId` |
 
 ---
+
+## Production environment
+
+- For local development, set `NODE_ENV=development`.
+- For production deployments, `NODE_ENV=production` is required.

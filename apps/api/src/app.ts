@@ -1,5 +1,5 @@
 import express from "express";
-import morgan from "morgan";
+import { pinoHttp } from "pino-http";
 import path from "path";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -31,7 +31,14 @@ app.use(
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(morgan("dev"));
+app.use(
+  pinoHttp({
+    redact: ["req.headers.authorization", "req.headers.cookie", "res.headers[\"set-cookie\"]"],
+    ...(process.env.NODE_ENV !== "production" && {
+      transport: { target: "pino-pretty" },
+    }),
+  })
+);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminhRoutes);
