@@ -38,7 +38,7 @@ export default function PersonalInformationPage() {
       await updateProfile({
         name: name.trim(),
         phone: phone.trim(),
-        email: email.trim(),
+        email: email.trim() || null,
         address: address.trim(),
       });
       setSuccess("Saved");

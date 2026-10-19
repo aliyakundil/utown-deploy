@@ -263,6 +263,15 @@ model VerificationCode {
   createdAt  DateTime @default(now())
 }
 
+
+model VerificationAttempt {
+  id             Int      @id @default(autoincrement())
+  phone          String   @unique
+  failedAttempts Int      @default(0)
+  blockedUntil   DateTime?
+  updatedAt      DateTime @updatedAt
+}
+
 enum UserRole {
   CLIENT
   RESTAURATEUR

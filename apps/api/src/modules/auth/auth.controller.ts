@@ -88,26 +88,40 @@ export async function verifyCode(
       data,
     });
   } catch (error) {
-    res.status(400).json({
+    if (error instanceof authService.VerificationBlockedError) {
+      return res.status(429).json({
+        success: false,
+        error: error.message,
+        retryAfter: error.retryAfter,
+      });
+    }
+
+    return res.status(400).json({
       success: false,
-      error:
-        error instanceof Error
-          ? error.message
-          : "Unknown error",
+      error: error instanceof Error ? error.message : "Unknown error",
     });
   }
 }
+
 
 export async function resendCode(req: Request, res: Response) {
   try {
     const result = await authService.resendVerificationCode(req.body);
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       data: result,
     });
   } catch (error) {
-    res.status(400).json({
+    if (error instanceof authService.VerificationBlockedError) {
+      return res.status(429).json({
+        success: false,
+        error: error.message,
+        retryAfter: error.retryAfter,
+      });
+    }
+
+    return res.status(400).json({
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
     });

@@ -18,6 +18,13 @@ function getEnv(name: string): string {
 const ACCESS_SECRET = getEnv("ACCESS_TOKEN_SECRET");
 const REFRESH_SECRET = getEnv("REFRESH_TOKEN_SECRET");
 const MAX_VERIFICATION_ATTEMPTS = 5;
+const VERIFICATION_BLOCK_DURATION_MS = 10 * 60 * 1000;
+export class VerificationBlockedError extends Error {
+  constructor(public retryAfter: number) {
+    super("Too many incorrect attempts. Try again later");
+    this.name = "VerificationBlockedError";
+  }
+}
 
 export function generateAccessToken(payload: JwtPayload) {
   return jwt.sign(payload, ACCESS_SECRET, {
@@ -199,68 +206,119 @@ export async function refresh(token: string): Promise<RefreshTokenResponse> {
   };
 }
 
+
+
 export async function verifyCode(
   data: VerifyCodeDto
 ): Promise<AuthResponse> {
-  const { phone, code } =
-    validateVerificationCode(data);
+  const { phone, code } 
+    = validateVerificationCode(data);
+  const now = new Date();
 
-  const verification =
-    await prisma.verificationCode.findFirst({
-      where: {
-        phone,
-        code,
+  const attempt = await prisma.verificationAttempt.findUnique({
+    where: { phone },
+  });
+
+  if (attempt?.blockedUntil && attempt.blockedUntil > now) {
+    const retryAfter = Math.ceil(
+      (attempt.blockedUntil.getTime() - now.getTime()) / 1000
+    );
+
+    throw new VerificationBlockedError(retryAfter);
+  }
+
+  if (attempt?.blockedUntil && attempt.blockedUntil <= now) {
+    await prisma.verificationAttempt.update({
+      where: { phone },
+      data: {
+        failedAttempts: 0,
+        blockedUntil: null,
       },
     });
+  }
+
+  const verification = await prisma.verificationCode.findFirst({
+    where: {
+      phone,
+      expiresAt: { gt: now },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 
   if (!verification) {
     throw new Error("Invalid verification code");
   }
 
-  if (verification.expiresAt < new Date()) {
-    throw new Error("Verification code has expired");
+  if (verification.code !== code) {
+    const updatedAttempt = await prisma.verificationAttempt.upsert({
+      where: { phone },
+      create: {
+        phone,
+        failedAttempts: 1,
+        blockedUntil: null,
+      },
+      update: {
+        failedAttempts: { increment: 1 },
+      },
+    });
+
+    const shouldBlock =
+      updatedAttempt.failedAttempts >= MAX_VERIFICATION_ATTEMPTS;
+
+    if (shouldBlock) {
+      const blockedUntil = new Date(
+        Date.now() + VERIFICATION_BLOCK_DURATION_MS
+      );
+
+      await prisma.verificationAttempt.update({
+        where: { phone },
+        data: { blockedUntil },
+      });
+
+      const retryAfter = Math.ceil(
+        (blockedUntil.getTime() - Date.now()) / 1000
+      );
+
+      throw new VerificationBlockedError(retryAfter);
+    }
+
+    await prisma.verificationCode.update({
+      where: { id: verification.id },
+      data: {
+        attempts: { increment: 1 },
+      },
+    });
+
+    throw new Error("Invalid verification code");
   }
 
   const user = await prisma.user.findUnique({
-    where: {
-      phone,
-    },
+    where: { phone },
   });
 
   if (!user) {
     throw new Error("User not found");
   }
 
-  await prisma.user.update({
-    where: {
-      id: user.id,
-    },
-    data: {
-      isVerified: true,
-    },
-  });
+  const tokens = issueTokens(user.id, user.role as UserRole);
 
-  await prisma.verificationCode.delete({
-    where: {
-      id: verification.id,
-    },
-  });
-
-  const tokens = issueTokens(
-    user.id,
-    user.role as UserRole
-  );
-
-  await prisma.user.update({
-    where: {
-      id: user.id,
-    },
-    data: {
-      refreshToken: hashRefreshToken(
-        tokens.refreshToken
-      ),
-    },
-  });
+  await prisma.$transaction([
+    prisma.user.update({
+      where: { id: user.id },
+      data: {
+        isVerified: true,
+        refreshToken: hashRefreshToken(tokens.refreshToken),
+      },
+    }),
+    prisma.verificationCode.delete({
+      where: { id: verification.id },
+    }),
+    prisma.verificationAttempt.deleteMany({
+      where: { phone },
+    }),
+  ]);
 
   return {
     user: {
@@ -280,6 +338,30 @@ export async function resendVerificationCode(
 
   if (!phone) {
     throw new Error("Phone is required");
+  }
+
+  const now = new Date();
+
+  const attempt = await prisma.verificationAttempt.findUnique({
+    where: { phone },
+  });
+
+  if (attempt?.blockedUntil && attempt.blockedUntil > now) {
+    const retryAfter = Math.ceil(
+      (attempt.blockedUntil.getTime() - now.getTime()) / 1000
+    );
+
+    throw new VerificationBlockedError(retryAfter);
+  }
+
+  if (attempt?.blockedUntil && attempt.blockedUntil <= now) {
+    await prisma.verificationAttempt.update({
+      where: { phone },
+      data: {
+        failedAttempts: 0,
+        blockedUntil: null,
+      },
+    });
   }
 
   const user = await prisma.user.findUnique({
@@ -394,6 +476,7 @@ export async function resetPassword(
     }
 
     throw new Error("Invalid verification code");
+    
   }
 
   const user = await prisma.user.findFirst({

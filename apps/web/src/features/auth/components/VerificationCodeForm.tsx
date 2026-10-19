@@ -13,10 +13,21 @@ import axios from "axios";
 
 const CODE_TTL_SECONDS = 159;
 
+function getRetryAfter(error: unknown): number {
+  if (!axios.isAxiosError(error)) return 0;
+
+  const retryAfter = error.response?.data?.retryAfter;
+
+  return typeof retryAfter === "number" && retryAfter > 0
+    ? retryAfter
+    : 0;
+}
+
 export default function VerificationCodeForm() {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(CODE_TTL_SECONDS);
+  const [blockSecondsLeft, setBlockSecondsLeft] = useState(0);
   const [isRegisterSuccess, setIsRegisterSuccess] = useState(false);
 
   const navigate = useNavigate();
@@ -42,6 +53,16 @@ export default function VerificationCodeForm() {
 
     return () => clearInterval(interval);
   }, [isRegisterSuccess]);
+
+  useEffect(() => {
+    if (blockSecondsLeft <= 0) return;
+
+    const timer = setTimeout(() => {
+      setBlockSecondsLeft((seconds) => Math.max(0, seconds - 1));
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [blockSecondsLeft]);
 
   const submitCode = async () => {
     if (isSubmitting) return;
@@ -74,9 +95,16 @@ export default function VerificationCodeForm() {
       setIsRegisterSuccess(true);
     } catch (err) {
       if (axios.isAxiosError(err)) {
-        setError(
-          err.response?.data?.error ?? "Invalid verification code"
-        );
+        const message =
+          err.response?.data?.error ?? "Invalid verification code";
+
+        setError(message);
+
+        const retryAfter = getRetryAfter(err);
+
+        if (retryAfter > 0) {
+          setBlockSecondsLeft(retryAfter);
+        }
       }
 
       setCode(Array(codeLength).fill(""));
@@ -100,7 +128,7 @@ export default function VerificationCodeForm() {
   };
 
   const handleResend = async () => {
-    if (secondsLeft > 0) return;
+    if (secondsLeft > 0 || blockSecondsLeft > 0) return;
 
     setError("");
     setCode(Array(codeLength).fill(""));
@@ -115,8 +143,21 @@ export default function VerificationCodeForm() {
       }
 
       setSecondsLeft(CODE_TTL_SECONDS);
-    } catch {
-      setError("Couldn't resend the code, try again later");
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const message =
+          err.response?.data?.error ?? "Couldn't resend the code, try again later";
+
+        setError(message);
+
+        const retryAfter = getRetryAfter(err);
+
+        if (retryAfter > 0) {
+          setBlockSecondsLeft(retryAfter);
+        }
+      } else {
+        setError("Couldn't resend the code, try again later");
+      }
     }
   };
 
@@ -153,23 +194,27 @@ export default function VerificationCodeForm() {
         )}
 
         <p className="verification-form__timer">
-          {minutes}:{seconds}
+          {blockSecondsLeft > 0
+            ? `${String(Math.floor(blockSecondsLeft / 60)).padStart(2, "0")}:${String(blockSecondsLeft % 60).padStart(2, "0")}`
+            : `${minutes}:${seconds}`}
         </p>
 
-        <button
+        <Button
           type="button"
           className="verification-form__retry"
-          disabled={secondsLeft > 0}
+          disabled={secondsLeft > 0 || blockSecondsLeft > 0}
           onClick={handleResend}
         >
-          {secondsLeft > 0
-            ? "Didn't receive the code? Try again"
-            : "Send a new code"}
-        </button>
+          {blockSecondsLeft > 0
+            ? "Try again after the block expires"
+            : secondsLeft > 0
+              ? "Didn't receive the code? Try again"
+              : "Send a new code"}
+        </Button>
 
         <Button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || blockSecondsLeft > 0}
         >
           Confirm
         </Button>
