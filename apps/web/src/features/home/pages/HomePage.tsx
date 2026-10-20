@@ -128,14 +128,19 @@ export default function HomePage() {
             </span>
           </div>
 
-          <div className="home-status-card home-status-card--dark">
+          <Link
+            to="/cart"
+            className="home-status-card home-status-card--dark"
+            aria-label="Go to your cart"
+          >
             <img
               src={CartIcon}
               alt=""
               className="home-status-card__icon"
             />
-            <span className="home-status-card__label">Your active orders</span>
-          </div>
+            <span className="home-status-card__label">Your cart</span>
+          </Link>
+
         </div>
 
         <div className="home-tiles">
