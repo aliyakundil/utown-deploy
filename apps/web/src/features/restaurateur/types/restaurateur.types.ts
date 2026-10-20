@@ -7,6 +7,8 @@ export interface MyRestaurant {
   name: string;
   description: string | null;
   address: string | null;
+  city: string | null;
+  deliveryArea: string | null;
   phone: string | null;
   status: "OPEN" | "CLOSED";
   imageUrl: string | null;
@@ -93,6 +95,8 @@ export interface CreateRestaurantRequest {
   name: string;
   description?: string;
   address?: string;
+  city?: string;
+  deliveryArea?: string;
   phone?: string;
   imageUrl?: string;
   minimumOrder?: number;
@@ -104,6 +108,8 @@ export interface UpdateRestaurantRequest {
   name?: string;
   description?: string;
   address?: string;
+  city?: string;
+  deliveryArea?: string;
   phone?: string;
   status?: "OPEN" | "CLOSED";
   imageUrl?: string;

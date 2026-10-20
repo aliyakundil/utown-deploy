@@ -30,3 +30,12 @@ export function buildDefaultWorkingHours(): WorkingHours {
 
   return result;
 }
+
+export const CITY_OPTIONS = ["Bishkek"];
+
+export const DELIVERY_AREA_OPTIONS = [
+  "Lenin district",
+  "Oktyabrsky district",
+  "Pervomaysky district",
+  "Sverdlovsky district",
+];

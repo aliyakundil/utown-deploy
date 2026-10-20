@@ -12,10 +12,12 @@ import Button from "../../../components/ui/Button/Button";
 import "./LoginForm.css";
 
 import { useFavorites } from "../../favorites/context/FavoritesContext";
+import { useMyRestaurant } from "../../restaurateur/context/RestaurantContext";
 
 export default function LoginForm() {
   const navigate = useNavigate();
   const { refresh: refreshFavorites } = useFavorites();
+  const { refresh: refreshRestaurant } = useMyRestaurant();
 
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
@@ -47,13 +49,15 @@ export default function LoginForm() {
         "accessToken",
         response.data.accessToken
       );
-      
+
       connectSocket();
       refreshFavorites();
 
       if (response.data.user.role === "RESTAURATEUR") {
+        await refreshRestaurant();
         navigate("/business/orders");
       } else if (response.data.user.role === "ADMIN") {
+        await refreshRestaurant();
         navigate("/admin");
       } else {
         navigate("/home");

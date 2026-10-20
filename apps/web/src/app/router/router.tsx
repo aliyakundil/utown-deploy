@@ -48,6 +48,8 @@ import CategoriesHubPage from "../../features/restaurateur/pages/CategoriesHubPa
 import CategoriesListPage from "../../features/restaurateur/pages/CategoriesListPage";
 import CategoryFormPage from "../../features/restaurateur/pages/CategoryFormPage";
 import AdminNotificationsPage from "../../features/admin/pages/AdminNotificationsPage";
+import DeliveryCityPage from "../../features/restaurateur/pages/DeliveryCityPage";
+import DeliveryAreaPage from "../../features/restaurateur/pages/DeliveryAreaPage";
 
 export const router = createBrowserRouter([
   {
@@ -193,6 +195,14 @@ export const router = createBrowserRouter([
         <WorkingHoursDayPage />
       </RequireAuth>
     ),
+  },
+  {
+    path: "/business/establishment/delivery-city",
+    element: <DeliveryCityPage />,
+  },
+  {
+    path: "/business/establishment/delivery-area",
+    element: <DeliveryAreaPage />,
   },
   {
     path: "/admin",
