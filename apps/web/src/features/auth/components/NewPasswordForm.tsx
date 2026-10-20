@@ -14,7 +14,8 @@ export default function NewPasswordForm() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const phone = location.state?.phone ?? "";
+  const identifier = location.state?.identifier ?? "";
+  const isEmail = location.state?.isEmail ?? false;
   const code = location.state?.code ?? "";
 
   const [password, setPassword] = useState("");
@@ -33,7 +34,11 @@ export default function NewPasswordForm() {
     }
 
     try {
-      await resetPassword({ phone, code, newPassword: password });
+      await resetPassword({
+        ...(isEmail ? { email: identifier } : { phone: identifier }),
+        code,
+        newPassword: password,
+      });
 
       navigate("/login");
     } catch (err) {

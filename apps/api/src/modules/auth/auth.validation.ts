@@ -2,6 +2,7 @@ import type { RegisterDto, LoginDto, VerifyCodeDto, ForgotPasswordDto, ResetPass
 
 const phoneRegex = /^\+?[0-9]{10,15}$/;
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{9,}$/;
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function validateRegister(data: RegisterDto) {
   const name = data.name?.trim();
@@ -66,7 +67,7 @@ export function validateVerificationCode(
     throw new Error("Verification code is required");
   }
 
-  if (!/^\d{4}$/.test(code)) {
+  if (!/^\d{6}$/.test(code)) {
     throw new Error("Invalid verification code");
   }
 
@@ -78,36 +79,46 @@ export function validateVerificationCode(
 
 export function validateForgotPassword(data: ForgotPasswordDto) {
   const phone = data.phone?.trim();
+  const email = data.email?.trim();
 
-  if (!phone) {
-    throw new Error("Phone is required");
+  if (!phone && !email) {
+    throw new Error("Phone or email is required");
   }
 
-  if (!phoneRegex.test(phone)) {
+  if (phone && !phoneRegex.test(phone)) {
     throw new Error("Invalid phone number format");
   }
 
-  return { phone };
+  if (email && !emailRegex.test(email)) {
+    throw new Error("Invalid email format");
+  }
+
+  return { phone, email };
 }
 
 export function validateResetPassword(data: ResetPasswordDto) {
   const phone = data.phone?.trim();
+  const email = data.email?.trim();
   const code = data.code?.trim();
   const newPassword = data.newPassword?.trim();
 
-  if (!phone) {
-    throw new Error("Phone is required");
+  if (!phone && !email) {
+    throw new Error("Phone or email is required");
   }
 
-  if (!phoneRegex.test(phone)) {
+  if (phone && !phoneRegex.test(phone)) {
     throw new Error("Invalid phone number format");
+  }
+
+  if (email && !emailRegex.test(email)) {
+    throw new Error("Invalid email format");
   }
 
   if (!code) {
     throw new Error("Verification code is required");
   }
 
-  if (!/^\d{4}$/.test(code)) {
+  if (!/^\d{6}$/.test(code)) {
     throw new Error("Invalid verification code");
   }
 
@@ -121,7 +132,7 @@ export function validateResetPassword(data: ResetPasswordDto) {
     );
   }
 
-  return { phone, code, newPassword };
+  return { phone, email, code, newPassword };
 }
 
 export function validateChangePassword(data: ChangePasswordDto) {

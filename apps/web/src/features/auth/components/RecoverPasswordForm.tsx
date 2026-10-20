@@ -2,18 +2,15 @@ import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import "./RecoverPasswordForm.css";
-
 import { forgotPassword } from "../api/auth.api";
 
 import Input from "../../../components/ui/Input/Input";
 import Button from "../../../components/ui/Button/Button";
-import phoneIcon from "../../../assets/images/call.svg";
 
 export default function RecoverPasswordForm() {
   const navigate = useNavigate();
 
-  const [phone, setPhone] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [error, setError] = useState("");
 
   const handleSubmit = async (
@@ -22,11 +19,15 @@ export default function RecoverPasswordForm() {
     e.preventDefault();
     setError("");
 
+    const isEmail = identifier.includes("@");
+
     try {
-      await forgotPassword({ phone });
+      await forgotPassword(
+        isEmail ? { email: identifier } : { phone: identifier }
+      );
 
       navigate("/verify-code", {
-        state: { phone, mode: "reset" },
+        state: { identifier, isEmail, mode: "reset" },
       });
     } catch (err) {
       if (axios.isAxiosError(err)) {
@@ -39,20 +40,11 @@ export default function RecoverPasswordForm() {
 
   return (
     <form className="recover-form" onSubmit={handleSubmit}>
-      <label
-        className="recover-form__label"
-        htmlFor="recover-phone"
-      >
-        Phone number
-      </label>
-
       <Input
-        id="recover-phone"
         type="text"
-        placeholder="Phone number"
-        icon={<img src={phoneIcon} alt="" />}
-        value={phone}
-        onChange={(e) => setPhone(e.target.value)}
+        placeholder="Phone number or email"
+        value={identifier}
+        onChange={(e) => setIdentifier(e.target.value)}
       />
 
       {error && <p className="recover-form__error">{error}</p>}

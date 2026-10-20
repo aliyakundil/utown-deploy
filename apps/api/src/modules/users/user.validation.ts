@@ -9,7 +9,7 @@ export function validateUpdateUser(
     }),
 
     ...(data.email !== undefined && {
-      email: data.email.trim(),
+      email: data.email?.trim() || null,
     }),
 
     ...(data.phone !== undefined && {

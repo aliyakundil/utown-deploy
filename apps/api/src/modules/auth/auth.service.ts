@@ -5,6 +5,7 @@ import type { RegisterDto, LoginDto, JwtPayload, AuthResponse, RegisterResponse,
 import { validateRegister, validateLogin, validateVerificationCode, validateForgotPassword, validateResetPassword, validateChangePassword } from "./auth.validation.js";
 import { generateVerificationCode } from "../../utils/generateVerificationCode.js";
 import { sendVerificationCode } from "../../services/sms.service.js";
+import { sendPasswordResetEmail } from "../../services/email.service.js";
 import type { UserRole } from "@prisma/client";
 import crypto from "node:crypto";
 
@@ -16,6 +17,14 @@ function getEnv(name: string): string {
 
 const ACCESS_SECRET = getEnv("ACCESS_TOKEN_SECRET");
 const REFRESH_SECRET = getEnv("REFRESH_TOKEN_SECRET");
+const MAX_VERIFICATION_ATTEMPTS = 5;
+const VERIFICATION_BLOCK_DURATION_MS = 10 * 60 * 1000;
+export class VerificationBlockedError extends Error {
+  constructor(public retryAfter: number) {
+    super("Too many incorrect attempts. Try again later");
+    this.name = "VerificationBlockedError";
+  }
+}
 
 export function generateAccessToken(payload: JwtPayload) {
   return jwt.sign(payload, ACCESS_SECRET, {
@@ -197,68 +206,119 @@ export async function refresh(token: string): Promise<RefreshTokenResponse> {
   };
 }
 
+
+
 export async function verifyCode(
   data: VerifyCodeDto
 ): Promise<AuthResponse> {
-  const { phone, code } =
-    validateVerificationCode(data);
+  const { phone, code } 
+    = validateVerificationCode(data);
+  const now = new Date();
 
-  const verification =
-    await prisma.verificationCode.findFirst({
-      where: {
-        phone,
-        code,
+  const attempt = await prisma.verificationAttempt.findUnique({
+    where: { phone },
+  });
+
+  if (attempt?.blockedUntil && attempt.blockedUntil > now) {
+    const retryAfter = Math.ceil(
+      (attempt.blockedUntil.getTime() - now.getTime()) / 1000
+    );
+
+    throw new VerificationBlockedError(retryAfter);
+  }
+
+  if (attempt?.blockedUntil && attempt.blockedUntil <= now) {
+    await prisma.verificationAttempt.update({
+      where: { phone },
+      data: {
+        failedAttempts: 0,
+        blockedUntil: null,
       },
     });
+  }
+
+  const verification = await prisma.verificationCode.findFirst({
+    where: {
+      phone,
+      expiresAt: { gt: now },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 
   if (!verification) {
     throw new Error("Invalid verification code");
   }
 
-  if (verification.expiresAt < new Date()) {
-    throw new Error("Verification code has expired");
+  if (verification.code !== code) {
+    const updatedAttempt = await prisma.verificationAttempt.upsert({
+      where: { phone },
+      create: {
+        phone,
+        failedAttempts: 1,
+        blockedUntil: null,
+      },
+      update: {
+        failedAttempts: { increment: 1 },
+      },
+    });
+
+    const shouldBlock =
+      updatedAttempt.failedAttempts >= MAX_VERIFICATION_ATTEMPTS;
+
+    if (shouldBlock) {
+      const blockedUntil = new Date(
+        Date.now() + VERIFICATION_BLOCK_DURATION_MS
+      );
+
+      await prisma.verificationAttempt.update({
+        where: { phone },
+        data: { blockedUntil },
+      });
+
+      const retryAfter = Math.ceil(
+        (blockedUntil.getTime() - Date.now()) / 1000
+      );
+
+      throw new VerificationBlockedError(retryAfter);
+    }
+
+    await prisma.verificationCode.update({
+      where: { id: verification.id },
+      data: {
+        attempts: { increment: 1 },
+      },
+    });
+
+    throw new Error("Invalid verification code");
   }
 
   const user = await prisma.user.findUnique({
-    where: {
-      phone,
-    },
+    where: { phone },
   });
 
   if (!user) {
     throw new Error("User not found");
   }
 
-  await prisma.user.update({
-    where: {
-      id: user.id,
-    },
-    data: {
-      isVerified: true,
-    },
-  });
+  const tokens = issueTokens(user.id, user.role as UserRole);
 
-  await prisma.verificationCode.delete({
-    where: {
-      id: verification.id,
-    },
-  });
-
-  const tokens = issueTokens(
-    user.id,
-    user.role as UserRole
-  );
-
-  await prisma.user.update({
-    where: {
-      id: user.id,
-    },
-    data: {
-      refreshToken: hashRefreshToken(
-        tokens.refreshToken
-      ),
-    },
-  });
+  await prisma.$transaction([
+    prisma.user.update({
+      where: { id: user.id },
+      data: {
+        isVerified: true,
+        refreshToken: hashRefreshToken(tokens.refreshToken),
+      },
+    }),
+    prisma.verificationCode.delete({
+      where: { id: verification.id },
+    }),
+    prisma.verificationAttempt.deleteMany({
+      where: { phone },
+    }),
+  ]);
 
   return {
     user: {
@@ -275,6 +335,34 @@ export async function resendVerificationCode(
   data: ForgotPasswordDto
 ): Promise<{ message: string }> {
   const { phone } = validateForgotPassword(data);
+
+  if (!phone) {
+    throw new Error("Phone is required");
+  }
+
+  const now = new Date();
+
+  const attempt = await prisma.verificationAttempt.findUnique({
+    where: { phone },
+  });
+
+  if (attempt?.blockedUntil && attempt.blockedUntil > now) {
+    const retryAfter = Math.ceil(
+      (attempt.blockedUntil.getTime() - now.getTime()) / 1000
+    );
+
+    throw new VerificationBlockedError(retryAfter);
+  }
+
+  if (attempt?.blockedUntil && attempt.blockedUntil <= now) {
+    await prisma.verificationAttempt.update({
+      where: { phone },
+      data: {
+        failedAttempts: 0,
+        blockedUntil: null,
+      },
+    });
+  }
 
   const user = await prisma.user.findUnique({
     where: { phone },
@@ -306,54 +394,93 @@ export async function resendVerificationCode(
 export async function requestPasswordReset(
   data: ForgotPasswordDto
 ): Promise<{ message: string }> {
-  const { phone } = validateForgotPassword(data);
+  const { phone, email } = validateForgotPassword(data);
 
-  const user = await prisma.user.findUnique({
-    where: { phone },
+  const identifierWhere = phone ? { phone } : { email: email as string };
+
+  const user = await prisma.user.findFirst({
+    where: identifierWhere,
   });
 
   if (user) {
     const code = generateVerificationCode();
 
     await prisma.verificationCode.deleteMany({
-      where: { phone },
+      where: identifierWhere,
     });
 
     await prisma.verificationCode.create({
       data: {
-        phone,
+        phone: phone ?? null,
+        email: email ?? null,
         code,
         expiresAt: new Date(Date.now() + 5 * 60 * 1000),
       },
     });
 
-    sendVerificationCode(phone, code);
+    if (phone) {
+      sendVerificationCode(phone, code);
+    } else if (email) {
+      try {
+        await sendPasswordResetEmail(email, code);
+      } catch (error) {
+        console.error("Failed to send password reset email:", error);
+      }
+    }
   }
 
   return {
-    message: "If this phone number is registered, a reset code has been sent",
+    message: "If this account exists, a reset code has been sent",
   };
 }
+
 
 export async function resetPassword(
   data: ResetPasswordDto
 ): Promise<{ message: string }> {
-  const { phone, code, newPassword } = validateResetPassword(data);
+  const { phone, email, code, newPassword } = validateResetPassword(data);
+
+  const identifierWhere = phone ? { phone } : { email: email as string };
 
   const verification = await prisma.verificationCode.findFirst({
-    where: { phone, code },
+    where: {
+      ...identifierWhere,
+      expiresAt: { gt: new Date() },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
   });
 
   if (!verification) {
+    throw new Error("Invalid or expired verification code");
+  }
+
+  if (verification.attempts >= MAX_VERIFICATION_ATTEMPTS) {
+    throw new Error("Too many incorrect attempts. Request a new code");
+  }
+
+  if (verification.code !== code) {
+    const updated = await prisma.verificationCode.updateMany({
+      where: {
+        id: verification.id,
+        attempts: { lt: MAX_VERIFICATION_ATTEMPTS },
+      },
+      data: {
+        attempts: { increment: 1 },
+      },
+    });
+
+    if (updated.count === 0) {
+      throw new Error("Too many incorrect attempts. Request a new code");
+    }
+
     throw new Error("Invalid verification code");
+    
   }
 
-  if (verification.expiresAt < new Date()) {
-    throw new Error("Verification code has expired");
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { phone },
+  const user = await prisma.user.findFirst({
+    where: identifierWhere,
   });
 
   if (!user) {
@@ -362,22 +489,19 @@ export async function resetPassword(
 
   const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-  await prisma.user.update({
-    where: { id: user.id },
-    data: {
-      password: hashedPassword,
-      refreshToken: null,
-    },
-  });
+  await prisma.$transaction([
+    prisma.user.update({
+      where: { id: user.id },
+      data: { password: hashedPassword, refreshToken: null },
+    }),
+    prisma.verificationCode.delete({
+      where: { id: verification.id },
+    }),
+  ]);
 
-  await prisma.verificationCode.delete({
-    where: { id: verification.id },
-  });
-
-  return {
-    message: "Password reset successfully",
-  };
+  return { message: "Password reset successfully" };
 }
+
 
 export async function changePassword(
   userId: number,
