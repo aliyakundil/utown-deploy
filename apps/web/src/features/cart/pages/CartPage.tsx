@@ -16,15 +16,22 @@ export default function CartPage() {
   const navigate = useNavigate();
   const [cart, setCart] = useState<Cart | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     loadCart();
   }, []);
 
   function loadCart() {
+    setIsLoading(true);
+    setError(false);
+
     getCart()
       .then((res) => setCart(res.data))
-      .catch(() => setCart(null))
+      .catch(() => {
+        setCart(null);
+        setError(true);
+      })
       .finally(() => setIsLoading(false));
   }
 
@@ -54,7 +61,7 @@ export default function CartPage() {
 
       <main className="cart-page">
       <header className="cart-header">
-        <BackButton to="/restaurants" />
+        <BackButton to={-1} />
 
         <Link to="/home" className="cart-header__logo">
           <img src={UTIcon} alt="" />
@@ -75,14 +82,23 @@ export default function CartPage() {
       <div className="cart-items">
         {isLoading && <p className="cart-empty">Loading...</p>}
 
-        {!isLoading && items.length === 0 && (
+        {!isLoading && error && (
+          <div className="cart-empty">
+            <p>Failed to load your cart. Please try again.</p>
+            <button type="button" onClick={loadCart}>
+              Try again
+            </button>
+          </div>
+        )}
+
+        {!isLoading && !error && items.length === 0 && (
           <div className="cart-empty">
             <p>Your cart is empty</p>
             <Link to="/restaurants">Browse restaurants</Link>
           </div>
         )}
 
-        {items.map((item) => (
+        {!isLoading && !error && items.map((item) => (
           <div key={item.id} className="cart-item">
             <div className="cart-item__image">
               {item.menuItem.imageUrl && (
@@ -132,7 +148,7 @@ export default function CartPage() {
         ))}
       </div>
 
-      {items.length > 0 && (
+      {!isLoading && !error && items.length > 0 && (
         <button
           type="button"
           className="cart-checkout-bar"

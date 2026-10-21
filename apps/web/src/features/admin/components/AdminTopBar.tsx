@@ -7,7 +7,6 @@ export default function AdminTopBar() {
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
     navigate("/login");
   };
 

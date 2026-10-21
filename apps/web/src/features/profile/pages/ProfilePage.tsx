@@ -63,7 +63,6 @@ export default function ProfilePage() {
     }
 
     localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
     disconnectSocket();
     navigate("/login");
   };

@@ -77,7 +77,6 @@ export default function AccountSettingsPage() {
     try {
       await deleteProfile();
       localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
       disconnectSocket();
       navigate("/login");
     } catch {

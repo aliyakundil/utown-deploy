@@ -5,7 +5,7 @@ import BackIcon from "../../../assets/images/Back Button.svg";
 import "./BackButton.css";
 
 type BackButtonProps = {
-  to: string;
+  to: string | number;
 };
 
 export default function BackButton({ to }: BackButtonProps) {
@@ -15,7 +15,13 @@ export default function BackButton({ to }: BackButtonProps) {
     <button
       type="button"
       className="back-button"
-      onClick={() => navigate(to)}
+      onClick={() => {
+        if (typeof to === "number") {
+          navigate(to);
+        } else {
+          navigate(to);
+        }
+      }}
     >
       <img src={BackIcon} alt="Back" />
     </button>

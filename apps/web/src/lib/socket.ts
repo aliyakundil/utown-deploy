@@ -49,6 +49,21 @@ export function connectSocket() {
   return socket;
 }
 
+
+export function refreshSocketToken() {
+  const token = localStorage.getItem("accessToken");
+
+  if (!token || !socket) return;
+
+  socket.auth = { token };
+
+  if (socket.connected) {
+    socket.disconnect();
+  }
+
+  socket.connect();
+}
+
 export function disconnectSocket() {
   socket?.disconnect();
   socket = null;
