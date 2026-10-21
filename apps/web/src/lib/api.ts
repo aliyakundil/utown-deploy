@@ -27,6 +27,16 @@ const refreshClient = axios.create({
 
 let refreshPromise: Promise<string> | null = null;
 
+const excludedAuthEndpoints = [
+  "/auth/login",
+  "/auth/register",
+  "/auth/refresh",
+  "/auth/verify-code",
+  "/auth/resend-code",
+  "/auth/forgot-password",
+  "/auth/reset-password",
+];
+
 // интерсептор
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("accessToken");
@@ -46,14 +56,32 @@ api.interceptors.response.use(
     }
 
     const originalRequest = error.config as
-      | (InternalAxiosRequestConfig & { _retry?: boolean })
+      | InternalAxiosRequestConfig
       | undefined;
 
     if (
       error.response?.status !== 401 ||
-      !originalRequest ||
-      originalRequest._retry ||
-      originalRequest.url?.includes("/auth/")
+      !originalRequest 
+    ) {
+      return Promise.reject(error);
+    }
+
+    const requestPath = (originalRequest.url ?? "").split("?")[0];
+
+    const isExcludedAuthRequest = excludedAuthEndpoints.some(
+      (endpoint) =>
+        requestPath === endpoint ||
+        requestPath.endsWith(endpoint),
+    );
+
+    const hasAuthorization = Boolean(
+      originalRequest.headers?.Authorization,
+    );
+
+    if (
+      !hasAuthorization ||
+      isExcludedAuthRequest ||
+      originalRequest._retry
     ) {
       return Promise.reject(error);
     }
@@ -63,20 +91,21 @@ api.interceptors.response.use(
     try {
       if (!refreshPromise) {
         refreshPromise = refreshClient
-        .post<{ success: boolean; data: { accessToken: string } }>(
-          "/auth/refresh",
+        .post<{ accessToken: string } | { data: { accessToken: string } }>(
+            "/auth/refresh",
         )
         .then(({ data }) => {
-          const newAccessToken = data.data?.accessToken;
+          const accessToken =
+              "data" in data ? data.data.accessToken : data.accessToken;
 
-          if (!newAccessToken) {
+          if (!accessToken) {
             throw new Error("Refresh response has no accessToken");
           }
 
-          localStorage.setItem("accessToken", newAccessToken);
+          localStorage.setItem("accessToken", accessToken);
           refreshSocketToken();
 
-          return newAccessToken;
+          return accessToken;
         })
         .finally(() => {
           refreshPromise = null;
@@ -92,10 +121,16 @@ api.interceptors.response.use(
 
       return api(originalRequest);
     } catch (refreshError) {
-      localStorage.removeItem("accessToken");
+      const refreshStatus = axios.isAxiosError(refreshError)
+        ? refreshError.response?.status
+        : undefined;
 
-      if (window.location.pathname !== "/login") {
-        window.location.assign("/login");
+      if (refreshStatus === 401 || refreshStatus === 403) {
+        localStorage.removeItem("accessToken");
+
+        if (window.location.pathname !== "/login") {
+          window.location.assign("/login");
+        }
       }
 
       return Promise.reject(refreshError);

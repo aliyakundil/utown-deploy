@@ -1,13 +1,22 @@
 import { useNavigate } from "react-router-dom";
+import { disconnectSocket } from "../../../lib/socket";
+import { logout } from "../../auth/api/auth.api";
 
 import "./AdminTopBar.css";
 
 export default function AdminTopBar() {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem("accessToken");
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch {
+      //
+    } finally {
+      localStorage.removeItem("accessToken");
+      disconnectSocket();
+      navigate("/login");
+    }
   };
 
   return (
